@@ -50,7 +50,7 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
     const d = rng.shuffle([...deck]);
     const hp: PlayerState['heroPower'] = leader?.hero_power
       ? { name: leader.hero_power.name, cost: leader.hero_power.cost,
-          effects: leader.effects?.arrival ?? [], usedThisTurn: false }
+          effects: leader.hero_power.effects ?? [], usedThisTurn: false }
       : undefined;
     return {
       id, heroHp: rules.heroHp, heroMaxHp: rules.heroHp,

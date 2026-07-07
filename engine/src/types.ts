@@ -74,7 +74,7 @@ export interface CardDef {
   effects?: Partial<Record<Trigger, EffectOp[]>>;
   fulfill?: FulfillSpec;
   boss?: boolean;
-  hero_power?: { name: string; cost: number; text: string };
+  hero_power?: { name: string; cost: number; text: string; effects?: EffectOp[] };
 }
 
 /** A minion on the board (or a summoned token). */

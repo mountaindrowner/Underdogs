@@ -10,7 +10,11 @@ const KW_LABEL: Record<string, string> = {
   redeem: 'REDEEM', scatter: 'SCATTER',
 };
 
-type Sel = null | { kind: 'hand'; index: number } | { kind: 'attacker'; uid: number };
+type Sel = null | { kind: 'hand'; index: number } | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
+
+function needsTargetPower(hp?: { effects: { target?: string }[] }): boolean {
+  return !!hp?.effects.some((op) => op.target === 'target');
+}
 
 // ---- small building blocks -------------------------------------------------
 function Minion({ u, cls, onClick }: { u: VUnit; cls: string; onClick?: (e: React.MouseEvent) => void }) {
@@ -54,11 +58,12 @@ function HandCard({ c, playable, selected, onClick }:
   );
 }
 
-function Hero({ h, side, name, targetable, onClick }:
-  { h: HeroV; side: 'enemy' | 'you'; name: string; targetable?: boolean; onClick?: () => void }) {
+function Hero({ h, side, name, art, targetable, onClick }:
+  { h: HeroV; side: 'enemy' | 'you'; name: string; art?: string; targetable?: boolean; onClick?: () => void }) {
   return (
     <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`} onClick={onClick}>
-      <div className="portrait"><div className="hpbadge">{h.hp}</div></div>
+      <div className="portrait" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+        <div className="hpbadge">{h.hp}</div></div>
       <div className="namep">{name}</div>
       {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
       {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
@@ -114,6 +119,7 @@ export default function App() {
 
   const clickUnit = (u: VUnit, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (sel?.kind === 'heropower') { dispatch({ type: 'HERO_POWER', targetUid: u.uid }); clear(); return; }
     if (sel?.kind === 'hand') { dispatch({ type: 'PLAY_CARD', handIndex: sel.index, targetUid: u.uid }); clear(); return; }
     if (sel?.kind === 'attacker') {
       if (u.owner === 1 && (!guardActive || u.keywords.includes('guard'))) {
@@ -130,9 +136,18 @@ export default function App() {
 
   // targeting affordances
   const targetableUnit = (u: VUnit): boolean => {
-    if (sel?.kind === 'hand') return true;
+    if (sel?.kind === 'hand' || sel?.kind === 'heropower') return true;
     if (sel?.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
     return false;
+  };
+
+  const hp = you.heroPower;
+  const hpUsable = canAct && !!hp && you.provision >= hp.cost && !hp.usedThisTurn;
+  const useHeroPower = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hpUsable || !hp) return;
+    if (needsTargetPower(hp)) { setSel({ kind: 'heropower' }); setSrc(at(e)); }
+    else { dispatch({ type: 'HERO_POWER' }); clear(); }
   };
 
   // ---- mulligan screen ----
@@ -171,7 +186,7 @@ export default function App() {
       </div>
 
       <div className={`table${view.over != null ? ' ended' : ''}`}>
-        <Hero h={view.heroes[1]} side="enemy" name="Adversary"
+        <Hero h={view.heroes[1]} side="enemy" name="Adversary" art={artUrl(foe.leaderId ?? '')}
           targetable={sel?.kind === 'attacker' && !guardActive} onClick={clickEnemyHero} />
         <div className={`boardRow enemy${view.heroes[1].shake ? ' shake' : ''}`}>
           {view.boards[1].map((u) => (
@@ -189,13 +204,30 @@ export default function App() {
                     readyUids.has(u.uid) ? 'ready' : (u.owner === 0 ? 'sick' : '')].join(' ')} />
           ))}
         </div>
-        <Hero h={view.heroes[0]} side="you" name="You" />
+        <Hero h={view.heroes[0]} side="you" name="You" art={artUrl(you.leaderId ?? '')} />
+
+        {hp && (
+          <div className={`hpower${hpUsable ? ' usable' : ''}`} onClick={useHeroPower} title={hp.name}>
+            <div className="hpGlyph">✦</div>
+            <div className="hpCost">{hp.cost}</div>
+            <div className="hpLabel">{hp.name}</div>
+          </div>
+        )}
 
         <Mana p={view.prov[view.active]} />
         <div className="deckpile"><img src={CARD_BACK} alt="deck" /></div>
 
-        {view.banner && <div className={`banner${view.over != null ? ' win' : ''}`} key={view.banner}>{view.banner}</div>}
-        {busy && <div className="thinking">…</div>}
+        {view.banner && view.over == null && <div className="banner" key={view.banner}>{view.banner}</div>}
+        {busy && engine.active === 1 && <div className="thinking">…</div>}
+
+        {engine.phase === 'over' && (
+          <div className="overlay" onClick={(e) => e.stopPropagation()}>
+            <div className={`result ${engine.winner === 0 ? 'victory' : 'defeat'}`}>
+              {engine.winner === 0 ? 'VICTORY' : 'DEFEAT'}
+            </div>
+            <button className="bigbtn" onClick={() => newGame()}>Play Again</button>
+          </div>
+        )}
       </div>
 
       {/* your hand */}

@@ -54,6 +54,16 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
     }
   });
 
+  // hero power
+  const hp = pl.heroPower;
+  if (hp && !hp.usedThisTurn && pl.provision >= hp.cost) {
+    if (hp.effects.some((op) => op.target === 'target')) {
+      for (const t of [...pl.board, ...enemies]) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
+    } else {
+      acts.push({ type: 'HERO_POWER' });
+    }
+  }
+
   // attacks (respect Guard)
   const guards = enemies.filter((u) => u.keywords.includes('guard'));
   for (const u of pl.board) {

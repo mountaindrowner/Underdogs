@@ -1,63 +1,296 @@
 {
   "leaders": [
-    {"id":"isaiah_leader","name":"Isaiah","class":"prophet","tag":"exile","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Vision","cost":2,"text":"Foresee 2."},
-     "text":"Vision (2): Foresee 2.","flavor":"Coal-touched lips. Here am I; send me. — Isaiah 6.",
-     "ref":"isaiah","art":"A seer with coal-touched lips beneath seraph-light, awe and resolve."},
-
-    {"id":"elijah_leader","name":"Elijah","class":"prophet","tag":"kingdom","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Fire","cost":2,"text":"Deal 1 damage to a unit."},
-     "text":"Fire (2): Deal 1 damage to a unit.","flavor":"Answer by fire. It did. — 1 Kings 18.",
-     "ref":"elijah","art":"A windswept prophet, a single spark leaping from his outstretched hand."},
-
-    {"id":"joshua_leader","name":"Joshua","class":"warrior","tag":"exodus","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Rally","cost":2,"text":"Give a friendly unit +1 attack this turn."},
-     "text":"Rally (2): Give a friendly unit +1 attack this turn.","flavor":"Be strong and courageous. He wrote it down. — Joshua 1.",
-     "ref":"joshua_and_caleb","art":"A captain raising a ram's-horn trumpet before a marching column, dust and resolve."},
-
-    {"id":"deborah_leader","name":"Deborah","class":"warrior","tag":"judges","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Command","cost":2,"text":"Give a friendly unit +1/+1 this turn."},
-     "text":"Command (2): Give a friendly unit +1/+1 this turn.","flavor":"Judge, prophet, war-leader. Barak wouldn't go without her. — Judges 4.",
-     "ref":"deborah_the_prophetess","art":"A judge enthroned beneath a palm, warriors attending, calm authority."},
-
-    {"id":"aaron_leader","name":"Aaron","class":"priest","tag":"exodus","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Intercede","cost":2,"text":"Restore 2 health to your hero."},
-     "text":"Intercede (2): Restore 2 health to your hero.","flavor":"Stood between the living and the dead until the plague stopped. — Numbers 16.",
-     "ref":"aaron_high_priest","art":"A jeweled breastplate catching light, censer raised, incense-blue and white-gold."},
-
-    {"id":"melchizedek_leader","name":"Melchizedek","class":"priest","tag":"genesis","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Consecrate","cost":2,"text":"Give a friendly unit Endure."},
-     "text":"Consecrate (2): Give a friendly unit Endure.","flavor":"King of Salem, priest of God Most High. No genealogy, no exit. — Genesis 14.",
-     "ref":"melchizedek","art":"Bread and cup offered on a hilltop at dusk, the priest's face in reverent shadow."},
-
-    {"id":"david_leader","name":"David","class":"shepherd","tag":"kingdom","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Gather","cost":2,"text":"Summon a 1/1 Sheep."},
-     "text":"Gather (2): Summon a 1/1 Sheep.","flavor":"Harp in one hand, sling in the other. — 1 Samuel 16.",
-     "ref":"ref_david","art":"The young shepherd with a harp on his back and a sling at his belt, dawn light."},
-
-    {"id":"moses_leader","name":"Moses","class":"shepherd","tag":"exodus","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Lead","cost":2,"text":"Give a friendly unit +0/+2."},
-     "text":"Lead (2): Give a friendly unit +0/+2.","flavor":"Tending sheep when the bush caught fire and didn't burn. — Exodus 3.",
-     "ref":"moses_of_midian","art":"A herdsman before an unconsuming flame, staff in hand, wonder on his face."},
-
-    {"id":"abraham_leader","name":"Abraham","class":"patriarch","tag":"genesis","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Multiply","cost":2,"text":"Summon a 1/1 Heir."},
-     "text":"Multiply (2): Summon a 1/1 Heir.","flavor":"Count the stars, if you can. So shall your offspring be. — Genesis 15.",
-     "ref":"abraham_father_of_nations","art":"An elder standing beneath an overwhelming field of stars, arms slightly open."},
-
-    {"id":"sarah_leader","name":"Sarah","class":"patriarch","tag":"genesis","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Promise","cost":2,"text":"Give a friendly unit +1/+1."},
-     "text":"Promise (2): Give a friendly unit +1/+1.","flavor":"She laughed. Then she named him Laughter. — Genesis 18.",
-     "ref":"sarah","art":"A tent door at dusk, a knowing laugh, three long shadows on the ground beyond."},
-
-    {"id":"peter_leader","name":"Peter","class":"disciple","tag":"apostles","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Go and Tell","cost":2,"text":"Summon a 1/1 Disciple."},
-     "text":"Go and Tell (2): Summon a 1/1 Disciple.","flavor":"Left the nets on the beach and didn't look back. — Matthew 4.",
-     "ref":"simon_the_fisherman","art":"A rugged fisherman turning from his nets toward an open road, morning light."},
-
-    {"id":"paul_leader","name":"Paul","class":"disciple","tag":"apostles","type":"leader","rarity":"legendary",
-     "hero_power":{"name":"Exhort","cost":2,"text":"Give a friendly Disciple +1/+1."},
-     "text":"Exhort (2): Give a friendly Disciple +1/+1.","flavor":"Wrote half the New Testament from a prison cell. — Philippians 1.",
-     "ref":"paul_apostle","art":"A prisoner writing intently by lamplight, a chain at his ankle, ink and fire."}
+    {
+      "id": "isaiah_leader",
+      "name": "Isaiah",
+      "class": "prophet",
+      "tag": "exile",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Vision",
+        "cost": 2,
+        "text": "Foresee 2.",
+        "effects": [
+          {
+            "verb": "foresee",
+            "value": 2
+          }
+        ]
+      },
+      "text": "Vision (2): Foresee 2.",
+      "flavor": "Coal-touched lips. Here am I; send me. \u2014 Isaiah 6.",
+      "ref": "isaiah",
+      "art": "A seer with coal-touched lips beneath seraph-light, awe and resolve."
+    },
+    {
+      "id": "elijah_leader",
+      "name": "Elijah",
+      "class": "prophet",
+      "tag": "kingdom",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Fire",
+        "cost": 2,
+        "text": "Deal 1 damage to a unit.",
+        "effects": [
+          {
+            "verb": "deal",
+            "amount": 1,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Fire (2): Deal 1 damage to a unit.",
+      "flavor": "Answer by fire. It did. \u2014 1 Kings 18.",
+      "ref": "elijah",
+      "art": "A windswept prophet, a single spark leaping from his outstretched hand."
+    },
+    {
+      "id": "joshua_leader",
+      "name": "Joshua",
+      "class": "warrior",
+      "tag": "exodus",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Rally",
+        "cost": 2,
+        "text": "Give a friendly unit +1 attack this turn.",
+        "effects": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 0,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Rally (2): Give a friendly unit +1 attack this turn.",
+      "flavor": "Be strong and courageous. He wrote it down. \u2014 Joshua 1.",
+      "ref": "joshua_and_caleb",
+      "art": "A captain raising a ram's-horn trumpet before a marching column, dust and resolve."
+    },
+    {
+      "id": "deborah_leader",
+      "name": "Deborah",
+      "class": "warrior",
+      "tag": "judges",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Command",
+        "cost": 2,
+        "text": "Give a friendly unit +1/+1 this turn.",
+        "effects": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 1,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Command (2): Give a friendly unit +1/+1 this turn.",
+      "flavor": "Judge, prophet, war-leader. Barak wouldn't go without her. \u2014 Judges 4.",
+      "ref": "deborah_the_prophetess",
+      "art": "A judge enthroned beneath a palm, warriors attending, calm authority."
+    },
+    {
+      "id": "aaron_leader",
+      "name": "Aaron",
+      "class": "priest",
+      "tag": "exodus",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Intercede",
+        "cost": 2,
+        "text": "Restore 2 health to your hero.",
+        "effects": [
+          {
+            "verb": "healHero",
+            "amount": 2,
+            "target": "ownHero"
+          }
+        ]
+      },
+      "text": "Intercede (2): Restore 2 health to your hero.",
+      "flavor": "Stood between the living and the dead until the plague stopped. \u2014 Numbers 16.",
+      "ref": "aaron_high_priest",
+      "art": "A jeweled breastplate catching light, censer raised, incense-blue and white-gold."
+    },
+    {
+      "id": "melchizedek_leader",
+      "name": "Melchizedek",
+      "class": "priest",
+      "tag": "genesis",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Consecrate",
+        "cost": 2,
+        "text": "Give a friendly unit Endure.",
+        "effects": [
+          {
+            "verb": "giveKeyword",
+            "keyword": "endure",
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Consecrate (2): Give a friendly unit Endure.",
+      "flavor": "King of Salem, priest of God Most High. No genealogy, no exit. \u2014 Genesis 14.",
+      "ref": "melchizedek",
+      "art": "Bread and cup offered on a hilltop at dusk, the priest's face in reverent shadow."
+    },
+    {
+      "id": "david_leader",
+      "name": "David",
+      "class": "shepherd",
+      "tag": "kingdom",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Gather",
+        "cost": 2,
+        "text": "Summon a 1/1 Sheep.",
+        "effects": [
+          {
+            "verb": "summon",
+            "token": "tok_sheep",
+            "count": 1
+          }
+        ]
+      },
+      "text": "Gather (2): Summon a 1/1 Sheep.",
+      "flavor": "Harp in one hand, sling in the other. \u2014 1 Samuel 16.",
+      "ref": "ref_david",
+      "art": "The young shepherd with a harp on his back and a sling at his belt, dawn light."
+    },
+    {
+      "id": "moses_leader",
+      "name": "Moses",
+      "class": "shepherd",
+      "tag": "exodus",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Lead",
+        "cost": 2,
+        "text": "Give a friendly unit +0/+2.",
+        "effects": [
+          {
+            "verb": "buff",
+            "attack": 0,
+            "health": 2,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Lead (2): Give a friendly unit +0/+2.",
+      "flavor": "Tending sheep when the bush caught fire and didn't burn. \u2014 Exodus 3.",
+      "ref": "moses_of_midian",
+      "art": "A herdsman before an unconsuming flame, staff in hand, wonder on his face."
+    },
+    {
+      "id": "abraham_leader",
+      "name": "Abraham",
+      "class": "patriarch",
+      "tag": "genesis",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Multiply",
+        "cost": 2,
+        "text": "Summon a 1/1 Heir.",
+        "effects": [
+          {
+            "verb": "summon",
+            "token": "tok_heir",
+            "count": 1
+          }
+        ]
+      },
+      "text": "Multiply (2): Summon a 1/1 Heir.",
+      "flavor": "Count the stars, if you can. So shall your offspring be. \u2014 Genesis 15.",
+      "ref": "abraham_father_of_nations",
+      "art": "An elder standing beneath an overwhelming field of stars, arms slightly open."
+    },
+    {
+      "id": "sarah_leader",
+      "name": "Sarah",
+      "class": "patriarch",
+      "tag": "genesis",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Promise",
+        "cost": 2,
+        "text": "Give a friendly unit +1/+1.",
+        "effects": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 1,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Promise (2): Give a friendly unit +1/+1.",
+      "flavor": "She laughed. Then she named him Laughter. \u2014 Genesis 18.",
+      "ref": "sarah",
+      "art": "A tent door at dusk, a knowing laugh, three long shadows on the ground beyond."
+    },
+    {
+      "id": "peter_leader",
+      "name": "Peter",
+      "class": "disciple",
+      "tag": "apostles",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Go and Tell",
+        "cost": 2,
+        "text": "Summon a 1/1 Disciple.",
+        "effects": [
+          {
+            "verb": "summon",
+            "token": "tok_disciple",
+            "count": 1
+          }
+        ]
+      },
+      "text": "Go and Tell (2): Summon a 1/1 Disciple.",
+      "flavor": "Left the nets on the beach and didn't look back. \u2014 Matthew 4.",
+      "ref": "simon_the_fisherman",
+      "art": "A rugged fisherman turning from his nets toward an open road, morning light."
+    },
+    {
+      "id": "paul_leader",
+      "name": "Paul",
+      "class": "disciple",
+      "tag": "apostles",
+      "type": "leader",
+      "rarity": "legendary",
+      "hero_power": {
+        "name": "Exhort",
+        "cost": 2,
+        "text": "Give a friendly Disciple +1/+1.",
+        "effects": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 1,
+            "target": "target"
+          }
+        ]
+      },
+      "text": "Exhort (2): Give a friendly Disciple +1/+1.",
+      "flavor": "Wrote half the New Testament from a prison cell. \u2014 Philippians 1.",
+      "ref": "paul_apostle",
+      "art": "A prisoner writing intently by lamplight, a chain at his ankle, ink and fire."
+    }
   ]
 }

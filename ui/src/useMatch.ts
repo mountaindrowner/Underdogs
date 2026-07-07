@@ -35,9 +35,11 @@ export function useMatch() {
   const feed = useRef<GameEvent[]>([]);
   const cursor = useRef(0);
 
-  // (re)start game
+  // (re)start game — you = David (Gather), AI = Elijah (Fire)
   useEffect(() => {
-    const g = createGame({ seed, decks: [deck(), deck()], skipMulligan: false });
+    const leaders: [CardDef | undefined, CardDef | undefined] =
+      [registry.get('david_leader'), registry.get('elijah_leader')];
+    const g = createGame({ seed, decks: [deck(), deck()], leaders, skipMulligan: false });
     feed.current = [...g.events];
     cursor.current = 0;
     setView(initialView(HERO_HP));
