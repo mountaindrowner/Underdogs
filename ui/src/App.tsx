@@ -86,6 +86,23 @@ function ProvisionRail({ p, side }: { p: Prov; side: 'you' | 'foe' }) {
   );
 }
 
+// A dimensional deck pile: a stack of card-backs whose visible thickness
+// tracks the count. Hover to highlight and read the exact number remaining.
+function Deck({ n, side }: { n: number; side: 'you' | 'foe' }) {
+  const layers = Math.min(7, Math.max(1, Math.ceil(n / 5)));
+  return (
+    <div className={`deck ${side}`} title={`${n} cards left in deck`}>
+      <div className="deckStack">
+        {Array.from({ length: layers }).map((_, i) => (
+          <img key={i} src={CARD_BACK} alt="" style={{ '--i': i } as React.CSSProperties} />
+        ))}
+        <span className="deckCount">{n}</span>
+      </div>
+      <div className="deckReadout">{n} <small>in deck</small></div>
+    </div>
+  );
+}
+
 function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children, onDown }:
   { h: HeroV; side: 'you' | 'foe'; name: string; art?: string; prov: Prov; deck: number;
     targetable?: boolean; foe?: boolean; children?: React.ReactNode; onDown?: (e: React.PointerEvent) => void }) {
@@ -101,14 +118,16 @@ function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children,
       <div className="cornerMeta">
         <div className="namep">{name}</div>
         <ProvisionRail p={prov} side={side} />
-        <div className="deckpile" title={`${deck} in deck`}>
-          <img src={CARD_BACK} alt="deck" /><span className="deckN">{deck}</span>
-        </div>
       </div>
+      <Deck n={deck} side={side} />
       {children}
     </div>
   );
 }
+
+const BOARD_STYLES = ['relief', 'timber', 'flat'] as const;
+type BoardStyle = typeof BOARD_STYLES[number];
+const BOARD_LABEL: Record<BoardStyle, string> = { relief: 'Carved Stone', timber: 'Tavern Timber', flat: 'Flat' };
 
 // ---- battle ----------------------------------------------------------------
 function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onExit: () => void }) {
@@ -117,6 +136,15 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const [hover, setHover] = useState<CardDef | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
   const [intro, setIntro] = useState(!!meta);
+  const [board, setBoard] = useState<BoardStyle>(() => {
+    const s = localStorage.getItem('underdogs.board');
+    return (BOARD_STYLES as readonly string[]).includes(s ?? '') ? (s as BoardStyle) : 'relief';
+  });
+  const cycleBoard = () => setBoard((b) => {
+    const next = BOARD_STYLES[(BOARD_STYLES.indexOf(b) + 1) % BOARD_STYLES.length];
+    try { localStorage.setItem('underdogs.board', next); } catch { /* ignore */ }
+    return next;
+  });
   const tiltReset = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastX = useRef(0);
@@ -289,17 +317,24 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div className="brand">UNDERDOGS <span>· {meta ? meta.title : 'free play'}</span></div>
         <div className="controls">
           <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Adversary'}</span>
+          <button className="boardBtn" onPointerDown={(e) => e.stopPropagation()} onClick={cycleBoard}
+            title="Change board look">◈ {BOARD_LABEL[board]}</button>
           <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}>Menu</button>
         </div>
       </div>
 
-      <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`}>
+      <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`} data-board={board}>
         {/* L0 — backdrop (only layer that changes per chapter) */}
         <div className="backdrop" style={{ backgroundImage: `url(${artUrl(meta?.art ?? 'david_the_king')})` }} />
-        {/* L1 — zone plate (consistent frame) */}
+        {/* L0.5 — textured tabletop surface (gives the board dimensionality) */}
+        <div className="surface" />
+        {/* L1 — zone plate (consistent carved frame) */}
         <div className="plate">
           <div className="tray foeTray" /><div className="tray youTray" /><div className="centerStrip" />
         </div>
+        {/* decorative ornate frame + grain, painted over the edges (L~50, no input) */}
+        <div className="grain" />
+        <div className="frame" />
 
         {/* L3 — board objects */}
         <div className={`boardRow enemy${view.heroes[1].shake ? ' shake' : ''}`}>
