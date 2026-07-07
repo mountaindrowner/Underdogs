@@ -1,0 +1,16 @@
+{
+  "name": "@underdogs/engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Deterministic, seeded, event-emitting rules engine for UNDERDOGS. Zero runtime dependencies.",
+  "engines": { "node": ">=22.6" },
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "demo": "node examples/replay.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}
