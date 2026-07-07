@@ -34,13 +34,8 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .backdrop::after{content:'';position:absolute;inset:0;
   background:radial-gradient(120% 90% at 50% 42%, rgba(30,60,40,.30) 0%, rgba(10,14,10,.55) 60%, rgba(6,8,6,.85) 100%)}
 
-/* L0.5 — textured tabletop surface: dimensional lighting over the backdrop */
-.surface{position:absolute;inset:0;z-index:1;pointer-events:none}
-/* grain: fractal-noise texture, blended so it reads as stone/timber grit */
-.grain{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;
-  background-size:220px 220px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-/* frame: the ornate beveled border painted over the edges (adds real depth) */
+/* frame: the ornate beveled stage border painted over the edges (adds depth).
+   The board diorama (Board.tsx) provides its own backdrop / grain / scrim. */
 .frame{position:absolute;inset:0;z-index:40;pointer-events:none;border-radius:20px}
 
 /* L1 — zone plate: carved trays, identical on every board */
@@ -56,14 +51,10 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   background:radial-gradient(circle,rgba(255,220,140,.10),transparent 70%)}
 
 /* ---- treatment: CARVED STONE (relief, default) — dimensional & textured ---- */
-.table[data-board="relief"] .surface{
-  background:radial-gradient(80% 46% at 50% 8%, rgba(255,238,196,.14), transparent 62%),
-    radial-gradient(120% 90% at 50% 108%, rgba(0,0,0,.55), transparent 52%),
-    linear-gradient(180deg, rgba(26,22,15,.30), rgba(10,9,6,.44))}
 .table[data-board="relief"] .frame{
   box-shadow:inset 0 0 0 3px #8a6420, inset 0 0 0 5px #120c06, inset 0 0 0 13px #382916,
     inset 0 0 0 15px #17100a, inset 0 5px 22px rgba(255,232,180,.10),
-    inset 0 -8px 30px rgba(0,0,0,.6), inset 0 0 120px rgba(0,0,0,.55);
+    inset 0 -8px 30px rgba(0,0,0,.6), inset 0 0 80px rgba(0,0,0,.30);
   background:linear-gradient(180deg, rgba(255,240,200,.06), transparent 14%, transparent 84%, rgba(0,0,0,.35))}
 .table[data-board="relief"] .tray{
   background:linear-gradient(180deg, rgba(8,6,4,.52), rgba(34,27,16,.24));
@@ -73,16 +64,10 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .table[data-board="relief"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.6),inset 0 0 0 2px #2a1806,inset 0 -30px 26px rgba(0,0,0,.55)}
 
 /* ---- treatment: TAVERN TIMBER — warm wood + leather ---- */
-.table[data-board="timber"] .surface{
-  background:radial-gradient(80% 46% at 50% 8%, rgba(255,226,168,.16), transparent 60%),
-    radial-gradient(120% 95% at 50% 108%, rgba(0,0,0,.5), transparent 52%),
-    linear-gradient(180deg, rgba(74,46,20,.34), rgba(34,20,9,.46)),
-    repeating-linear-gradient(92deg, rgba(0,0,0,.10) 0 1px, transparent 1px 96px)}
-.table[data-board="timber"] .grain{opacity:.7}
 .table[data-board="timber"] .frame{
   box-shadow:inset 0 0 0 4px #6e4a24, inset 0 0 0 7px #2c1a0b, inset 0 0 0 15px #4a3016,
     inset 0 0 0 17px #201206, inset 0 6px 20px rgba(255,214,150,.12),
-    inset 0 -8px 28px rgba(0,0,0,.55), inset 0 0 110px rgba(0,0,0,.5);
+    inset 0 -8px 28px rgba(0,0,0,.55), inset 0 0 80px rgba(0,0,0,.28);
   background:linear-gradient(180deg, rgba(255,220,160,.07), transparent 16%, transparent 82%, rgba(0,0,0,.32))}
 .table[data-board="timber"] .tray{
   background:linear-gradient(180deg, rgba(46,26,12,.55), rgba(70,44,22,.28));
@@ -91,9 +76,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .table[data-board="timber"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.55),inset 0 0 0 2px #2a1806,inset 0 -30px 26px rgba(0,0,0,.5)}
 
 /* ---- treatment: FLAT — the original minimal look ---- */
-.table[data-board="flat"] .surface{background:radial-gradient(120% 90% at 50% 45%, transparent 60%, rgba(0,0,0,.42))}
-.table[data-board="flat"] .grain{opacity:0}
-.table[data-board="flat"] .frame{box-shadow:inset 0 0 0 5px #6d4d13, inset 0 0 0 8px #2a1806, inset 0 0 130px rgba(0,0,0,.65)}
+.table[data-board="flat"] .frame{box-shadow:inset 0 0 0 5px #6d4d13, inset 0 0 0 8px #2a1806, inset 0 0 90px rgba(0,0,0,.4)}
 .table[data-board="flat"] .tray{box-shadow:inset 0 0 0 1px rgba(255,222,140,.10), inset 0 6px 20px rgba(0,0,0,.4);
   border:1px solid rgba(120,92,40,.22)}
 
@@ -270,7 +253,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 
 /* ===================== targeting arrow (L4) ===================== */
 .arrowLayer{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:80}
-.table.aiming .backdrop{filter:saturate(.55) brightness(.3) blur(3px)}
+.table.aiming .boardScene{filter:brightness(.72) saturate(.85);transition:filter .2s}
 
 /* ===================== banner / thinking / result (L6) ===================== */
 .banner{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:60;

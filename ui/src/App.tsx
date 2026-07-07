@@ -7,6 +7,7 @@ import type { VUnit, HeroV, Prov } from './view.ts';
 import { effAttack, type CardDef } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
+import { Board } from './board/Board.tsx';
 import './styles.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -125,6 +126,10 @@ function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children,
   );
 }
 
+// optional ?scene= override lets any board scene be previewed in free play
+const sceneOverride = typeof location !== 'undefined'
+  ? (new URLSearchParams(location.search).get('scene') ?? undefined) : undefined;
+
 const BOARD_STYLES = ['relief', 'timber', 'flat'] as const;
 type BoardStyle = typeof BOARD_STYLES[number];
 const BOARD_LABEL: Record<BoardStyle, string> = { relief: 'Carved Stone', timber: 'Tavern Timber', flat: 'Flat' };
@@ -145,9 +150,30 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     try { localStorage.setItem('underdogs.board', next); } catch { /* ignore */ }
     return next;
   });
+  const [flare, setFlare] = useState(0);
   const tiltReset = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastX = useRef(0);
+  const flareLatch = useRef(false);
+  const flareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // signature-moment flare: on entering a Fulfill morph or a victory, hold
+  // --flare at 1 long enough for the .9s CSS ramp to bloom, then ease it out.
+  // Edge-triggered (latch) so it fires once and the timer isn't torn down by
+  // the per-beat view churn — otherwise the bloom stays invisible or sticks on.
+  useEffect(() => {
+    const fulfilling = view.boards[0].some((u) => u.fulfilling) || view.boards[1].some((u) => u.fulfilling);
+    const should = fulfilling || view.over === 0;
+    if (should && !flareLatch.current) {
+      flareLatch.current = true;
+      setFlare(1);
+      if (flareTimer.current) clearTimeout(flareTimer.current);
+      flareTimer.current = setTimeout(() => setFlare(0), 850);
+    } else if (!should) {
+      flareLatch.current = false;
+    }
+  }, [view]);
+  useEffect(() => () => { if (flareTimer.current) clearTimeout(flareTimer.current); }, []);
 
   // ---- global pointer handling for the active grab -------------------------
   useEffect(() => {
@@ -189,6 +215,9 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
   if (won && meta) markComplete(meta.id);
+  // reactive board signal: your peril (0 at >=33% HP, 1 at 0 HP)
+  const hpFrac = view.heroes[0].hp / Math.max(1, view.heroes[0].maxHp);
+  const dangerLevel = Math.max(0, Math.min(1, (0.33 - hpFrac) / 0.33));
 
   const clear = () => { setAct(null); if (holdTimer.current) clearTimeout(holdTimer.current); };
 
@@ -324,16 +353,14 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
       </div>
 
       <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`} data-board={board}>
-        {/* L0 — backdrop (only layer that changes per chapter) */}
-        <div className="backdrop" style={{ backgroundImage: `url(${artUrl(meta?.art ?? 'david_the_king')})` }} />
-        {/* L0.5 — textured tabletop surface (gives the board dimensionality) */}
-        <div className="surface" />
-        {/* L1 — zone plate (consistent carved frame) */}
+        {/* L0–L3 — the board diorama (per-chapter scene, dim and behind cards) */}
+        <Board enc={sceneOverride ?? meta?.id} danger={dangerLevel} flare={flare}
+          goliath={foe.board.some((u) => u.defId === 'goliath_of_gath')} />
+        {/* L1 stage — zone plate (consistent carved trays) */}
         <div className="plate">
           <div className="tray foeTray" /><div className="tray youTray" /><div className="centerStrip" />
         </div>
-        {/* decorative ornate frame + grain, painted over the edges (L~50, no input) */}
-        <div className="grain" />
+        {/* ornate stage frame, painted over the edges (no input) */}
         <div className="frame" />
 
         {/* L3 — board objects */}
