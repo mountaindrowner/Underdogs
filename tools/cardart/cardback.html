@@ -29,13 +29,13 @@ body{background:#1b1b1b;display:flex;padding:40px;font-family:'Palatino Linotype
   opacity:.2;mix-blend-mode:multiply;}
 /* embossed concentric blind-tooling radiating from the center (leather depth) */
 .emboss{position:absolute;inset:16px;border-radius:32px 26px 29px 34px;overflow:hidden;z-index:1;pointer-events:none;
-  background:repeating-radial-gradient(circle at 50% 50%,
+  background:repeating-radial-gradient(circle at 50% calc(50% + 5px),
     transparent 0 24px,
     rgba(255,222,160,.055) 24px 25px,
     rgba(0,0,0,.11) 25px 27px,
     transparent 27px 30px);}
 /* faint tooled rosette bloom behind the medallion */
-.bloom{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:430px;height:430px;
+.bloom{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 5px));width:430px;height:430px;
   border-radius:50%;z-index:1;pointer-events:none;
   background:
     repeating-conic-gradient(from 0deg, rgba(255,220,150,.05) 0 2deg, transparent 2deg 9deg),
@@ -54,7 +54,7 @@ body{background:#1b1b1b;display:flex;padding:40px;font-family:'Palatino Linotype
 .bl{bottom:54px;left:56px;transform:scaleY(-1)}.br{bottom:54px;right:56px;transform:scale(-1)}
 
 /* ===== centered layered medallion ===== */
-.med{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;
+.med{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 5px));z-index:4;
   width:330px;height:330px;}
 /* soft cast shadow so the medallion sits ON the leather */
 .med::before{content:'';position:absolute;left:50%;top:52%;width:296px;height:296px;
@@ -63,21 +63,21 @@ body{background:#1b1b1b;display:flex;padding:40px;font-family:'Palatino Linotype
 /* radiant sunburst — long rays */
 .halo{width:342px;height:342px;
   background:repeating-conic-gradient(from 0deg,rgba(246,214,138,.92) 0 1.3deg,transparent 1.3deg 11.25deg);
-  -webkit-mask:radial-gradient(circle,transparent 128px,#000 133px,#000 168px,transparent 173px);
-  mask:radial-gradient(circle,transparent 128px,#000 133px,#000 168px,transparent 173px);
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
-/* short rays, offset between the long ones */
+  -webkit-mask:radial-gradient(circle,transparent 126px,#000 131px,#000 168px,transparent 173px);
+  mask:radial-gradient(circle,transparent 126px,#000 131px,#000 168px,transparent 173px);
+  filter:drop-shadow(0 0 4px rgba(0,0,0,.45));}
+/* short rays, offset exactly between the long ones (combined: one ray every 5.625deg) */
 .halo2{width:300px;height:300px;
   background:repeating-conic-gradient(from 5.625deg,rgba(246,214,138,.7) 0 1deg,transparent 1deg 11.25deg);
-  -webkit-mask:radial-gradient(circle,transparent 128px,#000 132px,#000 150px,transparent 154px);
-  mask:radial-gradient(circle,transparent 128px,#000 132px,#000 150px,transparent 154px);
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));}
-/* beaded ring */
+  -webkit-mask:radial-gradient(circle,transparent 126px,#000 130px,#000 150px,transparent 154px);
+  mask:radial-gradient(circle,transparent 126px,#000 130px,#000 150px,transparent 154px);
+  filter:drop-shadow(0 0 2px rgba(0,0,0,.45));}
+/* beaded ring — one pip at the base of every ray (period 5.625deg, phase 0) */
 .bead{width:256px;height:256px;
-  background:repeating-conic-gradient(from 0deg,#ffe6a2 0 2.2deg,transparent 2.2deg 6deg);
+  background:repeating-conic-gradient(from 0deg,#ffe6a2 0 1.7deg,transparent 1.7deg 5.625deg);
   -webkit-mask:radial-gradient(circle,transparent 118px,#000 121px,#000 127px,transparent 130px);
   mask:radial-gradient(circle,transparent 118px,#000 121px,#000 127px,transparent 130px);
-  filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));}
+  filter:drop-shadow(0 0 1px rgba(0,0,0,.6));}
 /* engine-turned guilloche band */
 .guilloche{width:244px;height:244px;
   background:
