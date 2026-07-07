@@ -1,35 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMatch, needsTarget } from './useMatch.ts';
-import { artUrl, CARD_BACK } from './data.ts';
+import { artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
   type Encounter, type MatchConfig } from './campaign.ts';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import { effAttack, type UnitInstance } from '../../engine/src/index.ts';
+import { effAttack, type CardDef } from '../../engine/src/index.ts';
+import { KW_LABEL } from './glossary.ts';
+import { CardPreview } from './CardPreview.tsx';
 import './styles.css';
 
-const KW_LABEL: Record<string, string> = {
-  guard: 'GUARD', swift: 'SWIFT', endure: 'ENDURE', giant_slayer: 'GIANT-SLAYER',
-  redeem: 'REDEEM', scatter: 'SCATTER',
-};
-type Sel = null | { kind: 'hand'; index: number } | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
-const needsTargetPower = (hp?: { effects: { target?: string }[] }) =>
-  !!hp?.effects.some((op) => op.target === 'target');
+const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+type SrcHand = { kind: 'hand'; index: number; card: CardDef };
+type Src = SrcHand | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
+type Act = { src: Src; from: { x: number; y: number }; ptr: { x: number; y: number };
+  dragging: boolean; tilt: number; needsTgt: boolean };
+type Drop = { kind: 'none' | 'board' | 'foeHero' } | { kind: 'unit'; uid: number; owner: number };
+
+const needsTargetPower = (hp?: { effects?: { target?: string }[] }) =>
+  !!hp?.effects?.some((op) => op.target === 'target');
+
+function dropAt(x: number, y: number): Drop {
+  const el = document.elementFromPoint(x, y);
+  const hit = el && (el as HTMLElement).closest('[data-drop]');
+  if (!hit) return { kind: 'none' };
+  const kind = hit.getAttribute('data-drop')!;
+  if (kind === 'unit') return { kind: 'unit', uid: Number(hit.getAttribute('data-uid')), owner: Number(hit.getAttribute('data-owner')) };
+  return { kind: kind as 'board' | 'foeHero' };
+}
 
 // ---- presentational pieces -------------------------------------------------
-function Minion({ u, cls, onClick }: { u: VUnit; cls: string; onClick?: (e: React.MouseEvent) => void }) {
+function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
+  { u: VUnit; cls: string; valid?: boolean;
+    onDown?: (e: React.PointerEvent) => void; onEnter?: () => void; onLeave?: () => void }) {
   const art = artUrl(u.defId);
   const kw = u.keywords.find((k) => KW_LABEL[k]);
   const c = ['minion', cls];
   if (u.dead) c.push('dead'); if (u.enter) c.push('enter'); if (u.fulfilling) c.push('fulfilling');
-  if (u.hit) c.push('hit'); if (u.buffed) c.push('buffed');
-  const style = u.lunge ? { transform: `translateY(${u.lunge * 16}px) scale(1.05)` } : undefined;
+  if (u.hit) c.push('hit'); if (u.buffed) c.push('buffed'); if (valid) c.push('validTgt');
+  const style = u.lunge ? { transform: `translateY(${u.lunge * 18}px) scale(1.06)` } : undefined;
   return (
-    <div className={c.join(' ')} style={style} onClick={onClick}>
+    <div className={c.join(' ')} style={style} onPointerDown={onDown}
+      onMouseEnter={onEnter} onMouseLeave={onLeave}
+      data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
       {u.keywords.includes('guard') && <div className="ward" />}
       <div className="body" style={art ? { backgroundImage: `url(${art})` } : undefined}>
         {!art && <div className="artFallback">{u.name[0]}</div>}
         <div className="nameband">{u.name}</div>
-        {kw && <div className="kw">{KW_LABEL[kw]}</div>}
+        {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
       </div>
       <div className="atk">{u.attack}</div><div className="hp">{u.health}</div>
       {u.dmg != null && <div className="float dmg">-{u.dmg}</div>}
@@ -38,37 +56,56 @@ function Minion({ u, cls, onClick }: { u: VUnit; cls: string; onClick?: (e: Reac
     </div>
   );
 }
-function HandCard({ c, playable, selected, onClick }:
-  { c: import('../../engine/src/index.ts').CardDef; playable: boolean; selected: boolean; onClick: (e: React.MouseEvent) => void }) {
+
+function HandCard({ c, playable, selected, fan, onDown, onEnter, onLeave }:
+  { c: CardDef; playable: boolean; selected: boolean; fan: { rot: number; ty: number };
+    onDown: (e: React.PointerEvent) => void; onEnter: () => void; onLeave: () => void }) {
   const art = artUrl(c.id);
+  const style = { '--rot': `${fan.rot}deg`, '--ty': `${fan.ty}px` } as React.CSSProperties;
   return (
-    <div className={`handcard${playable ? ' playable' : ''}${selected ? ' selected' : ''}`} onClick={onClick}>
-      <div className="hcCost">{c.cost ?? 0}</div>
-      <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-      <div className="hcName">{c.name}</div>
-      {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
-    </div>
-  );
-}
-function Hero({ h, side, name, art, targetable, onClick }:
-  { h: HeroV; side: 'enemy' | 'you'; name: string; art?: string; targetable?: boolean; onClick?: () => void }) {
-  return (
-    <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`} onClick={onClick}>
-      <div className="portrait" style={art ? { backgroundImage: `url(${art})` } : undefined}>
-        <div className="hpbadge">{h.hp}</div></div>
-      <div className="namep">{name}</div>
-      {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
-      {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
-    </div>
-  );
-}
-function Mana({ p }: { p: Prov }) {
-  return (
-    <div className="mana">
-      <div className="manaGems">
-        {Array.from({ length: Math.max(p.max, 1) }).map((_, i) => <span key={i} className={`gem${i < p.cur ? ' on' : ''}`} />)}
+    <div className={`handcard r-${c.rarity ?? 'common'}${playable ? ' playable' : ''}${selected ? ' selected' : ''}`}
+      style={style} onPointerDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <div className="hcInner">
+        <div className="hcCost">{c.cost ?? 0}</div>
+        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcName">{c.name}</div>
+        {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
       </div>
-      <div className="manaLbl">PROVISION {p.cur}/{p.max}</div>
+    </div>
+  );
+}
+
+function ProvisionRail({ p, side }: { p: Prov; side: 'you' | 'foe' }) {
+  return (
+    <div className={`provRail ${side}`}>
+      {Array.from({ length: Math.max(p.max, 1) }).map((_, i) => (
+        <span key={i} className={`drop${i < p.cur ? ' on' : ''}`} />
+      ))}
+      <span className="provNum">{p.cur}/{p.max}</span>
+    </div>
+  );
+}
+
+function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children, onDown }:
+  { h: HeroV; side: 'you' | 'foe'; name: string; art?: string; prov: Prov; deck: number;
+    targetable?: boolean; foe?: boolean; children?: React.ReactNode; onDown?: (e: React.PointerEvent) => void }) {
+  return (
+    <div className={`corner ${side}Corner`}>
+      <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`}
+        onPointerDown={onDown} data-drop={foe ? 'foeHero' : undefined}>
+        <div className="portrait" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hpbadge">{h.hp}</div>
+        {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
+        {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
+      </div>
+      <div className="cornerMeta">
+        <div className="namep">{name}</div>
+        <ProvisionRail p={prov} side={side} />
+        <div className="deckpile" title={`${deck} in deck`}>
+          <img src={CARD_BACK} alt="deck" /><span className="deckN">{deck}</span>
+        </div>
+      </div>
+      {children}
     </div>
   );
 }
@@ -76,57 +113,131 @@ function Mana({ p }: { p: Prov }) {
 // ---- battle ----------------------------------------------------------------
 function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onExit: () => void }) {
   const { engine, view, busy, canAct, inMulligan, dispatch, newGame } = useMatch(cfg);
-  const [sel, setSel] = useState<Sel>(null);
-  const [src, setSrc] = useState<{ x: number; y: number } | null>(null);
-  const [ptr, setPtr] = useState<{ x: number; y: number } | null>(null);
+  const [act, setAct] = useState<Act | null>(null);
+  const [hover, setHover] = useState<CardDef | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
   const [intro, setIntro] = useState(!!meta);
+  const tiltReset = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastX = useRef(0);
+
+  // ---- global pointer handling for the active grab -------------------------
+  useEffect(() => {
+    if (!act) return;
+    const move = (e: PointerEvent) => {
+      const ptr = { x: e.clientX, y: e.clientY };
+      setAct((a) => {
+        if (!a) return a;
+        const moved = Math.hypot(ptr.x - a.from.x, ptr.y - a.from.y) > 10;
+        const dragging = a.dragging || moved;
+        let tilt = a.tilt;
+        if (dragging && !REDUCED) {
+          tilt = Math.max(-16, Math.min(16, (ptr.x - lastX.current) * 0.9));
+          if (tiltReset.current) clearTimeout(tiltReset.current);
+          tiltReset.current = setTimeout(() => setAct((z) => (z ? { ...z, tilt: 0 } : z)), 90);
+        }
+        lastX.current = ptr.x;
+        return { ...a, ptr, dragging, tilt };
+      });
+    };
+    const up = (e: PointerEvent) => {
+      setAct((a) => {
+        if (!a) return a;
+        if (a.dragging) { resolve(a.src, dropAt(e.clientX, e.clientY)); return null; }
+        return a; // tap: stay "picked up" for tap-to-place
+      });
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [act?.src]);
 
   if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
   const you = engine.players[0];
   const foe = engine.players[1];
   const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0).map((u) => u.uid));
   const guardActive = foe.board.some((u) => u.keywords.includes('guard'));
-  const clear = () => { setSel(null); setSrc(null); };
-  const at = (e: React.MouseEvent) => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
-
-  const clickHand = (i: number, e: React.MouseEvent) => {
-    e.stopPropagation(); if (!canAct) return;
-    const card = you.hand[i];
-    if ((card.cost ?? 0) > you.provision) return;
-    if (card.type === 'minion' && you.board.length >= engine.rules.boardLimit) return;
-    if (needsTarget(card)) { setSel({ kind: 'hand', index: i }); setSrc(at(e)); }
-    else { dispatch({ type: 'PLAY_CARD', handIndex: i }); clear(); }
-  };
-  const clickUnit = (u: VUnit, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (sel?.kind === 'heropower') { dispatch({ type: 'HERO_POWER', targetUid: u.uid }); clear(); return; }
-    if (sel?.kind === 'hand') { dispatch({ type: 'PLAY_CARD', handIndex: sel.index, targetUid: u.uid }); clear(); return; }
-    if (sel?.kind === 'attacker') {
-      if (u.owner === 1 && (!guardActive || u.keywords.includes('guard'))) { dispatch({ type: 'ATTACK', attackerUid: sel.uid, targetUid: u.uid }); clear(); }
-      return;
-    }
-    if (canAct && u.owner === 0 && readyUids.has(u.uid)) { setSel({ kind: 'attacker', uid: u.uid }); setSrc(at(e)); }
-  };
-  const clickEnemyHero = () => { if (sel?.kind === 'attacker' && !guardActive) { dispatch({ type: 'ATTACK', attackerUid: sel.uid, targetUid: 'hero' }); clear(); } };
-  const targetableUnit = (u: VUnit) => {
-    if (sel?.kind === 'hand' || sel?.kind === 'heropower') return true;
-    if (sel?.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
-    return false;
-  };
-  const hp = you.heroPower;
-  const hpUsable = canAct && !!hp && you.provision >= hp.cost && !hp.usedThisTurn;
-  const useHeroPower = (e: React.MouseEvent) => {
-    e.stopPropagation(); if (!hpUsable || !hp) return;
-    if (needsTargetPower(hp)) { setSel({ kind: 'heropower' }); setSrc(at(e)); }
-    else { dispatch({ type: 'HERO_POWER' }); clear(); }
-  };
-
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
   if (won && meta) markComplete(meta.id);
 
-  // intro narrative
+  const clear = () => { setAct(null); if (holdTimer.current) clearTimeout(holdTimer.current); };
+
+  function center(e: React.PointerEvent) {
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+  function beginGrab(src: Src, e: React.PointerEvent, needsTgt: boolean) {
+    e.stopPropagation();
+    const from = center(e);
+    lastX.current = e.clientX;
+    setAct({ src, from, ptr: { x: e.clientX, y: e.clientY }, dragging: false, tilt: 0, needsTgt });
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(() => setAct((a) => (a && !a.dragging ? { ...a, dragging: true } : a)), 170);
+  }
+
+  // resolve a placement/attack given the source and where it landed
+  function resolve(src: Src, drop: Drop) {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    if (src.kind === 'hand') {
+      const card = src.card;
+      if (needsTarget(card)) {
+        if (drop.kind === 'unit') dispatch({ type: 'PLAY_CARD', handIndex: src.index, targetUid: drop.uid });
+      } else if (drop.kind === 'board' || drop.kind === 'unit') {
+        dispatch({ type: 'PLAY_CARD', handIndex: src.index });
+      }
+    } else if (src.kind === 'attacker') {
+      if (drop.kind === 'unit' && drop.owner === 1 && (!guardActive || view.boards[1].find((u) => u.uid === drop.uid)?.keywords.includes('guard')))
+        dispatch({ type: 'ATTACK', attackerUid: src.uid, targetUid: drop.uid });
+      else if (drop.kind === 'foeHero' && !guardActive)
+        dispatch({ type: 'ATTACK', attackerUid: src.uid, targetUid: 'hero' });
+    } else if (src.kind === 'heropower') {
+      if (drop.kind === 'unit') dispatch({ type: 'HERO_POWER', targetUid: drop.uid });
+    }
+    setAct(null);
+  }
+
+  // pointer-down entry points -------------------------------------------------
+  const handDown = (i: number, e: React.PointerEvent) => {
+    if (!canAct) { setHover(you.hand[i]); return; }
+    if (act && !act.dragging) { resolve(act.src, { kind: 'none' }); return; } // second tap on hand cancels
+    const card = you.hand[i];
+    const affordable = (card.cost ?? 0) <= you.provision &&
+      !(card.type === 'minion' && you.board.length >= engine.rules.boardLimit);
+    if (!affordable) { setHover(card); return; }
+    beginGrab({ kind: 'hand', index: i, card }, e, needsTarget(card));
+  };
+  const unitDown = (u: VUnit, e: React.PointerEvent) => {
+    if (act && !act.dragging) { e.stopPropagation(); resolve(act.src, { kind: 'unit', uid: u.uid, owner: u.owner }); return; }
+    if (canAct && u.owner === 0 && readyUids.has(u.uid)) beginGrab({ kind: 'attacker', uid: u.uid }, e, true);
+  };
+  const foeHeroDown = (e: React.PointerEvent) => {
+    if (act && !act.dragging) { e.stopPropagation(); resolve(act.src, { kind: 'foeHero' }); }
+  };
+  const hpwr = you.heroPower;
+  const hpUsable = canAct && !!hpwr && you.provision >= hpwr.cost && !hpwr.usedThisTurn;
+  const heroPowerDown = (e: React.PointerEvent) => {
+    if (!hpUsable || !hpwr) return;
+    if (needsTargetPower(hpwr)) beginGrab({ kind: 'heropower' }, e, true);
+    else { dispatch({ type: 'HERO_POWER' }); clear(); }
+  };
+
+  // which things are valid targets for the current grab (highlight/dim) -------
+  const aiming = !!act && (act.needsTgt || act.src.kind === 'attacker' || act.src.kind === 'heropower');
+  const validUnit = (u: VUnit): boolean => {
+    if (!act) return false;
+    if (act.src.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
+    if (act.src.kind === 'heropower') return true;
+    if (act.src.kind === 'hand') return act.needsTgt;
+    return false;
+  };
+  const foeHeroTarget = !!act && act.src.kind === 'attacker' && !guardActive;
+  const boardOpen = !!act && act.src.kind === 'hand' && !act.needsTgt;
+
+  const previewCard = (act?.src.kind === 'hand' ? act.src.card : null) ?? hover;
+
+  // ---- gated screens --------------------------------------------------------
   if (intro && meta) {
     return (
       <div className="app">
@@ -142,12 +253,10 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
       </div>
     );
   }
-
-  // mulligan
   if (inMulligan) {
     return (
       <div className="app">
-        <div className="topbar"><div className="brand">UNDERDOGS <span>· mulligan</span></div>
+        <div className="topbar"><div className="brand">UNDERDOGS <span>· casting lots</span></div>
           <button onClick={onExit}>Menu</button></div>
         <div className="mulligan">
           <h2>Keep your opening hand?</h2>
@@ -155,52 +264,108 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
             {you.hand.map((c, i) => (
               <div key={i} className={`mulCard${keep.has(i) ? ' keep' : ''}`}
                 onClick={() => setKeep((k) => { const n = new Set(k); n.has(i) ? n.delete(i) : n.add(i); return n; })}>
-                <HandCard c={c} playable selected={keep.has(i)} onClick={() => {}} />
+                <div className={`handcard big r-${c.rarity ?? 'common'}`}>
+                  <div className="hcInner">
+                    <div className="hcCost">{c.cost ?? 0}</div>
+                    <div className="hcArt" style={artUrl(c.id) ? { backgroundImage: `url(${artUrl(c.id)})` } : undefined} />
+                    <div className="hcName">{c.name}</div>
+                    {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
+                  </div>
+                </div>
                 <div className="mulTag">{keep.has(i) ? 'KEEP' : 'REPLACE'}</div>
               </div>
             ))}
           </div>
-          <button className="bigbtn" onClick={() => dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) })}>Confirm</button>
+          <button className="bigbtn" onClick={() => dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) })}>Cast Lots</button>
         </div>
       </div>
     );
   }
 
+  const n = you.hand.length;
   return (
-    <div className="app" onClick={clear} onMouseMove={(e) => setPtr({ x: e.clientX, y: e.clientY })}>
+    <div className="app" onPointerDown={() => { if (act && !act.dragging) clear(); }}>
       <div className="topbar">
         <div className="brand">UNDERDOGS <span>· {meta ? meta.title : 'free play'}</span></div>
         <div className="controls">
-          <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Opponent'}</span>
-          <button onClick={(e) => { e.stopPropagation(); onExit(); }}>Menu</button>
+          <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Adversary'}</span>
+          <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}>Menu</button>
         </div>
       </div>
 
-      <div className={`table${over ? ' ended' : ''}`}>
-        <Hero h={view.heroes[1]} side="enemy" name={meta ? 'Adversary' : 'Rival'} art={artUrl(foe.leaderId ?? (cfg.startUnits?.[1]?.[0] ?? ''))}
-          targetable={sel?.kind === 'attacker' && !guardActive} onClick={clickEnemyHero} />
+      <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`}>
+        {/* L0 — backdrop (only layer that changes per chapter) */}
+        <div className="backdrop" style={{ backgroundImage: `url(${artUrl(meta?.art ?? 'david_the_king')})` }} />
+        {/* L1 — zone plate (consistent frame) */}
+        <div className="plate">
+          <div className="tray foeTray" /><div className="tray youTray" /><div className="centerStrip" />
+        </div>
+
+        {/* L3 — board objects */}
         <div className={`boardRow enemy${view.heroes[1].shake ? ' shake' : ''}`}>
-          {view.boards[1].map((u) => <Minion key={u.uid} u={u} onClick={(e) => clickUnit(u, e)} cls={targetableUnit(u) ? 'foeTarget' : ''} />)}
+          {view.boards[1].map((u) => (
+            <Minion key={u.uid} u={u} valid={aiming && validUnit(u)}
+              cls={aiming && !validUnit(u) ? 'dim' : ''}
+              onDown={(e) => unitDown(u, e)}
+              onEnter={() => setHover(defOf(u.defId))} onLeave={() => setHover(null)} />
+          ))}
         </div>
-        <div className="divider" />
-        <div className={`boardRow you${view.heroes[0].shake ? ' shake' : ''}`}>
-          {view.boards[0].map((u) => <Minion key={u.uid} u={u} onClick={(e) => clickUnit(u, e)}
-            cls={[sel?.kind === 'attacker' && sel.uid === u.uid ? 'sel' : '', readyUids.has(u.uid) ? 'ready' : (u.owner === 0 ? 'sick' : '')].join(' ')} />)}
+        <div className={`boardRow you${view.heroes[0].shake ? ' shake' : ''}${boardOpen ? ' open' : ''}`} data-drop="board"
+          onPointerDown={(e) => { if (act && !act.dragging && act.src.kind === 'hand' && !act.needsTgt) { e.stopPropagation(); resolve(act.src, { kind: 'board' }); } }}>
+          {view.boards[0].map((u) => (
+            <Minion key={u.uid} u={u} valid={aiming && validUnit(u)}
+              cls={[readyUids.has(u.uid) ? 'ready' : (u.owner === 0 ? 'sick' : ''),
+                act?.src.kind === 'attacker' && act.src.uid === u.uid ? 'sel' : '',
+                aiming && !validUnit(u) && !(act?.src.kind === 'attacker' && act.src.uid === u.uid) ? 'dim' : ''].join(' ')}
+              onDown={(e) => unitDown(u, e)}
+              onEnter={() => setHover(defOf(u.defId))} onLeave={() => setHover(null)} />
+          ))}
         </div>
-        <Hero h={view.heroes[0]} side="you" name="You" art={artUrl(you.leaderId ?? '')} />
 
-        {hp && (
-          <div className={`hpower${hpUsable ? ' usable' : ''}`} onClick={useHeroPower} title={hp.name}>
-            <div className="hpGlyph">✦</div><div className="hpCost">{hp.cost}</div><div className="hpLabel">{hp.name}</div>
-          </div>
-        )}
-        <Mana p={view.prov[view.active]} />
-        <div className="deckpile"><img src={CARD_BACK} alt="deck" /></div>
+        {/* L2 — HUD: hero corners (opponent top-right, you bottom-left) */}
+        <HeroCorner h={view.heroes[1]} side="foe" name={meta ? 'Adversary' : 'Rival'}
+          art={artUrl(foe.leaderId ?? (cfg.startUnits?.[1]?.[0] ?? ''))}
+          prov={view.prov[1]} deck={foe.deck.length} foe targetable={foeHeroTarget} onDown={foeHeroDown} />
+        <HeroCorner h={view.heroes[0]} side="you" name="You" art={artUrl(you.leaderId ?? '')}
+          prov={view.prov[0]} deck={you.deck.length}>
+          {hpwr && (
+            <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} title={hpwr.text}>
+              <div className="hpGlyph">✦</div><div className="hpCost">{hpwr.cost}</div>
+              <div className="hpLabel">{hpwr.name}</div>
+            </div>
+          )}
+        </HeroCorner>
+
+        {/* opponent face-down hand, top-center */}
+        <div className="foeHand">{Array.from({ length: foe.hand.length }).map((_, i) => <img key={i} src={CARD_BACK} alt="" />)}</div>
+
+        {/* your hand, bottom-center (fanned) */}
+        <div className="handTray">
+          {you.hand.map((c, i) => {
+            const off = i - (n - 1) / 2;
+            const fan = { rot: Math.max(-9, Math.min(9, off * 3)), ty: Math.abs(off) * 5 };
+            const playable = canAct && (c.cost ?? 0) <= you.provision &&
+              !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit);
+            const picked = act?.src.kind === 'hand' && act.src.index === i;
+            return (
+              <HandCard key={i} c={c} playable={playable} selected={!!picked} fan={fan}
+                onDown={(e) => handDown(i, e)} onEnter={() => setHover(c)} onLeave={() => setHover(null)} />
+            );
+          })}
+        </div>
+
+        {/* End Turn, bottom-right seal */}
+        <button className={`endturn${canAct ? ' hot' : ''}`} disabled={!canAct}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => { dispatch({ type: 'END_TURN' }); clear(); }}>
+          <span className="etScroll">End Turn</span>
+        </button>
+
+        {/* L6 — announcements / overlays */}
         {view.banner && !over && <div className="banner" key={view.banner}>{view.banner}</div>}
-        {busy && engine.active === 1 && <div className="thinking">…</div>}
-
+        {busy && engine.active === 1 && <div className="thinking">the Adversary ponders…</div>}
         {over && (
-          <div className="overlay" onClick={(e) => e.stopPropagation()}>
+          <div className="overlay" onPointerDown={(e) => e.stopPropagation()}>
             <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>
             <div className="ovBtns">
               <button className="bigbtn" onClick={() => newGame()}>{won ? 'Play Again' : 'Retry'}</button>
@@ -208,26 +373,43 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
             </div>
           </div>
         )}
+
+        {/* L4 — interaction: targeting arrow + drag ghost */}
+        {act && (act.dragging || aiming) && (
+          <svg className="arrowLayer">
+            <defs><marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#e6a33a" /></marker></defs>
+            {aiming && <line x1={act.from.x} y1={act.from.y} x2={act.ptr.x} y2={act.ptr.y}
+              stroke="#e6a33a" strokeWidth="5" strokeLinecap="round" markerEnd="url(#ah)" opacity="0.92" />}
+          </svg>
+        )}
       </div>
 
-      <div className="hand">
-        {you.hand.map((c, i) => (
-          <HandCard key={i} c={c}
-            playable={canAct && (c.cost ?? 0) <= you.provision && !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit)}
-            selected={sel?.kind === 'hand' && sel.index === i} onClick={(e) => clickHand(i, e)} />
-        ))}
-        <button className={`endturn${canAct ? ' hot' : ''}`} disabled={!canAct}
-          onClick={(e) => { e.stopPropagation(); dispatch({ type: 'END_TURN' }); clear(); }}>End Turn</button>
-      </div>
+      {/* right-side card reader */}
+      {previewCard && <CardPreview card={previewCard} />}
 
-      <div className="foeHand">{Array.from({ length: foe.hand.length }).map((_, i) => <img key={i} src={CARD_BACK} alt="" />)}</div>
-
-      {sel && src && ptr && (
-        <svg className="arrowLayer">
-          <defs><marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#ffca4d" /></marker></defs>
-          <line x1={src.x} y1={src.y} x2={ptr.x} y2={ptr.y} stroke="#ffca4d" strokeWidth="4" strokeLinecap="round" markerEnd="url(#ah)" opacity="0.9" />
-        </svg>
+      {/* the lifted drag ghost, follows the pointer */}
+      {act && act.dragging && act.src.kind === 'hand' && (
+        <GhostCard card={act.src.card} x={act.ptr.x} y={act.ptr.y} tilt={act.tilt} />
       )}
+    </div>
+  );
+}
+
+// hovering a board unit shows its definition in the reader
+function defOf(id: string): CardDef | null { return registry.get(id) ?? null; }
+
+function GhostCard({ card, x, y, tilt }: { card: CardDef; x: number; y: number; tilt: number }) {
+  const art = artUrl(card.id);
+  return (
+    <div className={`ghost r-${card.rarity ?? 'common'}`}
+      style={{ left: x, top: y, transform: `translate(-50%,-58%) rotateY(${tilt}deg) rotate(${tilt * 0.2}deg)` }}>
+      <div className="hcInner">
+        <div className="hcCost">{card.cost ?? 0}</div>
+        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcName">{card.name}</div>
+        {card.type === 'minion' && <><div className="hcAtk">{card.attack}</div><div className="hcHp">{card.health}</div></>}
+      </div>
     </div>
   );
 }
