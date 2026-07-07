@@ -4,7 +4,6 @@
   --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 *{margin:0;box-sizing:border-box}
 body{background:#1b1b1b;display:flex;padding:40px;font-family:'Palatino Linotype',Georgia,serif}
-/* gold frame — matches the card fronts */
 .card{position:relative;width:500px;height:722px;border-radius:44px 37px 41px 47px;
   background:
     radial-gradient(68% 48% at 27% 12%, rgba(255,255,255,.38), transparent 55%),
@@ -18,66 +17,113 @@ body{background:#1b1b1b;display:flex;padding:40px;font-family:'Palatino Linotype
 /* oxblood leather field */
 .leather{position:absolute;inset:16px;border-radius:32px 26px 29px 34px;overflow:hidden;
   background:
-    radial-gradient(75% 55% at 50% 22%, rgba(255,190,120,.10), transparent 60%),
-    radial-gradient(90% 80% at 50% 100%, rgba(0,0,0,.5), transparent 62%),
+    radial-gradient(75% 55% at 50% 20%, rgba(255,190,120,.10), transparent 60%),
+    radial-gradient(95% 85% at 50% 105%, rgba(0,0,0,.55), transparent 62%),
     linear-gradient(160deg,var(--lhi),var(--llo) 74%);
   border:3px solid #180705;
   box-shadow:inset 0 0 0 2px rgba(255,224,150,.28),inset 0 5px 8px rgba(255,255,255,.10),
-    inset 0 -16px 30px rgba(0,0,0,.7),inset 0 0 70px rgba(0,0,0,.55);}
+    inset 0 -16px 30px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.6);}
 .leather::before{content:'';position:absolute;inset:0;background:var(--grain);background-size:150px;
   opacity:.16;mix-blend-mode:overlay;}
 .leather::after{content:'';position:absolute;inset:0;background:var(--wear);background-size:260px;
   opacity:.2;mix-blend-mode:multiply;}
-/* gold tooled double-rule border (classic Bible cover) */
+/* embossed concentric blind-tooling radiating from the center (leather depth) */
+.emboss{position:absolute;inset:16px;border-radius:32px 26px 29px 34px;overflow:hidden;z-index:1;pointer-events:none;
+  background:repeating-radial-gradient(circle at 50% 50%,
+    transparent 0 24px,
+    rgba(255,222,160,.055) 24px 25px,
+    rgba(0,0,0,.11) 25px 27px,
+    transparent 27px 30px);}
+/* faint tooled rosette bloom behind the medallion */
+.bloom{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:430px;height:430px;
+  border-radius:50%;z-index:1;pointer-events:none;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255,220,150,.05) 0 2deg, transparent 2deg 9deg),
+    radial-gradient(circle, rgba(255,200,130,.06), transparent 62%);
+  -webkit-mask:radial-gradient(circle, #000 40%, transparent 72%);
+  mask:radial-gradient(circle, #000 40%, transparent 72%);}
+/* gold tooled double-rule border */
 .tool{position:absolute;inset:44px;border-radius:22px;z-index:2;pointer-events:none;
-  box-shadow:0 0 0 2px var(--gold2), 0 0 0 5px transparent, inset 0 0 0 2px var(--gold2);
+  box-shadow:0 0 0 2px var(--gold2), inset 0 0 0 2px var(--gold2);
   border:1px solid rgba(246,214,138,.85);}
 .tool::before{content:'';position:absolute;inset:6px;border-radius:17px;
   border:1px solid rgba(246,214,138,.55);}
-/* corner fleurons */
 .fleur{position:absolute;z-index:3;font-size:34px;color:#f0cf7e;line-height:1;
   text-shadow:0 1px 2px rgba(0,0,0,.7),0 0 8px rgba(240,200,90,.35);}
 .tl{top:54px;left:56px}.tr{top:54px;right:56px;transform:scaleX(-1)}
 .bl{bottom:54px;left:56px;transform:scaleY(-1)}.br{bottom:54px;right:56px;transform:scale(-1)}
-/* radiant sunburst behind the seal */
-.burst{position:absolute;left:50%;top:308px;width:400px;height:400px;transform:translate(-50%,-50%);z-index:3;
-  background:repeating-conic-gradient(from 0deg,rgba(246,214,138,.9) 0 1.4deg,transparent 1.4deg 11.25deg);
-  -webkit-mask:radial-gradient(circle,transparent 118px,#000 124px,#000 176px,transparent 182px);
-  mask:radial-gradient(circle,transparent 118px,#000 124px,#000 176px,transparent 182px);
-  opacity:.9;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
-/* gold seal medallion */
-.seal{position:absolute;left:50%;top:308px;width:212px;height:212px;transform:translate(-50%,-50%);z-index:4;
-  border-radius:50%;
-  background:radial-gradient(circle at 42% 34%,#ffe9a8,#e0ad3e 52%,#8a5c17 88%,#4d3208);
-  box-shadow:inset 0 5px 10px rgba(255,246,214,.85),inset 0 -12px 22px rgba(0,0,0,.55),
-    0 10px 26px rgba(0,0,0,.6),0 0 0 4px #2a1806,0 0 0 7px var(--gold2),0 0 0 9px #2a1806;}
-.seal::before{content:'';position:absolute;inset:24px;border-radius:50%;
-  background:radial-gradient(circle at 44% 36%,#5c1f18,#300d0a 78%);
-  box-shadow:inset 0 6px 14px rgba(0,0,0,.7),inset 0 -3px 6px rgba(255,180,120,.15),0 0 0 2px #7a5216;}
-.sling{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:120px;height:120px;z-index:5;
-  filter:drop-shadow(0 2px 3px rgba(0,0,0,.6)) drop-shadow(0 0 10px rgba(255,201,92,.6));}
-/* wordmark */
-.word{position:absolute;left:0;right:0;top:450px;text-align:center;z-index:4;
-  font-size:42px;letter-spacing:7px;font-weight:700;color:#ffe6a2;padding-left:7px;
-  text-shadow:0 2px 2px rgba(0,0,0,.7),0 -1px 0 rgba(255,255,255,.35),0 0 12px rgba(240,200,90,.4);}
-.sub{position:absolute;left:0;right:0;top:512px;text-align:center;z-index:4;
-  color:#e7cd85;font-size:20px;font-style:italic;letter-spacing:1px;opacity:.92;
-  text-shadow:0 1px 2px rgba(0,0,0,.6);}
-.sub b{font-style:normal}
+
+/* ===== centered layered medallion ===== */
+.med{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;
+  width:330px;height:330px;}
+/* soft cast shadow so the medallion sits ON the leather */
+.med::before{content:'';position:absolute;left:50%;top:52%;width:296px;height:296px;
+  transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 20px 44px rgba(0,0,0,.6);}
+.layer{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;}
+/* radiant sunburst — long rays */
+.halo{width:342px;height:342px;
+  background:repeating-conic-gradient(from 0deg,rgba(246,214,138,.92) 0 1.3deg,transparent 1.3deg 11.25deg);
+  -webkit-mask:radial-gradient(circle,transparent 128px,#000 133px,#000 168px,transparent 173px);
+  mask:radial-gradient(circle,transparent 128px,#000 133px,#000 168px,transparent 173px);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
+/* short rays, offset between the long ones */
+.halo2{width:300px;height:300px;
+  background:repeating-conic-gradient(from 5.625deg,rgba(246,214,138,.7) 0 1deg,transparent 1deg 11.25deg);
+  -webkit-mask:radial-gradient(circle,transparent 128px,#000 132px,#000 150px,transparent 154px);
+  mask:radial-gradient(circle,transparent 128px,#000 132px,#000 150px,transparent 154px);
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));}
+/* beaded ring */
+.bead{width:256px;height:256px;
+  background:repeating-conic-gradient(from 0deg,#ffe6a2 0 2.2deg,transparent 2.2deg 6deg);
+  -webkit-mask:radial-gradient(circle,transparent 118px,#000 121px,#000 127px,transparent 130px);
+  mask:radial-gradient(circle,transparent 118px,#000 121px,#000 127px,transparent 130px);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));}
+/* engine-turned guilloche band */
+.guilloche{width:244px;height:244px;
+  background:
+    repeating-conic-gradient(from 0deg,rgba(80,50,12,.5) 0 .55deg,transparent .55deg 1.7deg),
+    repeating-radial-gradient(circle,rgba(255,224,150,.22) 0 2px,transparent 2px 5px),
+    radial-gradient(circle,#e8bb58,#9a6a20);
+  -webkit-mask:radial-gradient(circle,transparent 92px,#000 96px,#000 118px,transparent 122px);
+  mask:radial-gradient(circle,transparent 92px,#000 96px,#000 118px,transparent 122px);
+  box-shadow:0 3px 8px rgba(0,0,0,.4);}
+/* raised gold torus (outer bevel ring) */
+.torus{width:210px;height:210px;
+  background:radial-gradient(circle at 42% 34%,#ffe9a8,#e0ad3e 55%,#8a5c17 88%,#4d3208);
+  box-shadow:inset 0 6px 12px rgba(255,246,214,.85),inset 0 -14px 24px rgba(0,0,0,.55),
+    0 10px 24px rgba(0,0,0,.55),0 0 0 3px #2a1806;}
+/* recessed dark core with an inner gold rule */
+.core{width:158px;height:158px;
+  background:radial-gradient(circle at 44% 36%,#5c1f18,#2c0c09 78%);
+  box-shadow:inset 0 8px 20px rgba(0,0,0,.78),inset 0 -3px 7px rgba(255,180,120,.16),
+    0 0 0 3px #7a5216,0 0 0 5px #2a1806, inset 0 0 0 1px rgba(0,0,0,.5);}
+.core::after{content:'';position:absolute;left:50%;top:50%;width:126px;height:126px;
+  transform:translate(-50%,-50%);border-radius:50%;
+  border:1px solid rgba(246,214,138,.4);box-shadow:inset 0 0 12px rgba(0,0,0,.5);}
+/* the sling, centered in the core */
+.sling{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:128px;height:128px;z-index:6;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.75)) drop-shadow(0 0 10px rgba(255,201,92,.7));}
 </style>
 <div class="card" id="card">
   <div class="leather"></div>
+  <div class="emboss"></div>
+  <div class="bloom"></div>
   <div class="tool"></div>
   <i class="fleur tl">&#10087;</i><i class="fleur tr">&#10087;</i>
   <i class="fleur bl">&#10087;</i><i class="fleur br">&#10087;</i>
-  <div class="burst"></div>
-  <div class="seal"><svg class="sling" viewBox="0 0 120 120" fill="none"
-       stroke="#ffe19a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M34 22 C 42 50, 50 60, 55 65"/>
-    <path d="M86 22 C 78 50, 70 60, 65 65"/>
-    <path d="M46 65 Q 60 85 74 65"/>
-    <circle cx="60" cy="64" r="11" fill="#ffe9a8" stroke="#8a5c17" stroke-width="3"/>
-  </svg></div>
-  <div class="word">UNDERDOGS</div>
-  <div class="sub">Giants sold separately.</div>
+  <div class="med">
+    <div class="layer halo"></div>
+    <div class="layer halo2"></div>
+    <div class="layer bead"></div>
+    <div class="layer guilloche"></div>
+    <div class="layer torus"></div>
+    <div class="layer core"></div>
+    <svg class="sling" viewBox="0 0 120 120" fill="none"
+         stroke="#ffe19a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M34 22 C 42 50, 50 60, 55 65"/>
+      <path d="M86 22 C 78 50, 70 60, 65 65"/>
+      <path d="M46 65 Q 60 85 74 65"/>
+      <circle cx="60" cy="64" r="11" fill="#ffe9a8" stroke="#8a5c17" stroke-width="3"/>
+    </svg>
+  </div>
 </div>
