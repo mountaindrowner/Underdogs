@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """COVENANT card-art generator (build-time). Meters spend into a ledger."""
-import os, json, base64, urllib.request, urllib.error, sys, pathlib
+import os, json, base64, urllib.request, urllib.error, sys, pathlib, time
 
 KEY   = os.environ["GEMINI_API_KEY"]
 MODEL = "gemini-2.5-flash-image"
@@ -50,18 +50,31 @@ def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3"):
             "generationConfig": {"imageConfig": {"aspectRatio": aspect}}}
     data = json.dumps(body).encode()
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={KEY}"
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    try:
-        d = json.load(urllib.request.urlopen(req, timeout=180))
-    except urllib.error.HTTPError as e:
-        # fallback: some builds reject imageConfig — retry without aspect
-        if e.code == 400 and "imageConfig" in json.dumps(body):
-            body.pop("generationConfig", None)
-            req = urllib.request.Request(url, data=json.dumps(body).encode(),
-                                         headers={"Content-Type": "application/json"})
+    attempt = 0
+    while True:
+        req = urllib.request.Request(url, data=json.dumps(body).encode(),
+                                     headers={"Content-Type": "application/json"})
+        try:
             d = json.load(urllib.request.urlopen(req, timeout=180))
-        else:
+        except urllib.error.HTTPError as e:
+            # fallback: some builds reject imageConfig — retry without aspect
+            if e.code == 400 and "imageConfig" in json.dumps(body):
+                body.pop("generationConfig", None); continue
+            # transient server / rate errors — retry with backoff
+            if e.code in (429, 500, 502, 503, 504) and attempt < 5:
+                attempt += 1; time.sleep(2 ** attempt); continue
             print("HTTP", e.code, e.read().decode()[:300]); raise
+        except urllib.error.URLError:
+            if attempt < 5:
+                attempt += 1; time.sleep(2 ** attempt); continue
+            raise
+        # got 200 — the image model sometimes returns text instead of an image; retry if so
+        parts = d.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        if any("inlineData" in p for p in parts):
+            break
+        if attempt < 5:
+            attempt += 1; time.sleep(1 + attempt); continue
+        print(f"[warn] {card_id}: no image after retries"); break
     out_path = OUT / f"{card_id}.png"
     for p in d["candidates"][0]["content"]["parts"]:
         if "inlineData" in p:

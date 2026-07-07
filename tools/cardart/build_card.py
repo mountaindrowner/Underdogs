@@ -27,12 +27,13 @@ def build(card, art_png):
     rar = RARITY.get(card.get("rarity","common"), "#c9c9c9")
     sigil = TAG_SIGIL.get(card.get("tag") or "", "")
     is_minion = card.get("type") == "minion"
+    is_leader = card.get("type") == "leader"
     legendary = card.get("rarity") == "legendary"
     art = data_uri(art_png)
     name = html.escape(card.get("name") or "")
     text = html.escape(card.get("text") or "")
     flavor = html.escape(card.get("flavor") or "")
-    tag_lbl = (card.get("tag") or "").capitalize()
+    tag_lbl = "HERO POWER" if is_leader else (card.get("tag") or "").capitalize()
 
     T = """<!doctype html><html><head><meta charset=utf-8><style>
 :root{--deep:@DEEP@;--bright:@BRIGHT@;--gold:#f4cf6a;--gold2:#a9791f;
@@ -142,6 +143,8 @@ body{background:#1b1b1b;display:flex;padding:40px}
 .r-legendary .fl-l::before,.r-legendary .fl-r::before{content:'♛';}
 /* ==== RARITY STYLE LAYER — additive only; art window & stats never move ====
    Common: plain. Rare/Epic/Legendary escalate gem, trim ring, art & banner glow. */
+/* leaders: no cost gem, no stat gems (hero avatar, not a stat card) */
+.leader .cost{display:none;}
 .r-common{--acc:transparent;--accs:transparent;}
 .r-rare{--acc:#5a93e6;--accs:rgba(90,147,230,.55);}
 .r-epic{--acc:#a962da;--accs:rgba(169,98,218,.6);}
@@ -222,7 +225,7 @@ body{background:#1b1b1b;display:flex;padding:40px}
 </div></body></html>"""
     repl = {
         "@DEEP@": deep, "@BRIGHT@": bright, "@RAR@": rar, "@ART@": art,
-        "@RARCLASS@": "r-" + card.get("rarity", "common"),
+        "@RARCLASS@": "r-" + card.get("rarity", "common") + (" leader" if is_leader else ""),
         "@STAT@": "flex" if is_minion else "none",
         "@COST@": str(card.get("cost","")),
         "@NAME@": name, "@TAG@": tag_lbl, "@SIGIL@": sigil,

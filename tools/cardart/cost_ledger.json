@@ -1,6 +1,6 @@
 {
-  "images": 96,
-  "usd": 3.7198577999999993,
+  "images": 111,
+  "usd": 4.1860497,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -689,6 +689,141 @@
       "img_tok": 1290,
       "usd": 0.03874,
       "refs": []
+    },
+    {
+      "id": "isaiah_leader",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "isaiah.png"
+      ]
+    },
+    {
+      "id": "elijah_leader",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "elijah.png"
+      ]
+    },
+    {
+      "id": "joshua_leader",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "joshua_and_caleb.png"
+      ]
+    },
+    {
+      "id": "deborah_leader",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "deborah_the_prophetess.png"
+      ]
+    },
+    {
+      "id": "aaron_leader",
+      "cls": "priest",
+      "img_tok": 0,
+      "usd": 0.00012,
+      "refs": [
+        "aaron_high_priest.png"
+      ]
+    },
+    {
+      "id": "melchizedek_leader",
+      "cls": "priest",
+      "img_tok": 0,
+      "usd": 0.00012,
+      "refs": [
+        "melchizedek.png"
+      ]
+    },
+    {
+      "id": "david_leader",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "ref_david.png"
+      ]
+    },
+    {
+      "id": "moses_leader",
+      "cls": "shepherd",
+      "img_tok": 0,
+      "usd": 0.00012,
+      "refs": [
+        "moses_of_midian.png"
+      ]
+    },
+    {
+      "id": "abraham_leader",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "abraham_father_of_nations.png"
+      ]
+    },
+    {
+      "id": "sarah_leader",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "sarah.png"
+      ]
+    },
+    {
+      "id": "peter_leader",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "simon_the_fisherman.png"
+      ]
+    },
+    {
+      "id": "paul_leader",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "paul_apostle.png"
+      ]
+    },
+    {
+      "id": "aaron_leader",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "aaron_high_priest.png"
+      ]
+    },
+    {
+      "id": "melchizedek_leader",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "melchizedek.png"
+      ]
+    },
+    {
+      "id": "moses_leader",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "moses_of_midian.png"
+      ]
     }
   ]
 }
