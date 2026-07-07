@@ -1,0 +1,267 @@
+{
+  "_comment": "Seed set (~30 cards + tokens + fulfilled forms) across all six classes. Real content, schema-valid, to build the engine and effect-verb library on. The full ~120 live in docs/04-card-database.md and should be encoded here over time.",
+  "cards": [
+    {
+      "id": "balaams_donkey", "name": "Balaam's Donkey", "class": "prophet", "tag": "genesis",
+      "type": "minion", "cost": 2, "attack": 1, "health": 4, "rarity": "common", "collectible": true,
+      "keywords": ["guard"],
+      "text": "Guard. Arrival: Foresee 1.",
+      "effects": { "arrival": [ { "verb": "foresee", "amount": 1 } ] },
+      "flavor": "Saw the angel before the prophet did. Nobody ever listens to the donkey. — Numbers 22.",
+      "art": "A wide-eyed donkey planted in a mountain pass, faint gold light off-frame it alone perceives; dust, olive hills; comedy in the eyes, played straight."
+    },
+    {
+      "id": "isaiah", "name": "Isaiah", "class": "prophet", "tag": "exile",
+      "type": "minion", "cost": 3, "attack": 2, "health": 3, "rarity": "rare", "collectible": true,
+      "keywords": ["foresee"],
+      "text": "Arrival: Foresee 3.",
+      "effects": { "arrival": [ { "verb": "foresee", "amount": 3 } ] },
+      "flavor": "'Here am I, send me.' Volunteered before hearing the job description. — Isaiah 6.",
+      "art": "A robed figure beneath vast temple pillars, a single ember of coal glowing near his lips, seraphic light."
+    },
+    {
+      "id": "handwriting_on_the_wall", "name": "Handwriting on the Wall", "class": "prophet", "tag": "exile",
+      "type": "spell", "cost": 3, "rarity": "rare", "collectible": true, "attack": null, "health": null,
+      "text": "Set an enemy unit's attack to 1.",
+      "effects": { "arrival": [ { "verb": "setAttack", "amount": 1, "target": "enemy" } ] },
+      "flavor": "Weighed, measured, found wanting. Bad night for the king. — Daniel 5.",
+      "art": "A disembodied hand of light scrawling glowing letters across a feast-hall wall, overturned goblet, dread."
+    },
+    {
+      "id": "fire_from_heaven", "name": "Fire from Heaven", "class": "prophet", "tag": "kingdom",
+      "type": "spell", "cost": 4, "rarity": "common", "collectible": true, "attack": null, "health": null,
+      "text": "Deal 4 to an enemy unit.",
+      "effects": { "arrival": [ { "verb": "deal", "amount": 4, "target": "enemy" } ] },
+      "flavor": "Elijah didn't bring matches. — 1 Kings 18.",
+      "art": "A column of white-gold fire striking a stone altar from a clear sky, spectators shielding their eyes."
+    },
+    {
+      "id": "elijah", "name": "Elijah", "class": "prophet", "tag": "kingdom",
+      "type": "minion", "cost": 5, "attack": 4, "health": 4, "rarity": "legendary", "collectible": true,
+      "text": "Arrival: deal 3 to the strongest enemy unit. Instead of dying, Elijah is exiled and adds Mantle of Elijah to your hand.",
+      "effects": { "arrival": [ { "verb": "deal", "amount": 3, "target": "strongestEnemy" } ], "legacy": [ { "verb": "exile", "target": "self" }, { "verb": "returnFromDiscard", "token": "mantle_of_elijah" } ] },
+      "flavor": "Didn't die. Took the chariot. Showoff. — 2 Kings 2.",
+      "art": "A windswept prophet on Carmel, cloak snapping, a chariot of fire half-formed in storm-cloud above, embers rising."
+    },
+    {
+      "id": "mantle_of_elijah", "name": "Mantle of Elijah", "class": "prophet", "tag": "kingdom",
+      "type": "relic", "relicKind": "equip", "cost": 2, "attack": 2, "health": null, "rarity": "token", "collectible": false,
+      "text": "+2/+2. Arrival: draw a card.",
+      "effects": { "arrival": [ { "verb": "buff", "attack": 2, "health": 2, "target": "self" }, { "verb": "draw", "amount": 1 } ] },
+      "flavor": "A double portion, for whoever picks it up next. — 2 Kings 2.",
+      "art": "A prophet's cloak lying on a riverbank, still warm, glowing faintly at the hem."
+    },
+    {
+      "id": "shepherd_david", "name": "Shepherd David", "class": "warrior", "tag": "kingdom",
+      "type": "minion", "cost": 1, "attack": 2, "health": 1, "rarity": "legendary", "collectible": true,
+      "keywords": ["giant_slayer"],
+      "text": "Giant-Slayer: destroys 4+ attack units he strikes, takes no counter-damage. Fulfill: slay a giant.",
+      "fulfill": { "condition": "slay_giant", "value": 4, "into": "david_the_king" },
+      "flavor": "Yes, a 1-drop. Yes, he beats your 6-drop. That's the story. — 1 Samuel 17.",
+      "art": "A small shepherd boy winding a sling, calm; a vast armored shadow looming over him; scarlet dusk, gold sling-stone catching light."
+    },
+    {
+      "id": "david_the_king", "name": "David, the King", "class": "warrior", "tag": "kingdom",
+      "type": "minion", "cost": 1, "attack": 4, "health": 4, "rarity": "legendary", "collectible": false,
+      "text": "Your other units have +1 attack.",
+      "effects": { "aura": [ { "verb": "buff", "attack": 1, "target": "allAllies" } ] },
+      "flavor": "The shepherd who became the king. Same sling, bigger stakes.",
+      "art": "A crowned warrior with a harp slung on his back, sword drawn, city of gold behind, scarlet banner."
+    },
+    {
+      "id": "benaiah", "name": "Benaiah", "class": "warrior", "tag": "kingdom",
+      "type": "minion", "cost": 3, "attack": 3, "health": 3, "rarity": "rare", "collectible": true,
+      "keywords": ["endure"],
+      "text": "Endure.",
+      "flavor": "Killed a lion in a pit on a snowy day. Weirdly specific. Deeply metal. — 2 Samuel 23.",
+      "art": "A scarred warrior climbing from a snow-dusted pit, lion pelt over one shoulder, breath fogging."
+    },
+    {
+      "id": "sword_of_goliath", "name": "Sword of Goliath", "class": "warrior", "tag": "kingdom",
+      "type": "relic", "relicKind": "equip", "cost": 3, "attack": 3, "health": null, "rarity": "rare", "collectible": true,
+      "text": "+3/+0.",
+      "effects": { "arrival": [ { "verb": "buff", "attack": 3, "health": 0, "target": "self" } ] },
+      "flavor": "Nine feet of the enemy's own craftsmanship, now yours. Warranty void. — 1 Samuel 17.",
+      "art": "An oversized bronze sword planted point-down in sand, far too big for the boy reaching for its hilt."
+    },
+    {
+      "id": "samson", "name": "Samson", "class": "warrior", "tag": "judges",
+      "type": "minion", "cost": 4, "attack": 5, "health": 3, "rarity": "epic", "collectible": true,
+      "text": "Legacy: deal 2 to all enemy units.",
+      "effects": { "legacy": [ { "verb": "deal", "amount": 2, "target": "allEnemies" } ] },
+      "flavor": "Brought the whole house down. On purpose. Eventually. — Judges 16.",
+      "art": "A powerful figure braced between two temple pillars, cracks spidering upward, dust raining, defiant."
+    },
+    {
+      "id": "gideons_torches", "name": "Gideon's Torches", "class": "warrior", "tag": "judges",
+      "type": "spell", "cost": 3, "rarity": "rare", "collectible": true, "attack": null, "health": null,
+      "text": "If you have fewer units than the enemy, deal 2 to all enemy units.",
+      "effects": { "arrival": [ { "verb": "deal", "amount": 2, "target": "allEnemies", "condition": "fewer_units_than_enemy" } ] },
+      "flavor": "300 jars, 300 trumpets, zero drawn swords at first. — Judges 7.",
+      "art": "A hillside erupting with sudden torchlight from clay jars at midnight, enemy camp in panic below."
+    },
+    {
+      "id": "melchizedek", "name": "Melchizedek", "class": "priest", "tag": "genesis",
+      "type": "minion", "cost": 3, "attack": 2, "health": 4, "rarity": "rare", "collectible": true,
+      "text": "Arrival: restore 3 to your hero.",
+      "effects": { "arrival": [ { "verb": "healHero", "amount": 3 } ] },
+      "flavor": "King of Salem, priest of God Most High, no genealogy, no exit. Mysterious on purpose. — Genesis 14.",
+      "art": "A haloless robed elder offering bread and a cup on a hilltop, dusk-gold, deliberately faceless-in-shadow."
+    },
+    {
+      "id": "breaking_of_bread", "name": "Breaking of Bread", "class": "priest", "tag": "apostles",
+      "type": "spell", "cost": 2, "rarity": "common", "collectible": true, "attack": null, "health": null,
+      "text": "Restore 2 to all allies and your hero.",
+      "effects": { "arrival": [ { "verb": "healUnit", "amount": 2, "target": "allAllies" }, { "verb": "healHero", "amount": 2 } ] },
+      "flavor": "They knew Him in it. Then dinner got a lot more interesting. — Luke 24.",
+      "art": "Hands breaking a loaf at a simple table, warm amber light, two empty places implied."
+    },
+    {
+      "id": "the_bronze_serpent", "name": "The Bronze Serpent", "class": "priest", "tag": "exodus",
+      "type": "relic", "relicKind": "standing", "cost": 3, "attack": null, "health": null, "rarity": "rare", "collectible": true,
+      "text": "At the start of your turn, restore 2 to your hero.",
+      "effects": { "covenant": [ { "verb": "healHero", "amount": 2 } ] },
+      "flavor": "Look and live. Deeply strange. Entirely the point. — Numbers 21.",
+      "art": "A serpent of burnished bronze coiled on a tall pole against a desert sky, snakes fleeing the ground below."
+    },
+    {
+      "id": "aaron_high_priest", "name": "Aaron, the High Priest", "class": "priest", "tag": "exodus",
+      "type": "minion", "cost": 4, "attack": 3, "health": 5, "rarity": "legendary", "collectible": true,
+      "text": "Arrival: give all your units Endure this turn.",
+      "effects": { "arrival": [ { "verb": "giveKeyword", "keyword": "endure", "target": "allAllies" } ] },
+      "flavor": "Wore the names of the tribes on his chest. Also once made a very regrettable cow. — Exodus 28 / 32.",
+      "art": "A priest in a jeweled breastplate of twelve stones, censer smoking, incense-blue and gold, solemn."
+    },
+    {
+      "id": "shepherd_boy", "name": "Shepherd Boy", "class": "shepherd", "tag": "kingdom",
+      "type": "minion", "cost": 1, "attack": 1, "health": 2, "rarity": "common", "collectible": true,
+      "keywords": ["redeem"],
+      "text": "Redeem: when this dies, summon a 1/1 Sheep.",
+      "effects": { "redeem": [ { "verb": "summon", "token": "sheep", "count": 1 } ] },
+      "flavor": "Somebody has to watch them. It's usually the youngest.",
+      "art": "A young shepherd leaning on a crook at dawn, a few sheep around his feet, dew and green hills."
+    },
+    {
+      "id": "gather_the_flock", "name": "Gather the Flock", "class": "shepherd", "tag": null,
+      "type": "spell", "cost": 2, "rarity": "common", "collectible": true, "attack": null, "health": null,
+      "text": "Summon two 1/1 Sheep.",
+      "effects": { "arrival": [ { "verb": "summon", "token": "sheep", "count": 2 } ] },
+      "flavor": "Ninety-eight to go.",
+      "art": "Sheep streaming through a gate into a stone fold at dusk, a shepherd counting, wool-cream and green."
+    },
+    {
+      "id": "david_the_shepherd", "name": "David, the Shepherd", "class": "shepherd", "tag": "kingdom",
+      "type": "minion", "cost": 2, "attack": 2, "health": 3, "rarity": "legendary", "collectible": true,
+      "keywords": ["redeem"],
+      "text": "Arrival: summon a 1/1 Sheep. Redeem: when a Sheep dies, deal 2 to a random enemy.",
+      "effects": { "arrival": [ { "verb": "summon", "token": "sheep", "count": 1 } ], "redeem": [ { "verb": "deal", "amount": 2, "target": "randomEnemy" } ] },
+      "flavor": "Fought a lion and a bear over livestock. The giant was practice. — 1 Samuel 17.",
+      "art": "A shepherd youth with a harp on his back and a sling at his belt, a lion's shadow slinking off, dawn-green calm."
+    },
+    {
+      "id": "firstborn_heir", "name": "Firstborn Heir", "class": "patriarch", "tag": "genesis",
+      "type": "minion", "cost": 1, "attack": 1, "health": 2, "rarity": "common", "collectible": true,
+      "text": "The first of many. Very, very many.",
+      "flavor": "The first of many. Very, very many.",
+      "art": "A swaddled child held up against a vast starfield, tent and altar below, indigo awe."
+    },
+    {
+      "id": "covenant_of_stars", "name": "Covenant of Stars", "class": "patriarch", "tag": "genesis",
+      "type": "spell", "cost": 3, "rarity": "epic", "collectible": true, "attack": null, "health": null,
+      "text": "Summon three 1/1 Heirs.",
+      "effects": { "arrival": [ { "verb": "summon", "token": "heir", "count": 3 } ] },
+      "flavor": "Count the stars, if you can. Then keep counting. — Genesis 15.",
+      "art": "An old man gazing up at an overwhelming field of stars, arms open, tiny against indigo infinity."
+    },
+    {
+      "id": "sarah", "name": "Sarah", "class": "patriarch", "tag": "genesis",
+      "type": "minion", "cost": 2, "attack": 1, "health": 3, "rarity": "rare", "collectible": true,
+      "keywords": ["covenant"],
+      "text": "Covenant: at the start of your turn, if you control a Legendary, gain +1/+1.",
+      "effects": { "covenant": [ { "verb": "buff", "attack": 1, "health": 1, "target": "self", "condition": "control_legendary" } ] },
+      "flavor": "Laughed at the promise. God kept it anyway, and named the kid 'Laughter.' — Genesis 18.",
+      "art": "An elder woman at a tent door, hand to mouth mid-laugh, three visitors' long shadows across the sand."
+    },
+    {
+      "id": "abram_the_called", "name": "Abram, the Called", "class": "patriarch", "tag": "genesis",
+      "type": "minion", "cost": 2, "attack": 2, "health": 2, "rarity": "legendary", "collectible": true,
+      "text": "Fulfill: start your turn with 3+ other allies.",
+      "fulfill": { "condition": "control_allies", "value": 3, "into": "abraham_father_of_nations" },
+      "flavor": "Left everything on the strength of a voice and a promise. — Genesis 12.",
+      "art": "A lone traveler leaving a walled city at dawn with tents and flocks, road ahead empty, starfield fading."
+    },
+    {
+      "id": "abraham_father_of_nations", "name": "Abraham, Father of Nations", "class": "patriarch", "tag": "genesis",
+      "type": "minion", "cost": 2, "attack": 4, "health": 4, "rarity": "legendary", "collectible": false,
+      "text": "Arrival: summon two 1/1 Heirs.",
+      "effects": { "arrival": [ { "verb": "summon", "token": "heir", "count": 2 } ] },
+      "flavor": "A promise, kept and counted in the thousands.",
+      "art": "An old patriarch beneath a night sky thick with stars, a crowd of descendants implied in the shadows."
+    },
+    {
+      "id": "eager_convert", "name": "Eager Convert", "class": "disciple", "tag": null,
+      "type": "minion", "cost": 2, "attack": 2, "health": 2, "rarity": "common", "collectible": true,
+      "keywords": ["scatter"],
+      "text": "Scatter: when this dies, summon a 1/1 Disciple.",
+      "effects": { "scatter": [ { "verb": "summon", "token": "disciple", "count": 1 } ] },
+      "flavor": "New, loud, and absolutely everywhere.",
+      "art": "A wide-eyed newcomer clutching a scroll to their chest in a crowded doorway, amber lamplight, zeal."
+    },
+    {
+      "id": "stephen", "name": "Stephen", "class": "disciple", "tag": "apostles",
+      "type": "minion", "cost": 2, "attack": 2, "health": 2, "rarity": "rare", "collectible": true,
+      "keywords": ["scatter"],
+      "text": "Scatter: when this dies, summon two 1/1 Disciples.",
+      "effects": { "scatter": [ { "verb": "summon", "token": "disciple", "count": 2 } ] },
+      "flavor": "The first to fall. The church only scattered — and spread faster. — Acts 7.",
+      "art": "A kneeling young deacon looking up into breaking golden light, calm amid a gathering storm of shadow."
+    },
+    {
+      "id": "the_upper_room", "name": "The Upper Room", "class": "disciple", "tag": "apostles",
+      "type": "spell", "cost": 2, "rarity": "common", "collectible": true, "attack": null, "health": null,
+      "text": "Summon two 1/1 Disciples.",
+      "effects": { "arrival": [ { "verb": "summon", "token": "disciple", "count": 2 } ] },
+      "flavor": "Room for everyone. BYO fish. — Acts 1.",
+      "art": "A lamplit upper chamber with cushions and low tables, a stair leading up, expectant emptiness."
+    },
+    {
+      "id": "saul_of_tarsus", "name": "Saul of Tarsus", "class": "disciple", "tag": "apostles",
+      "type": "minion", "cost": 3, "attack": 3, "health": 2, "rarity": "legendary", "collectible": true,
+      "text": "Arrival: your other allies -1 attack this turn. At the start of your next turn, transforms into Paul, Apostle.",
+      "fulfill": { "condition": "auto_next_turn", "value": null, "into": "paul_apostle" },
+      "effects": { "arrival": [ { "verb": "buff", "attack": -1, "target": "allAllies" } ] },
+      "flavor": "The one transformation you don't earn. That's the entire point. — Acts 9.",
+      "art": "A hard-eyed man on a road struck by a blinding column of light, thrown from his mount; the only card where the light is the subject."
+    },
+    {
+      "id": "paul_apostle", "name": "Paul, Apostle", "class": "disciple", "tag": "apostles",
+      "type": "minion", "cost": 3, "attack": 3, "health": 4, "rarity": "legendary", "collectible": false,
+      "text": "On transform: draw 2.",
+      "effects": { "arrival": [ { "verb": "draw", "amount": 2 } ] },
+      "flavor": "The letters that built the church, from the man who tried to end it.",
+      "art": "A seated figure writing by lamplight in a spare cell, chains at his ankle, ink and resolve, amber glow."
+    },
+    {
+      "id": "ruth", "name": "Ruth", "class": "neutral", "tag": null,
+      "type": "minion", "cost": 1, "attack": 1, "health": 1, "rarity": "rare", "collectible": true,
+      "text": "Whenever another ally dies, gain +1/+1.",
+      "effects": { "aura": [ { "verb": "buff", "attack": 1, "health": 1, "target": "self", "condition": "on_ally_death" } ] },
+      "flavor": "'Where you go, I go.' Even here. Especially here. — Ruth 1.",
+      "art": "A young widow gleaning barley behind harvesters in golden fields, resolve, warm dust-light."
+    },
+    {
+      "id": "watchman", "name": "Watchman", "class": "neutral", "tag": null,
+      "type": "minion", "cost": 1, "attack": 0, "health": 2, "rarity": "common", "collectible": true,
+      "keywords": ["guard"],
+      "text": "Guard.",
+      "flavor": "It's a living. Mostly standing. — Ezekiel 33.",
+      "art": "A lone sentry on a night wall with a horn, torch guttering, long shadows, patient vigilance."
+    }
+  ],
+  "tokens": [
+    { "id": "sheep", "name": "Sheep", "class": "shepherd", "tag": null, "type": "minion", "cost": 0, "attack": 1, "health": 1, "rarity": "token", "collectible": false, "text": "", "flavor": "Baa.", "art": "A small fluffy sheep, wool-cream, wide innocent eyes." },
+    { "id": "heir", "name": "Heir", "class": "patriarch", "tag": "genesis", "type": "minion", "cost": 0, "attack": 1, "health": 1, "rarity": "token", "collectible": false, "text": "", "flavor": "One of the countless.", "art": "A child in simple robes against a starfield, hopeful." },
+    { "id": "disciple", "name": "Disciple", "class": "disciple", "tag": "apostles", "type": "minion", "cost": 0, "attack": 1, "health": 1, "rarity": "token", "collectible": false, "text": "", "flavor": "Sent.", "art": "A traveler with a staff and satchel on a dawn road, amber light." },
+    { "id": "dove", "name": "Dove", "class": "patriarch", "tag": "genesis", "type": "minion", "cost": 0, "attack": 1, "health": 1, "rarity": "token", "collectible": false, "text": "", "flavor": "It came back with an olive leaf. — Genesis 8.", "art": "A white dove in flight with an olive sprig, soft light over water." }
+  ]
+}

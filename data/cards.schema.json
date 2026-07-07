@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Covenant Card",
+  "description": "Schema for a single COVENANT card. See CLAUDE.md sections 4-9.",
+  "type": "object",
+  "required": ["id", "name", "class", "type", "cost", "rarity", "collectible", "text", "flavor", "art"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_]+$", "description": "unique snake_case, e.g. shepherd_david" },
+    "name": { "type": "string" },
+    "class": {
+      "type": "string",
+      "enum": ["prophet", "warrior", "priest", "shepherd", "patriarch", "disciple", "neutral", "adversary"],
+      "description": "role = deck identity. 'adversary' = AI-only villain, never collectible."
+    },
+    "tag": {
+      "type": ["string", "null"],
+      "enum": ["genesis", "exodus", "judges", "kingdom", "exile", "apostles", null],
+      "description": "era tribe (cross-cutting). null for Neutral/Adversary with no era."
+    },
+    "type": { "type": "string", "enum": ["minion", "spell", "relic"] },
+    "relicKind": { "type": ["string", "null"], "enum": ["equip", "standing", null] },
+    "cost": { "type": "integer", "minimum": 0, "maximum": 10 },
+    "attack": { "type": ["integer", "null"], "minimum": 0, "description": "minions/equip relics only" },
+    "health": { "type": ["integer", "null"], "minimum": 1, "description": "minions only" },
+    "rarity": { "type": "string", "enum": ["common", "rare", "epic", "legendary", "token"] },
+    "collectible": { "type": "boolean", "description": "false for tokens, fulfilled-forms, and adversary cards" },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["guard", "swift", "endure", "foresee", "discover", "redeem", "covenant", "scatter", "raise", "giant_slayer"] },
+      "default": []
+    },
+    "text": { "type": "string", "description": "rules text shown on card; terse, unambiguous" },
+    "flavor": { "type": "string", "description": "1-2 line dry flavor ending in the passage ref" },
+    "art": { "type": "string", "description": "generation seed: subject . pose . setting . mood" },
+    "effects": {
+      "type": "object",
+      "description": "effect-verb references keyed by trigger. See CLAUDE.md section 8 for the verb library.",
+      "additionalProperties": false,
+      "properties": {
+        "arrival": { "type": "array", "items": { "$ref": "#/definitions/effect" } },
+        "legacy": { "type": "array", "items": { "$ref": "#/definitions/effect" } },
+        "covenant": { "type": "array", "items": { "$ref": "#/definitions/effect" } },
+        "redeem": { "type": "array", "items": { "$ref": "#/definitions/effect" } },
+        "scatter": { "type": "array", "items": { "$ref": "#/definitions/effect" } },
+        "aura": { "type": "array", "items": { "$ref": "#/definitions/effect" } }
+      }
+    },
+    "fulfill": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "condition": { "type": "string", "enum": ["control_allies", "survive_stronger", "survive_damage", "outnumbered_win", "slay_giant", "hero_damaged", "cast_spells", "auto_next_turn"] },
+        "value": { "type": ["integer", "null"] },
+        "into": { "type": "string", "description": "id of the fulfilled-form card (collectible:false)" }
+      }
+    }
+  },
+  "definitions": {
+    "effect": {
+      "type": "object",
+      "required": ["verb"],
+      "properties": {
+        "verb": { "type": "string", "enum": ["deal", "healHero", "healUnit", "summon", "draw", "drawType", "buff", "giveKeyword", "foresee", "discover", "destroy", "setAttack", "returnFromDiscard", "transform", "exile", "costReduce"] },
+        "amount": { "type": "integer" },
+        "attack": { "type": "integer" },
+        "health": { "type": "integer" },
+        "token": { "type": "string", "description": "token id, e.g. sheep / heir / disciple / dove" },
+        "count": { "type": "integer" },
+        "target": { "type": "string", "enum": ["self", "ally", "allAllies", "randomAlly", "enemy", "allEnemies", "randomEnemy", "strongestEnemy", "weakestEnemy", "mostHealthEnemy", "anyUnit", "hero", "enemyHero"] },
+        "keyword": { "type": "string" },
+        "cardType": { "type": "string", "enum": ["minion", "spell", "relic"] },
+        "condition": { "type": "string", "description": "optional gate, e.g. 'fewer_units_than_enemy'" }
+      }
+    }
+  }
+}

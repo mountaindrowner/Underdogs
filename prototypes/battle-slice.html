@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>COVENANT — Battle Slice</title>
+<style>
+:root{
+  --wood:#3a2817; --wood2:#4d3620; --wood-edge:#241609;
+  --felt:#2a3d2e; --felt2:#1e2d22;
+  --parch:#e9dcbc; --parch2:#d6c393; --parch-edge:#9c8447;
+  --gold:#d8b45a; --gold-br:#f2d888; --gold-dk:#8a6d2f; --gold-dk2:#7a5f28;
+  --ink:#241a0c; --red:#b23b2e; --red-dk:#7d241a; --blue:#3f6bb0;
+  --serif:"Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0805;font-family:var(--sans)}
+#fit{position:absolute;top:50%;left:50%;transform-origin:center center}
+/* ===== STAGE ===== */
+#stage{width:1000px;height:625px;position:relative;border-radius:14px;overflow:hidden;
+  background:
+    radial-gradient(120% 80% at 50% 42%, #33472f 0%, #22331f 60%, #17231492 100%),
+    repeating-linear-gradient(90deg,#2a3d2e,#2a3d2e 2px,#28392b 2px,#28392b 4px);
+  box-shadow:0 0 0 10px var(--wood),0 0 0 13px var(--wood-edge),0 20px 60px #000;}
+/* wood frame ring */
+#stage::before{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.55),inset 0 0 0 2px rgba(216,180,90,.15);}
+/* center battlefield seam */
+.seam{position:absolute;left:120px;right:120px;top:311px;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(216,180,90,.5),transparent);}
+.seam::after{content:"⚔";position:absolute;left:50%;top:-11px;transform:translateX(-50%);color:var(--gold);font-size:16px;text-shadow:0 0 6px #000}
+
+/* ===== HERO ===== */
+.hero{position:absolute;left:50%;transform:translateX(-50%);width:118px;height:118px;cursor:default}
+.hero .portrait{width:100%;height:100%;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 38% 32%,#5a6f52,#26331f);
+  border:4px solid var(--gold-dk);box-shadow:0 4px 14px #000,inset 0 0 20px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:44px;color:#e9dcbc99;overflow:hidden}
+.hero.enemy{top:-4px}
+.hero.you{bottom:-4px}
+.hero.you .portrait{background:radial-gradient(circle at 38% 32%,#6b7fb0,#243459);border-color:var(--gold)}
+.hero.enemy .portrait{background:radial-gradient(circle at 38% 32%,#8a4a42,#3a1712);border-color:#a05a4e}
+.hero.foeTarget .portrait{box-shadow:0 0 0 4px var(--red),0 0 20px var(--red),inset 0 0 20px rgba(0,0,0,.5);cursor:pointer}
+.hero .hpbadge{position:absolute;bottom:-2px;right:-4px;width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#e05a48,#7d241a);border:2px solid #ffd9cf;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:18px;color:#fff;
+  box-shadow:0 2px 5px #000}
+.hero .namep{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--serif);font-variant:small-caps;letter-spacing:.06em;font-size:12px;color:var(--gold-br);
+  background:rgba(20,14,8,.7);padding:1px 10px;border-radius:8px;border:1px solid var(--gold-dk)}
+.hero.enemy .namep{top:120px}
+.hero.you .namep{bottom:120px}
+.dmgFloat{position:absolute;font-family:var(--serif);font-weight:700;font-size:26px;color:#ff5a44;
+  text-shadow:0 2px 4px #000;pointer-events:none;animation:floatUp 1s forwards;z-index:60}
+@keyframes floatUp{0%{opacity:0;transform:translateY(6px) scale(.6)}20%{opacity:1;transform:translateY(-6px) scale(1.15)}100%{opacity:0;transform:translateY(-30px)}}
+
+/* ===== HERO POWER ===== */
+.hpower{position:absolute;width:62px;height:62px;border-radius:50%;cursor:pointer;
+  background:radial-gradient(circle at 38% 32%,#f2d888,#8a6d2f);border:3px solid var(--gold-br);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  box-shadow:0 3px 10px #000,inset 0 0 12px rgba(255,255,255,.25);color:#2a1e08}
+.hpower .glyph{font-size:22px;line-height:1;font-family:var(--serif)}
+.hpower .pc{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#8fd0ff,#2a5a9e);border:2px solid #cfe4ff;color:#fff;
+  font-family:var(--serif);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.hpower.you{bottom:24px;left:calc(50% + 78px)}
+.hpower.enemy{top:24px;left:calc(50% + 78px);cursor:default;filter:saturate(.8)}
+.hpower.usable{box-shadow:0 0 0 3px #fff6d8,0 0 16px var(--gold-br),inset 0 0 12px rgba(255,255,255,.3);animation:pulse 1.4s infinite}
+.hpower.spent{filter:grayscale(.7) brightness(.6);cursor:default}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px #fff6d8,0 0 10px var(--gold-br)}50%{box-shadow:0 0 0 4px #fff6d8,0 0 22px var(--gold-br)}}
+.hpTip{position:absolute;bottom:92px;left:calc(50% + 46px);width:150px;background:rgba(20,14,8,.94);
+  border:1px solid var(--gold-dk);border-radius:6px;padding:6px 8px;font-size:9.5px;color:var(--parch);
+  line-height:1.35;display:none;z-index:40}
+.hpower.you:hover + .hpTip{display:block}
+
+/* ===== MANA (PROVISION) ===== */
+.mana{position:absolute;right:16px;bottom:14px;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.manaGems{display:flex;gap:2px;max-width:200px;flex-wrap:wrap;justify-content:flex-end}
+.gem{width:15px;height:15px;transform:rotate(45deg);border-radius:2px;border:1px solid #23406b;background:#0e1a2e}
+.gem.full{background:radial-gradient(circle at 35% 30%,#8fd0ff,#2a6ab0);border-color:#bfe4ff;box-shadow:0 0 5px #4d9de0}
+.manaLbl{font-family:var(--serif);font-size:11px;color:#bfe4ff;letter-spacing:.1em}
+/* deck pile */
+.deckPile{position:absolute;right:20px;font-family:var(--serif);color:var(--gold-br);font-size:12px;text-align:center}
+.deckPile .pileArt{width:44px;height:60px;border-radius:5px;background:linear-gradient(150deg,#4d3620,#241609);
+  border:2px solid var(--gold-dk);box-shadow:2px 2px 0 #241609,4px 4px 0 #1a1006;
+  display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--gold-dk)}
+.deckPile.you{bottom:78px}
+.deckPile.enemy{top:14px}
+
+/* ===== BOARD MINIONS ===== */
+.boardRow{position:absolute;left:130px;right:130px;height:132px;display:flex;gap:6px;
+  align-items:center;justify-content:center}
+.boardRow.enemy{top:44px}
+.boardRow.you{bottom:150px}
+.minion{width:92px;height:116px;position:relative;cursor:pointer;flex-shrink:0;
+  transition:transform .12s;animation:summon .3s}
+@keyframes summon{from{opacity:0;transform:translateY(10px) scale(.8)}}
+.minion .body{position:absolute;inset:0;border-radius:50%/44%;
+  background:radial-gradient(circle at 40% 30%,var(--parch),var(--parch2));
+  border:3px solid var(--gold-dk);box-shadow:0 4px 10px rgba(0,0,0,.55),inset 0 0 14px rgba(120,90,40,.25);
+  overflow:hidden;display:flex;align-items:center;justify-content:center}
+.minion .art{font-family:var(--serif);font-size:40px;color:rgba(60,45,15,.32)}
+.minion .nameband{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:96%;
+  text-align:center;font-family:var(--serif);font-variant:small-caps;font-size:9px;color:#2c2210;
+  background:rgba(233,220,188,.85);border-top:1px solid var(--gold-dk);border-bottom:1px solid var(--gold-dk);
+  padding:1px 0;line-height:1.1;letter-spacing:.02em}
+.minion .kw{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);font-size:6.5px;letter-spacing:.08em;
+  color:var(--gold-dk2);text-transform:uppercase;font-weight:700}
+.stat{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:700;font-size:15px;box-shadow:0 2px 4px #000}
+.atk{bottom:2px;left:0;background:radial-gradient(circle at 38% 32%,#f2d888,#8a6d2f);border:2px solid #fff3cf;color:#2a1e08}
+.hpv{bottom:2px;right:0;background:radial-gradient(circle at 38% 32%,#e05a48,#7d241a);border:2px solid #ffd9cf;color:#fff}
+.atk.buff{color:#0a5a12}.hpv.hurt{background:radial-gradient(circle at 38% 32%,#ff7a68,#8d1a0f)}
+.minion.ready .body{box-shadow:0 0 0 3px #b9f5a0,0 4px 12px rgba(0,0,0,.55),inset 0 0 14px rgba(120,90,40,.25)}
+.minion.sick .body{filter:saturate(.7) brightness(.86)}
+.minion.sel{transform:translateY(-10px) scale(1.06)}
+.minion.sel .body{box-shadow:0 0 0 3px #ffca4d,0 0 20px #ffca4d}
+.minion.foeTarget .body{box-shadow:0 0 0 3px var(--red),0 0 16px var(--red)}
+.minion.guardIcon::before{content:"";position:absolute;inset:-5px;border-radius:50%/44%;
+  border:2px solid #9fb0cf;opacity:.7;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,transparent 0deg 26deg,rgba(159,176,207,.12) 26deg 30deg)}
+.shieldGlow{position:absolute;inset:-4px;border-radius:50%/44%;border:2px solid var(--gold-br);
+  box-shadow:0 0 12px var(--gold-br);pointer-events:none}
+.minion.dead{animation:die .45s forwards}
+@keyframes die{to{opacity:0;transform:scale(.5) rotate(8deg)}}
+.minion.lunge{animation:lunge .3s}
+@keyframes lunge{50%{transform:translateY(-18px) scale(1.08)}}
+.fulfillBurst{position:absolute;inset:-30px;border-radius:50%;pointer-events:none;z-index:50;
+  background:radial-gradient(circle,rgba(255,240,190,.9),transparent 65%);animation:burst .8s forwards}
+@keyframes burst{0%{opacity:0;transform:scale(.4)}30%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
+
+/* ===== HAND ===== */
+.hand{position:absolute;bottom:-34px;left:50%;transform:translateX(-50%);height:170px;
+  display:flex;justify-content:center;align-items:flex-end;z-index:20}
+.card{width:104px;height:150px;position:relative;cursor:pointer;margin:0 -14px;transform-origin:bottom center;
+  transition:transform .16s, margin .16s;}
+.card .frame{position:absolute;inset:0;border-radius:9px;
+  background:linear-gradient(165deg,#f1e6c8 0%,var(--parch) 40%,var(--parch2) 100%);
+  border:2px solid var(--gold-dk);box-shadow:0 5px 14px rgba(0,0,0,.6);overflow:hidden}
+.card .art{position:absolute;top:20px;left:9px;right:9px;height:56px;border-radius:4px;
+  background:linear-gradient(160deg,#26324c,#0f1626);border:1px solid var(--gold-dk2);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card .art span{font-family:var(--serif);font-size:34px;color:rgba(216,180,90,.4)}
+.card .nm{position:absolute;top:78px;left:0;right:0;text-align:center;font-family:var(--serif);
+  font-variant:small-caps;font-size:10px;color:#2c2210;letter-spacing:.02em;line-height:1;padding:0 6px}
+.card .tx{position:absolute;top:92px;left:8px;right:8px;bottom:20px;font-size:7px;color:#42340f;
+  text-align:center;line-height:1.28;overflow:hidden}
+.card .tx b{color:#7a5c1a}
+.card .cost{position:absolute;top:-5px;left:-5px;width:28px;height:28px;transform:rotate(45deg);border-radius:4px;
+  background:radial-gradient(circle at 38% 32%,#8fd0ff,#2a6ab0);border:2px solid #cfe4ff;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px #000}
+.card .cost span{transform:rotate(-45deg);font-family:var(--serif);font-weight:700;font-size:15px;color:#0e2540}
+.card .catk{position:absolute;bottom:-4px;left:-4px;width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#f2d888,#8a6d2f);border:2px solid #fff3cf;color:#2a1e08;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:14px}
+.card .chp{position:absolute;bottom:-4px;right:-4px;width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#e05a48,#7d241a);border:2px solid #ffd9cf;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:14px}
+.card .rar{position:absolute;top:70px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;
+  border:1px solid rgba(0,0,0,.3)}
+.rar.common{background:#cfcabb}.rar.rare{background:#4f8ce0}.rar.epic{background:#b060d8}.rar.legend{background:#e8951f}
+.card:hover{transform:translateY(-40px) scale(1.28);z-index:30;margin:0 8px}
+.card.playable .frame{box-shadow:0 0 0 2px var(--gold-br),0 0 14px rgba(242,216,136,.6),0 5px 14px rgba(0,0,0,.6)}
+.card.unplayable{filter:brightness(.82) saturate(.75)}
+.card.spellcard .art{height:98px}
+.card.spellcard .catk,.card.spellcard .chp{display:none}
+.card.spellcard .tx{top:96px}
+
+/* enemy hand (backs) */
+.foeHand{position:absolute;top:-40px;left:50%;transform:translateX(-50%);display:flex;justify-content:center}
+.back{width:52px;height:74px;margin:0 -10px;border-radius:6px;
+  background:linear-gradient(150deg,#4d3620,#241609);border:2px solid var(--gold-dk);
+  box-shadow:0 3px 8px #000;display:flex;align-items:center;justify-content:center;color:var(--gold-dk);font-size:20px}
+
+/* ===== END TURN ===== */
+.endTurn{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:92px;height:78px;cursor:pointer;
+  background:radial-gradient(circle at 40% 35%,#f2d888,#8a6d2f);border:3px solid var(--gold-br);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#2a1e08;
+  font-family:var(--serif);font-variant:small-caps;letter-spacing:.05em;line-height:1.05;font-size:13px;font-weight:700;
+  box-shadow:0 4px 12px #000,inset 0 0 14px rgba(255,255,255,.25)}
+.endTurn.waiting{background:radial-gradient(circle at 40% 35%,#6a7d61,#2e3d28);border-color:#4a5a42;color:#c9d4c0;cursor:default}
+.endTurn.usable{animation:pulse 1.4s infinite}
+
+/* log */
+.log{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:112px;
+  font-size:9px;color:#d8cba8;font-style:italic;line-height:1.4;text-align:center;
+  background:rgba(20,14,8,.5);border:1px solid var(--gold-dk2);border-radius:8px;padding:8px 6px}
+
+/* toast */
+.toast{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);z-index:70;
+  font-family:var(--serif);font-variant:small-caps;font-size:26px;letter-spacing:.12em;color:var(--gold-br);
+  text-shadow:0 3px 10px #000,0 0 20px rgba(242,216,136,.5);display:none;text-align:center;white-space:nowrap}
+.toast.show{display:block;animation:toastA 1.5s forwards}
+@keyframes toastA{0%{opacity:0;transform:translate(-50%,-40%) scale(.9)}18%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%)}}
+
+/* overlays */
+.ov{position:absolute;inset:0;background:rgba(8,6,4,.9);z-index:80;display:none;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:30px}
+.ov.show{display:flex}
+.ov h1{font-family:var(--serif);font-variant:small-caps;font-size:40px;color:var(--gold-br);letter-spacing:.18em;margin-bottom:8px}
+.ov p{color:#cfc3a4;font-size:14px;max-width:440px;line-height:1.6;margin-bottom:22px}
+.ov .btn{background:radial-gradient(circle at 40% 35%,#f2d888,#8a6d2f);border:3px solid var(--gold-br);color:#2a1e08;
+  font-family:var(--serif);font-variant:small-caps;letter-spacing:.08em;font-size:17px;font-weight:700;
+  padding:11px 28px;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px #000}
+.ov .sub{font-size:11px;color:#8f866c;margin-top:14px;max-width:420px;line-height:1.5}
+/* discern modal */
+.discern{position:absolute;inset:0;background:rgba(8,6,4,.86);z-index:75;display:none;
+  flex-direction:column;align-items:center;justify-content:center}
+.discern.show{display:flex}
+.discern .dt{font-family:var(--serif);font-variant:small-caps;color:var(--gold-br);font-size:20px;letter-spacing:.1em;margin-bottom:14px}
+.discern .drow{display:flex;gap:22px}
+.rothint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:#c9b98a;font-size:12px;
+  background:rgba(20,14,8,.8);padding:6px 14px;border-radius:20px;border:1px solid var(--gold-dk);display:none}
+</style>
+</head>
+<body>
+<div id="fit"><div id="stage">
+  <div class="seam"></div>
+
+  <!-- enemy -->
+  <div class="foeHand" id="foeHand"></div>
+  <div class="deckPile enemy"><div class="pileArt">✶</div><span id="foeDeck">0</span></div>
+  <div class="hero enemy" id="foeHero" onclick="clickFace('foe')">
+    <div class="portrait">☥</div>
+    <div id="foeHpWrap"></div>
+    <div class="namep">The Adversary</div>
+  </div>
+  <div class="hpower enemy"><div class="glyph">☠</div><div class="pc">2</div></div>
+  <div class="boardRow enemy" id="foeBoard"></div>
+
+  <!-- you -->
+  <div class="boardRow you" id="youBoard"></div>
+  <div class="hero you" id="youHero">
+    <div class="portrait">♔</div>
+    <div id="youHpWrap"></div>
+    <div class="namep">Solomon</div>
+  </div>
+  <div class="hpower you" id="youHp" onclick="useHeroPower()"><div class="glyph">👁</div><div class="pc">2</div></div>
+  <div class="hpTip">Discern (2): Look at the top card of your deck. Keep it, or send it to the bottom.</div>
+  <div class="deckPile you"><div class="pileArt">✶</div><span id="youDeck">0</span></div>
+  <div class="mana"><div class="manaGems" id="manaGems"></div><div class="manaLbl" id="manaLbl">0/0</div></div>
+
+  <div class="hand" id="hand"></div>
+
+  <div class="endTurn" id="endTurn" onclick="endTurn()">End<br>Turn</div>
+  <div class="log" id="log">Play glowing cards. Tap a ready ally, then a target.</div>
+  <div class="toast" id="toast"></div>
+  <div class="rothint" id="rothint">Rotate your phone for the full board ⟳</div>
+
+  <div class="discern" id="discern"><div class="dt">Discern — the top of your deck</div><div class="drow" id="discernRow"></div></div>
+
+  <div class="ov" id="intro">
+    <h1>Covenant</h1>
+    <p>A battle slice — Hearthstone's board, skinned for Scripture. You are <b style="color:#f2d888">Solomon</b>, fielding heroes of the faith. Drop <b style="color:#f2d888">Shepherd David</b> in front of <b>Goliath</b> and watch him <b style="color:#f2d888">Fulfill</b> into a king.</p>
+    <div class="btn" onclick="startGame()">Begin</div>
+    <div class="sub">Tap a glowing card to play it · tap a ready ally then an enemy to attack · Guard must be cleared first · your eye-glyph is your Hero Power.</div>
+  </div>
+  <div class="ov" id="over">
+    <h1 id="overT"></h1><p id="overP"></p><div class="btn" onclick="startGame()">Play Again</div>
+  </div>
+</div></div>
+
+<script>
+/* ===================== FIT / SCALE ===================== */
+function fit(){
+  const s=Math.min(window.innerWidth/1020, window.innerHeight/645);
+  document.getElementById('fit').style.transform=`translate(-50%,-50%) scale(${s})`;
+  document.getElementById('rothint').style.display = window.innerWidth<window.innerHeight ? 'block':'none';
+}
+window.addEventListener('resize',fit);
+
+/* ===================== CARD DB ===================== */
+const DB={
+  // ---- player: Kingdom + Neutral ----
+  shepherd:{n:"Shepherd",t:"m",c:1,a:1,h:1,r:"common",tx:"A perfectly fine 1/1. Somebody has to be."},
+  watchman:{n:"Watchman",t:"m",c:1,a:0,h:2,r:"common",kw:["guard"],tx:"<b>Guard.</b> It's a living. Mostly standing."},
+  ruth:{n:"Ruth",t:"m",c:1,a:1,h:1,r:"rare",tx:"Gains +1/+1 whenever another ally dies.",loyal:true},
+  david:{n:"Shepherd David",t:"m",c:2,a:2,h:1,r:"legend",gs:true,tx:"<b>Giant-Slayer:</b> when he attacks a unit with 4+ attack, destroy it and take no damage. <b>Fulfill</b> → <b>David, the King.</b>",
+         fulfill:{cond:"slayBig",into:"davidKing"}},
+  jonathan:{n:"Jonathan",t:"m",c:2,a:2,h:2,r:"common",kw:["swift"],tx:"<b>Swift.</b>"},
+  simon:{n:"Simon the Fisherman",t:"m",c:2,a:2,h:2,r:"legend",tx:"<b>Fulfill:</b> survive damage → <b>Peter, the Rock.</b>",
+         fulfill:{cond:"survive",into:"peter"}},
+  deborah:{n:"Deborah",t:"m",c:3,a:2,h:3,r:"rare",tx:"Your other units have +1 attack.",aura:"atk"},
+  benaiah:{n:"Benaiah",t:"m",c:3,a:3,h:3,r:"common",kw:["endure"],tx:"<b>Endure</b> — first damage is prevented."},
+  gideon:{n:"Gideon",t:"m",c:3,a:3,h:2,r:"legend",tx:"<b>Fulfill:</b> win combat while outnumbered → <b>Gideon, Mighty of Valor.</b>",
+         fulfill:{cond:"outnumbered",into:"gideonV"}},
+  nehemiah:{n:"Nehemiah",t:"m",c:3,a:1,h:5,r:"common",kw:["guard"],tx:"<b>Guard.</b> So we built the wall."},
+  joshua:{n:"Joshua & Caleb",t:"m",c:4,a:4,h:4,r:"rare",kw:["swift"],tx:"<b>Swift.</b>"},
+  samson:{n:"Samson",t:"m",c:4,a:5,h:3,r:"epic",tx:"<b>Legacy:</b> deal 2 to all enemy units.",legacy:"quake"},
+  elijah:{n:"Elijah",t:"m",c:5,a:4,h:4,r:"legend",tx:"<b>Arrival:</b> deal 3 to the strongest enemy unit.",arrival:"boltStrong"},
+  // fulfilled forms (not drawn)
+  davidKing:{n:"David, the King",t:"m",c:2,a:4,h:4,r:"legend",tx:"Your other units have +1 attack.",aura:"atk"},
+  peter:{n:"Peter, the Rock",t:"m",c:2,a:3,h:4,r:"legend",kw:["guard"],tx:"<b>Guard.</b> On this rock."},
+  gideonV:{n:"Gideon, Mighty of Valor",t:"m",c:3,a:5,h:4,r:"legend",kw:["swift"],tx:"<b>Swift.</b>"},
+  // spells
+  sling:{n:"Sling & Stone",t:"s",c:1,r:"common",tx:"Deal 2 to a unit. If it has 5+ attack, destroy it.",target:"enemyM",spell:"sling"},
+  oil:{n:"Anointing Oil",t:"s",c:2,r:"rare",tx:"Give an ally +2/+2 and <b>Swift.</b>",target:"allyM",spell:"oil"},
+  jericho:{n:"Trumpets at Jericho",t:"s",c:5,r:"epic",tx:"Destroy the enemy unit with the most health.",target:"none",spell:"jericho"},
+  // ---- enemy: Adversary ----
+  taskmaster:{n:"Egyptian Taskmaster",t:"m",c:2,a:3,h:2,r:"common",tx:""},
+  philistine:{n:"Philistine Soldier",t:"m",c:2,a:2,h:3,r:"common",tx:""},
+  raider:{n:"Amalekite Raider",t:"m",c:3,a:3,h:3,r:"common",kw:["swift"],tx:"<b>Swift.</b>"},
+  chariot:{n:"Chariot of Iron",t:"m",c:4,a:4,h:5,r:"rare",kw:["guard"],tx:"<b>Guard.</b>"},
+  jezebel:{n:"Jezebel",t:"m",c:4,a:3,h:4,r:"epic",tx:"<b>Arrival:</b> deal 2 to a random enemy unit.",arrival:"boltRandom2"},
+  serpent:{n:"The Serpent",t:"m",c:1,a:1,h:1,r:"rare",tx:"\u201cDid He really say that?\u201d"},
+  magician:{n:"Pharaoh's Magician",t:"m",c:3,a:2,h:2,r:"common",tx:"<b>Arrival:</b> draw a card.",arrival:"draw"},
+  goliath:{n:"Goliath of Gath",t:"m",c:6,a:7,h:6,r:"legend",tx:"On paper, unbeatable. Mind your head."},
+  baal:{n:"Idol of Ba'al",t:"m",c:3,a:0,h:5,r:"rare",kw:["guard"],tx:"<b>Guard.</b>"},
+};
+const YOU_DECK=["shepherd","watchman","ruth","ruth","david","jonathan","jonathan","simon",
+  "deborah","benaiah","benaiah","gideon","nehemiah","nehemiah","joshua","joshua","samson",
+  "elijah","sling","sling","oil","oil","jericho","shepherd","watchman","deborah","jonathan","benaiah","joshua","ruth"];
+const FOE_DECK=["serpent","taskmaster","taskmaster","philistine","philistine","raider","raider","magician",
+  "chariot","chariot","jezebel","baal","baal","goliath","raider","taskmaster","philistine","magician",
+  "serpent","chariot","jezebel","baal","raider","goliath","taskmaster","philistine","raider","chariot","magician","baal"];
+
+/* ===================== STATE ===================== */
+let G,pickedCard=null,pickedMinion=null,anim=false;
+let UID=0;
+function mkSide(list){
+  const d=list.slice();
+  for(let i=d.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[d[i],d[j]]=[d[j],d[i]];}
+  return{hp:30,mana:0,max:0,deck:d,hand:[],board:[],hpUsed:false,fatigue:0};
+}
+function startGame(){
+  G={you:mkSide(YOU_DECK),foe:mkSide(FOE_DECK),turn:"you",over:false};
+  UID=0;pickedCard=null;pickedMinion=null;anim=false;
+  for(let i=0;i<3;i++)drawCard(G.you);
+  for(let i=0;i<4;i++)drawCard(G.foe);
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('over').classList.remove('show');
+  beginTurn("you");
+}
+function drawCard(s){
+  if(s.deck.length===0){s.fatigue++;s.hp-=s.fatigue;return;}
+  if(s.hand.length<10)s.hand.push(s.deck.pop()); else s.deck.pop();
+}
+function mkMinion(id){
+  const c=DB[id];
+  return{uid:++UID,id,a:c.a,h:c.h,mh:c.h,kw:(c.kw||[]).slice(),
+    endure:(c.kw||[]).includes("endure"),ready:false,sick:true,
+    sworeDamage:false};
+}
+function auraAtk(m,side){ // +1 attack aura from Deborah/David-King
+  let b=0; side.board.forEach(o=>{if(o!==m && DB[o.id].aura==="atk")b++;}); return b;
+}
+function eff(m,side){return m.a+auraAtk(m,side);}
+
+/* ===================== TURN FLOW ===================== */
+function beginTurn(who){
+  G.turn=who;const s=G[who];
+  s.max=Math.min(10,s.max+1);s.mana=s.max;s.hpUsed=false;
+  s.board.forEach(m=>{m.ready=(eff(m,s)>0);m.sick=false;});
+  drawCard(s);
+  if(who==="you"){anim=false;log("Your turn.");}
+  render();
+  if(who==="foe")setTimeout(foeTurn,600);
+}
+function endTurn(){
+  if(anim||G.over||G.turn!=="you")return;
+  pickedCard=null;pickedMinion=null;anim=true;render();
+  toast("Adversary's Turn");
+  setTimeout(()=>beginTurn("foe"),700);
+}
+
+/* ===================== PLAY ===================== */
+function canPlay(id,s){const c=DB[id];return c.c<=s.mana && (c.t==="s"||s.board.length<7);}
+function playFromHand(idx){
+  const s=G.you,id=s.hand[idx],c=DB[id];
+  if(!canPlay(id,s))return;
+  if(c.t==="s"){
+    if(c.target==="none"){s.mana-=c.c;s.hand.splice(idx,1);resolveSpell(c.spell,s,G.foe,null);afterAction();return;}
+    pickedCard={idx,id,c};pickedMinion=null;log("Choose a target for "+c.n+".");render();return;
+  }
+  // minion
+  s.mana-=c.c;s.hand.splice(idx,1);
+  const m=mkMinion(id);
+  if(m.kw.includes("swift")){m.sick=false;m.ready=true;}
+  s.board.push(m);
+  log("You play "+c.n+".");
+  if(c.arrival)doArrival(c.arrival,s,G.foe,m);
+  afterAction();
+}
+function resolveSpell(sp,me,foe,target){
+  if(sp==="sling"){ if(target){ if(DB[target.id].a>=5||eff(target,foe)>=5){killMinion(foe,target,"destroyed");} else dealToMinion(foe,target,2);} }
+  if(sp==="oil"){ if(target){target.a+=2;target.h+=2;target.mh+=2;if(!target.kw.includes("swift"))target.kw.push("swift");target.sick=false;target.ready=(eff(target,me)>0);} }
+  if(sp==="jericho"){ const t=[...foe.board].sort((a,b)=>b.h-a.h)[0]; if(t){log("The walls come down on "+DB[t.id].n+"!");killMinion(foe,t,"destroyed");} }
+}
+function doArrival(ar,me,foe,self){
+  if(ar==="draw")drawCard(me);
+  if(ar==="boltStrong"){const t=[...foe.board].sort((a,b)=>eff(b,foe)-eff(a,foe))[0]; if(t){log("Fire falls on "+DB[t.id].n+"!");dealToMinion(foe,t,3);} else {dealFace(foe,3);}}
+  if(ar==="boltRandom2"){const pool=foe.board;if(pool.length){const t=pool[Math.random()*pool.length|0];dealToMinion(foe,t,2);}}
+}
+
+/* ===================== COMBAT ===================== */
+function targetableFoe(m){ // respect guard
+  const guards=G.foe.board.filter(x=>x.kw.includes("guard"));
+  if(guards.length)return m&&m.kw.includes("guard");
+  return true;
+}
+function clickMinion(side,m,ev){
+  ev&&ev.stopPropagation();
+  if(anim||G.over)return;
+  if(side==="you"){
+    // target of a spell?
+    if(pickedCard&&pickedCard.c.target==="allyM"){castPicked(m);return;}
+    if(m.ready&&!pickedCard){pickedMinion=(pickedMinion===m)?null:m;render();}
+    return;
+  }
+  // enemy minion clicked
+  if(pickedCard&&pickedCard.c.target==="enemyM"){castPicked(m);return;}
+  if(pickedMinion){
+    if(!targetableFoe(m)){log("Guard units must be attacked first.");return;}
+    doAttack(pickedMinion,m);
+  }
+}
+function castPicked(target){
+  const s=G.you,{idx,c}=pickedCard;
+  s.mana-=c.c;s.hand.splice(idx,1);pickedCard=null;
+  resolveSpell(c.spell,s,G.foe,target);
+  log("You cast "+c.n+".");
+  afterAction();
+}
+function clickFace(who){
+  if(anim||G.over)return;
+  if(who==="foe"&&pickedMinion){
+    const guards=G.foe.board.filter(x=>x.kw.includes("guard"));
+    if(guards.length){log("Guard units must be attacked first.");return;}
+    doAttack(pickedMinion,"face");
+  }
+}
+function doAttack(att,def){
+  const me=G.you,foe=G.foe;
+  const before={mine:me.board.length,theirs:foe.board.length};
+  anim=true;
+  const el=elFor(att.uid);el&&el.classList.add('lunge');
+  setTimeout(()=>{
+    const dmg=eff(att,me);
+    if(def==="face"){ dealFace(foe,dmg); att.ready=false; log(DB[att.id].n+" strikes for "+dmg+"."); }
+    else if(DB[att.id].gs && eff(def,foe)>=4){
+      // Giant-Slayer: destroy the giant, no retaliation
+      log(DB[att.id].n+" slings true — the giant falls!");
+      killMinion(foe,def,"slain",att);
+      att.ready=false;
+      if(DB[att.id].fulfill&&DB[att.id].fulfill.cond==="slayBig")transform(att,me);
+    }
+    else{
+      const back=eff(def,foe);
+      dealToMinion(foe,def,dmg,att);
+      dealToMinion(me,att,back,def);
+      att.ready=false;
+      // fulfill: survive (Simon), outnumbered win (Gideon)
+      checkFulfill(att,me,{outnumberedBefore:before.mine<before.theirs, survived:att.h>0});
+    }
+    pickedMinion=null;anim=false;
+    afterAction();
+  },160);
+}
+function dealFace(side,n){ side.hp-=n; floatDmg(side==="foe"||side===G.foe?"foe":"you",n); }
+function dealToMinion(owner,m,n,src){
+  if(n<=0)return;
+  if(m.endure){m.endure=false;log(DB[m.id].n+"'s shield holds.");return;}
+  m.h-=n;
+  if(m===undefined)return;
+  if(m.h<=0){ killMinion(owner,m,"slain",src); }
+}
+function killMinion(owner,m,how,src){
+  const i=owner.board.indexOf(m);if(i<0)return;
+  owner.board.splice(i,1);
+  const el=elFor(m.uid);if(el){el.classList.add('dead');}
+  // slayBig fulfill for attacker (David)
+  if(src&&src.fulfillPending==="slayBig"){}
+  // loyalty: Ruth +1/+1 when another ally dies
+  owner.board.forEach(o=>{if(DB[o.id].loyal){o.a++;o.h++;o.mh++;}});
+  // legacy
+  if(DB[m.id].legacy==="quake"){ const foe=(owner===G.you)?G.foe:G.you; log("Samson pulls down the pillars!"); [...foe.board].forEach(e=>dealToMinion(foe,e,2)); }
+}
+function checkFulfill(m,side,ctx){
+  const f=DB[m.id].fulfill;if(!f)return;
+  if(f.cond==="survive"&&ctx.survived){transform(m,side);}
+  if(f.cond==="outnumbered"&&ctx.outnumberedBefore&&m.h>0){transform(m,side);}
+}
+function transform(m,side){
+  const into=DB[m.id].fulfill.into,c=DB[into];
+  const el=elFor(m.uid);
+  if(el){const b=document.createElement('div');b.className='fulfillBurst';el.appendChild(b);}
+  toast("Fulfilled — "+c.n+"!");
+  m.id=into;m.a=c.a;m.h=c.h;m.mh=c.h;m.kw=(c.kw||[]).slice();m.endure=(c.kw||[]).includes("endure");
+  setTimeout(render,120);
+}
+
+/* ===================== HERO POWER ===================== */
+function useHeroPower(){
+  const s=G.you;
+  if(anim||G.over||G.turn!=="you"||s.hpUsed||s.mana<2)return;
+  s.mana-=2;s.hpUsed=true;
+  // Discern: peek top card
+  if(s.deck.length===0){drawCard(s);log("Discern finds only dust.");afterAction();return;}
+  const top=s.deck[s.deck.length-1];
+  const row=document.getElementById('discernRow');row.innerHTML="";
+  const col=document.createElement('div');
+  col.style.cssText="display:flex;flex-direction:column;align-items:center;gap:26px";
+  const cardHolder=document.createElement('div');cardHolder.style.cssText="height:190px;display:flex;align-items:center";
+  cardHolder.appendChild(bigCardEl(top));
+  const btns=document.createElement('div');btns.style.cssText="display:flex;gap:16px";
+  const b1=document.createElement('div');b1.className='btn';b1.textContent="Keep on top";
+  b1.onclick=()=>{closeDiscern();log("Discern: kept on top.");afterAction();};
+  const b2=document.createElement('div');b2.className='btn';
+  b2.style.background="radial-gradient(circle at 40% 35%,#c9b98a,#5a4a28)";b2.textContent="Send to bottom";
+  b2.onclick=()=>{const t=s.deck.pop();s.deck.unshift(t);closeDiscern();log("Discern: to the bottom.");afterAction();};
+  btns.appendChild(b1);btns.appendChild(b2);
+  col.appendChild(cardHolder);col.appendChild(btns);row.appendChild(col);
+  document.getElementById('discern').classList.add('show');
+}
+function closeDiscern(){document.getElementById('discern').classList.remove('show');}
+
+/* ===================== AI ===================== */
+function foeTurn(){
+  if(G.over)return;
+  const foe=G.foe,you=G.you,acts=[];
+  // play cards: highest cost affordable, repeat
+  acts.push(()=>{
+    let go=true;
+    while(go){go=false;
+      const opts=foe.hand.map((id,i)=>({id,i,c:DB[id].c})).filter(o=>o.c<=foe.mana && (DB[o.id].t==="s"?true:foe.board.length<7))
+        .sort((a,b)=>b.c-a.c);
+      if(opts.length){const o=opts[0];const c=DB[o.id];
+        foe.mana-=c.c;foe.hand.splice(o.i,1);
+        if(c.t==="m"){const m=mkMinion(o.id);if(m.kw.includes("swift")){m.sick=false;m.ready=true;}foe.board.push(m);
+          toast(c.n);log("Adversary plays "+c.n+".");
+          if(c.arrival)doArrival(c.arrival,foe,you,m);}
+        go=true;render();}
+    }
+  });
+  // hero power: chip a random enemy minion / face
+  acts.push(()=>{ if(!foe.hpUsed&&foe.mana>=2){foe.hpUsed=true;foe.mana-=2;
+    const pool=you.board;if(pool.length){const t=pool[Math.random()*pool.length|0];log("The Adversary oppresses "+DB[t.id].n+".");dealToMinion(you,t,1);}
+    else{dealFace(you,1);} render();}});
+  // attacks
+  acts.push(()=>{
+    [...foe.board].forEach(m=>{
+      if(!m.ready||G.over)return;
+      const guards=you.board.filter(x=>x.kw.includes("guard"));
+      const pool=guards.length?guards:you.board;
+      const a=eff(m,foe);
+      let target=null;
+      // seek a kill we survive
+      target=pool.find(d=>d.h<=a&&!d.endure&&eff(d,you)<m.h)||pool.find(d=>d.h<=a&&!d.endure);
+      if(guards.length&&!target)target=guards[0];
+      if(target){foeAttack(m,target);}
+      else if(!guards.length){ if(you.hp<=a){foeAttack(m,"face");} else foeAttack(m,"face"); }
+    });
+  });
+  let d=0;acts.forEach(fn=>{d+=650;setTimeout(()=>{if(!G.over)fn();},d);});
+  setTimeout(()=>{if(!G.over){toast("Your Turn");beginTurn("you");}},d+700);
+}
+function foeAttack(att,def){
+  const foe=G.foe,you=G.you;const el=elFor(att.uid);el&&el.classList.add('lunge');
+  const dmg=eff(att,foe);
+  if(def==="face"){you.hp-=dmg;floatDmg("you",dmg);att.ready=false;log(DB[att.id].n+" strikes you for "+dmg+".");}
+  else{const back=eff(def,you);dealToMinion(you,def,dmg,att);dealToMinion(foe,att,back,def);att.ready=false;
+    // player minion fulfill on defense (Simon survive)
+    if(def.h>0)checkFulfill(def,you,{survived:true,outnumberedBefore:false});}
+  render();checkWin();
+}
+
+/* ===================== HELPERS ===================== */
+function afterAction(){render();checkWin();}
+function checkWin(){
+  if(G.over)return;
+  if(G.foe.hp<=0||G.you.hp<=0){
+    G.over=true;const win=G.foe.hp<=0;
+    document.getElementById('overT').textContent=win?"Victory":"Defeat";
+    document.getElementById('overP').textContent=win
+      ?"The battle is the Lord's. The Adversary is thrown down."
+      :"Struck down, but not destroyed. Shuffle up and try again.";
+    setTimeout(()=>document.getElementById('over').classList.add('show'),500);
+  }
+}
+function log(t){document.getElementById('log').textContent=t;}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');}
+function floatDmg(who,n){
+  const host=document.getElementById(who==="foe"?"foeHero":"youHero");
+  const f=document.createElement('div');f.className='dmgFloat';f.textContent="-"+n;
+  f.style.left="42px";f.style.top="40px";host.appendChild(f);setTimeout(()=>f.remove(),1000);
+}
+function elFor(uid){return document.querySelector('[data-uid="'+uid+'"]');}
+
+/* ===================== RENDER ===================== */
+function manaPips(s){let h="";for(let i=0;i<Math.max(s.max,0);i++)h+=`<div class="gem${i<s.mana?' full':''}"></div>`;return h;}
+function hpBadge(v){return `<div style="position:absolute;bottom:-2px;right:-4px;width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#e05a48,#7d241a);border:2px solid #ffd9cf;display:flex;align-items:center;
+  justify-content:center;font-family:var(--serif);font-weight:700;font-size:18px;color:#fff;box-shadow:0 2px 5px #000">${Math.max(0,v)}</div>`;}
+
+function minionEl(m,side){
+  const c=DB[m.id],mine=(side==="you");
+  const d=document.createElement('div');d.className='minion';d.dataset.uid=m.uid;
+  const a=eff(m,G[side]);
+  if(m.kw.includes("guard"))d.classList.add('guardIcon');
+  if(mine){ if(m.ready&&!anim)d.classList.add('ready'); if(m.sick)d.classList.add('sick'); if(pickedMinion===m)d.classList.add('sel'); }
+  else{ if(pickedMinion&&targetableFoe(m))d.classList.add('foeTarget'); if(pickedCard&&pickedCard.c.target==="enemyM")d.classList.add('foeTarget'); }
+  if(mine&&pickedCard&&pickedCard.c.target==="allyM")d.classList.add('foeTarget');
+  d.innerHTML=`<div class="body"><div class="art">${c.n[0]}</div></div>`+
+    (m.endure?'<div class="shieldGlow"></div>':'')+
+    `<div class="nameband">${c.n}</div>`+
+    `<div class="stat atk${a>c.a?' buff':''}">${a}</div>`+
+    `<div class="stat hpv${m.h<m.mh?' hurt':''}">${m.h}</div>`;
+  d.onclick=(e)=>clickMinion(side,m,e);
+  return d;
+}
+function cardEl(id,idx){
+  const c=DB[id],s=G.you,d=document.createElement('div');
+  const play=canPlay(id,s)&&!anim;
+  d.className='card '+(c.t==="s"?'spellcard ':'')+(play?'playable':'unplayable');
+  d.innerHTML=`<div class="frame"></div>
+    <div class="art"><span>${c.n[0]}</span></div>
+    <div class="rar ${c.r}"></div>
+    <div class="nm">${c.n}</div>
+    <div class="tx">${c.tx||''}</div>
+    <div class="cost"><span>${c.c}</span></div>`+
+    (c.t==="m"?`<div class="catk">${c.a}</div><div class="chp">${c.h}</div>`:'');
+  d.onclick=()=>{ if(!anim){ if(c.t==="m"&&!canPlay(id,s)){return;} playFromHand(idx);} };
+  return d;
+}
+function bigCardEl(id){
+  const c=DB[id];const d=document.createElement('div');d.className='card playable';
+  d.style.cssText="position:relative;margin:0;transform:scale(1.25)";
+  d.innerHTML=`<div class="frame"></div><div class="art"><span>${c.n[0]}</span></div>
+    <div class="rar ${c.r}"></div><div class="nm">${c.n}</div><div class="tx">${c.tx||''}</div>
+    <div class="cost"><span>${c.c}</span></div>`+(c.t==="m"?`<div class="catk">${c.a}</div><div class="chp">${c.h}</div>`:'');
+  return d;
+}
+function render(){
+  const you=G.you,foe=G.foe;
+  document.getElementById('youHpWrap').innerHTML=hpBadge(you.hp);
+  document.getElementById('foeHpWrap').innerHTML=hpBadge(foe.hp);
+  document.getElementById('manaGems').innerHTML=manaPips(you);
+  document.getElementById('manaLbl').textContent=you.mana+"/"+you.max;
+  document.getElementById('youDeck').textContent=you.deck.length;
+  document.getElementById('foeDeck').textContent=foe.deck.length;
+  document.getElementById('foeHero').classList.toggle('foeTarget',!!pickedMinion&&!foe.board.some(x=>x.kw.includes("guard")));
+  // hero power
+  const hp=document.getElementById('youHp');
+  hp.classList.toggle('usable',!you.hpUsed&&you.mana>=2&&!anim&&G.turn==="you");
+  hp.classList.toggle('spent',you.hpUsed);
+  // end turn
+  const et=document.getElementById('endTurn');
+  if(G.turn!=="you"||anim){et.classList.add('waiting');et.classList.remove('usable');et.innerHTML="Adversary…";}
+  else{et.classList.remove('waiting');et.classList.add('usable');et.innerHTML="End<br>Turn";}
+  // boards
+  const fb=document.getElementById('foeBoard');fb.innerHTML="";foe.board.forEach(m=>fb.appendChild(minionEl(m,"foe")));
+  const yb=document.getElementById('youBoard');yb.innerHTML="";you.board.forEach(m=>yb.appendChild(minionEl(m,"you")));
+  // hands
+  const h=document.getElementById('hand');h.innerHTML="";you.hand.forEach((id,i)=>h.appendChild(cardEl(id,i)));
+  const fh=document.getElementById('foeHand');fh.innerHTML="";
+  for(let i=0;i<foe.hand.length;i++){const b=document.createElement('div');b.className='back';b.textContent="✝";fh.appendChild(b);}
+}
+document.getElementById('stage').addEventListener('click',(e)=>{
+  if(e.target.id==='stage'){pickedCard=null;pickedMinion=null;render();}
+});
+fit();
+document.getElementById('intro').classList.add('show');
+</script>
+</body>
+</html>

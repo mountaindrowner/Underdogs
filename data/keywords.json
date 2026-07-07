@@ -1,0 +1,25 @@
+{
+  "core": {
+    "guard": "Enemies must attack this unit before any other unit or the hero.",
+    "swift": "This unit may attack the turn it is played (no summoning sickness).",
+    "endure": "The first time this unit would take damage, prevent it. The shield is then consumed.",
+    "foresee": "Look at the top X cards of your deck; put them back in any order or send them to the bottom.",
+    "discover": "Choose one of three offered cards (from your deck unless the card says otherwise).",
+    "arrival": "An effect that happens when this card is played from hand (battlecry).",
+    "legacy": "An effect that happens when this unit dies (deathrattle).",
+    "fulfill": "A condition on a Legendary that, once met, transforms it into its fulfilled form (see CLAUDE.md 6)."
+  },
+  "classSignatures": {
+    "redeem": "Shepherd. When this (small) ally dies, return it to the field or summon a Sheep, as specified.",
+    "covenant": "Patriarch. Triggers at the start of each of your turns.",
+    "scatter": "Disciple. When this unit dies, summon a 1/1 Disciple.",
+    "raise": "Priest. Return or revive a fallen ally, as specified.",
+    "giant_slayer": "Warrior (card-specific). Destroys units with 4+ attack that it strikes, and takes no counter-damage."
+  },
+  "cardTypes": {
+    "minion": "A unit with attack/health that occupies a board slot (max 7).",
+    "spell": "A one-time effect, then discarded. Epic/legendary spells are flavored as 'Miracles'.",
+    "relic": "A persistent artifact. relicKind 'equip' attaches to a unit; 'standing' is a global permanent."
+  },
+  "notes": "Do not invent new keywords without human sign-off (CLAUDE.md 5). Prefer expressing new effects with the existing effect-verb library (CLAUDE.md 8)."
+}

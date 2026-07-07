@@ -1,0 +1,6 @@
+# card-art pipeline transients
+tools/cardart/.build/
+tools/cardart/out/
+*.pyc
+__pycache__/
+.DS_Store
