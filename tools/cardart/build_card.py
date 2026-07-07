@@ -14,8 +14,10 @@ CLASS_ACCENT = {  # (deep, bright) border/plate tones per class palette
     "patriarch":("#2b2a63", "#c9a86a"),   # starfield-indigo & desert-tan
     "disciple": ("#8a2a12", "#e0a02a"),   # flame-red & amber
     "neutral":  ("#5a4a2c", "#b9975a"),
+    "adversary":("#171a20", "#3c4654"),   # cold iron & slate — clearly "other"
 }
-RARITY = {"common":"#c9c9c9","rare":"#3f7fd6","epic":"#9b4fd0","legendary":"#f0912b"}
+RARITY = {"common":"#c9c9c9","rare":"#3f7fd6","epic":"#9b4fd0","legendary":"#f0912b",
+          "token":"#c9c9c9","adversary":"#8f3b34"}
 TAG_SIGIL = {"genesis":"✶","exodus":"𐤀","judges":"⚖","kingdom":"♛",
              "exile":"⛓","apostles":"✝","":""}
 
@@ -28,12 +30,18 @@ def build(card, art_png):
     sigil = TAG_SIGIL.get(card.get("tag") or "", "")
     is_minion = card.get("type") == "minion"
     is_leader = card.get("type") == "leader"
+    is_adversary = card.get("class") == "adversary"
     legendary = card.get("rarity") == "legendary"
     art = data_uri(art_png)
     name = html.escape(card.get("name") or "")
     text = html.escape(card.get("text") or "")
     flavor = html.escape(card.get("flavor") or "")
-    tag_lbl = "HERO POWER" if is_leader else (card.get("tag") or "").capitalize()
+    if is_leader:
+        tag_lbl = "HERO POWER"
+    elif is_adversary:
+        tag_lbl = "BOSS" if card.get("boss") else "ADVERSARY"
+    else:
+        tag_lbl = (card.get("tag") or "").capitalize()
 
     T = """<!doctype html><html><head><meta charset=utf-8><style>
 :root{--deep:@DEEP@;--bright:@BRIGHT@;--gold:#f4cf6a;--gold2:#a9791f;

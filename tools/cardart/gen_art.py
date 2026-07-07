@@ -20,6 +20,8 @@ MASTER = ("Painterly digital trading-card illustration in a warm, expressive, se
           "brushwork, cinematic shadow, gold-leaf accent details, slightly caricatured but "
           "dignified faces. Historically-plausible ancient Near-Eastern / first-century dress "
           "and setting. Single dramatic focal figure, mid-shot, dynamic but grounded. "
+          "The scene fills the ENTIRE image edge-to-edge as a full-bleed background — no white "
+          "borders, no margins, no framing, no empty or blank space around the art. "
           "No text, no card frame, no modern objects, no visible face of God, no gore, no halos.")
 
 PALETTE = {
@@ -30,7 +32,18 @@ PALETTE = {
     "patriarch":"signature color starfield-indigo and desert-tan",
     "disciple": "signature color flame-red and amber",
     "neutral":  "muted earthy palette",
+    "adversary":"cold iron and slate with one sinister accent color",
 }
+
+# --- adversary style (Law: villains are colder, ornate, clearly *other*, never comic) ---
+ADVERSARY_MASTER = (
+    "Painterly digital trading-card illustration, foreboding and imposing, cold cinematic light, "
+    "desaturated palette with a single sinister accent color, ornate and menacing yet dignified — "
+    "clearly villainous, never comedic, never mocked. Historically-plausible ancient Near-Eastern / "
+    "first-century dress and setting. Single dramatic focal figure or object, mid-shot. "
+    "The scene fills the ENTIRE image edge-to-edge as a full-bleed background — no white borders, "
+    "no margins, no framing, no empty or blank space around the art. "
+    "No text, no card frame, no modern objects, no visible face of God, no gore, no blood.")
 
 def _ledger_load():
     if LEDGER.exists(): return json.loads(LEDGER.read_text())
@@ -40,7 +53,8 @@ def _ledger_save(l): LEDGER.write_text(json.dumps(l, indent=2))
 
 def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3"):
     refs = refs or []
-    prompt = f"{MASTER} {seed_line} {PALETTE.get(cls,'')}. Card-portrait framing, room at the edges."
+    master = ADVERSARY_MASTER if cls == "adversary" else MASTER
+    prompt = f"{master} {seed_line} {PALETTE.get(cls,'')}. Card-portrait framing, room at the edges."
     parts = [{"text": prompt}]
     for rp in refs:
         b = pathlib.Path(rp).read_bytes()

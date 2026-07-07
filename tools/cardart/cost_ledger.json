@@ -1,6 +1,6 @@
 {
-  "images": 111,
-  "usd": 4.1860497,
+  "images": 149,
+  "usd": 5.658596700000007,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -824,6 +824,280 @@
       "refs": [
         "moses_of_midian.png"
       ]
+    },
+    {
+      "id": "goliath_of_gath",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "egyptian_taskmaster",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "philistine_soldier",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "amalekite_raider",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "chariot_of_iron",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jezebel",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "pharaohs_magician",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "idol_of_baal",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_serpent",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "pharaoh_the_hardened",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "haman_the_agagite",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "nebuchadnezzar",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "herod",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "sennacheribs_host",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "delilah",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "absalom",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "sisera",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "witch_of_endor",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "sanballat_and_tobiah",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "leviathan",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "behemoth",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_golden_calf",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_sheep",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_heir",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_dove",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_disciple",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_assyrian_soldier",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "tok_locust",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "saul_of_tarsus",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "deborah_leader",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "deborah_the_prophetess.png"
+      ]
+    },
+    {
+      "id": "moses_leader",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "moses_of_midian.png"
+      ]
+    },
+    {
+      "id": "saul_of_tarsus",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "deborah_leader",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "deborah_the_prophetess.png"
+      ]
+    },
+    {
+      "id": "moses_leader",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "moses_of_midian.png"
+      ]
+    },
+    {
+      "id": "tok_sheep",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "tok_heir",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "tok_disciple",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "tok_assyrian_soldier",
+      "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
     }
   ]
 }
