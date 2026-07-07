@@ -22,9 +22,9 @@ export interface View {
   banner?: string; over: PlayerId | null;
 }
 
-export function initialView(heroHp: number): View {
+export function initialView(hp0: number, hp1: number = hp0): View {
   return {
-    heroes: [{ hp: heroHp, maxHp: heroHp }, { hp: heroHp, maxHp: heroHp }],
+    heroes: [{ hp: hp0, maxHp: hp0 }, { hp: hp1, maxHp: hp1 }],
     boards: [[], []],
     prov: [{ cur: 0, max: 0 }, { cur: 0, max: 0 }],
     active: 0, turn: 0, phase: 'dawn', over: null,

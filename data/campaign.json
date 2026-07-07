@@ -1,0 +1,53 @@
+{
+  "_note": "First combat campaign — scripted encounters vs Adversary decks. Deck lists are padded/cycled to 30 by the loader; unknown ids are dropped. enemyBoard units are pre-placed (summoning-sick turn 1).",
+  "encounters": [
+    {
+      "id": "elah",
+      "title": "The Valley of Elah",
+      "subtitle": "David & Goliath",
+      "art": "goliath_of_gath",
+      "narrative": "Forty days the giant of Gath taunted the armies of Israel, and not one soldier would face him. Then a shepherd boy arrived with a sling and five smooth stones.  — 1 Samuel 17",
+      "tip": "Goliath is a 7-attack Guard — you must deal with him first. Shepherd David is a Giant-Slayer: he destroys any 4+ attack unit he strikes and takes no counter-damage. Slay a giant and he becomes David the King.",
+      "playerLeader": "david_leader",
+      "playerHp": 30,
+      "enemyLeader": null,
+      "enemyHp": 25,
+      "enemyBoard": ["goliath_of_gath"],
+      "playerDeck": ["shepherd_david", "shepherd_boy", "faithful_sheepdog", "gather_the_flock",
+        "benaiah", "watchman", "ruth", "sarah", "firstborn_heir", "david_the_shepherd", "eager_convert"],
+      "enemyDeck": ["philistine_soldier", "amalekite_raider", "chariot_of_iron", "sisera", "philistine_soldier"]
+    },
+    {
+      "id": "egypt",
+      "title": "Bricks Without Straw",
+      "subtitle": "The Taskmasters of Egypt",
+      "art": "egyptian_taskmaster",
+      "narrative": "Make the same quota of bricks — but gather your own straw. Pharaoh's overseers pressed harder, and the people groaned under the whip.  — Exodus 5",
+      "tip": "The Egyptian Taskmaster weakens your units on arrival. Trade efficiently and keep tempo — Endure and Guard bodies buy you time.",
+      "playerLeader": "aaron_leader",
+      "playerHp": 30,
+      "enemyLeader": null,
+      "enemyHp": 28,
+      "enemyBoard": [],
+      "playerDeck": ["watchman", "benaiah", "isaiah", "shepherd_boy", "firstborn_heir", "eager_convert",
+        "ruth", "sarah", "fire_from_heaven", "stephen", "faithful_sheepdog"],
+      "enemyDeck": ["egyptian_taskmaster", "philistine_soldier", "amalekite_raider", "pharaohs_magician", "chariot_of_iron"]
+    },
+    {
+      "id": "serpent",
+      "title": "The Serpent's Question",
+      "subtitle": "Did God really say...?",
+      "art": "the_serpent",
+      "narrative": "The subtlest of all the creatures asked a question that wasn't really a question. Doubt is a slow poison, and the garden was very quiet.  — Genesis 3",
+      "tip": "The Serpent and Delilah strip your units of their text and keywords. Don't over-invest in a single build-around; keep a wide, resilient board.",
+      "playerLeader": "isaiah_leader",
+      "playerHp": 30,
+      "enemyLeader": null,
+      "enemyHp": 30,
+      "enemyBoard": [],
+      "playerDeck": ["isaiah", "fire_from_heaven", "benaiah", "watchman", "stephen", "eager_convert",
+        "shepherd_boy", "firstborn_heir", "ruth", "sarah", "shepherd_david"],
+      "enemyDeck": ["the_serpent", "delilah", "sisera", "jezebel", "amalekite_raider"]
+    }
+  ]
+}

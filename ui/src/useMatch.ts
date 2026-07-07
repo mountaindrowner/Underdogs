@@ -1,7 +1,7 @@
 /** Match controller: owns the true engine state and drives the animated view.
- *  Human = Player 0 (bottom). AI = Player 1 (top). The board is rendered from
- *  the event-sourced `view` (lagged/animated); legality is read from `engine`.
- *  Input is enabled only when the animation has caught up to the engine. */
+ *  Human = Player 0 (bottom). AI = Player 1 (top). Parameterized by a
+ *  MatchConfig (decks/leaders/pre-placed units/hp) so campaign encounters and
+ *  free-play use the same loop. Input enabled only when animation catches up. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createGame, applyAction, buildDeck,
@@ -10,48 +10,47 @@ import {
 import { registry } from './data.ts';
 import { initialView, applyEvent, clearTransient, type View } from './view.ts';
 import { pickAction } from './ai.ts';
-
-const HERO_HP = 30;
-const DECK_IDS = [
-  'shepherd_boy', 'watchman', 'firstborn_heir', 'eager_convert', 'benaiah', 'ruth',
-  'stephen', 'isaiah', 'shepherd_david', 'faithful_sheepdog', 'gather_the_flock', 'sarah',
-  'fire_from_heaven',
-];
-function deck(): CardDef[] {
-  const ids: string[] = [];
-  for (let i = 0; i < 30; i++) ids.push(DECK_IDS[i % DECK_IDS.length]);
-  return buildDeck(registry, ids.filter((id) => registry.has(id)));
-}
+import type { MatchConfig } from './campaign.ts';
 
 export function needsTarget(c: CardDef): boolean {
   return !!c.effects?.arrival?.some((op) => op.target === 'target');
 }
 
-export function useMatch() {
+const deck = (ids: string[]) => buildDeck(registry, ids);
+const leaderDef = (id?: string) => (id ? registry.get(id) : undefined);
+
+export function useMatch(cfg: MatchConfig) {
   const [seed, setSeed] = useState(1);
   const [engine, setEngine] = useState<GameState | null>(null);
-  const [view, setView] = useState<View>(() => initialView(HERO_HP));
+  const hp0 = cfg.heroHp?.[0] ?? 30;
+  const hp1 = cfg.heroHp?.[1] ?? 30;
+  const [view, setView] = useState<View>(() => initialView(hp0, hp1));
   const [busy, setBusy] = useState(false);
   const feed = useRef<GameEvent[]>([]);
   const cursor = useRef(0);
 
-  // (re)start game — you = David (Gather), AI = Elijah (Fire)
+  // (re)start when the encounter or seed changes
   useEffect(() => {
-    const leaders: [CardDef | undefined, CardDef | undefined] =
-      [registry.get('david_leader'), registry.get('elijah_leader')];
-    const g = createGame({ seed, decks: [deck(), deck()], leaders, skipMulligan: false });
+    const g = createGame({
+      seed,
+      decks: [deck(cfg.playerDeck), deck(cfg.enemyDeck)],
+      leaders: [leaderDef(cfg.playerLeader), leaderDef(cfg.enemyLeader)],
+      startUnits: cfg.startUnits,
+      heroHp: cfg.heroHp,
+      skipMulligan: false,
+    });
     feed.current = [...g.events];
     cursor.current = 0;
-    setView(initialView(HERO_HP));
+    setView(initialView(hp0, hp1));
     setEngine(g.state);
     setBusy(feed.current.length > 0);
-  }, [seed]);
+  }, [seed, cfg.key]);
 
-  // animation ticker: play the feed into the view, one beat at a time
+  // animation ticker
   useEffect(() => {
     const id = setInterval(() => {
       if (cursor.current < feed.current.length) {
-        const e = feed.current[cursor.current];   // capture BEFORE advancing
+        const e = feed.current[cursor.current];
         cursor.current += 1;
         setView((v) => applyEvent(clearTransient(v), e, registry));
         setBusy(cursor.current < feed.current.length);
@@ -72,11 +71,11 @@ export function useMatch() {
     });
   }, []);
 
-  // AI + auto-mulligan loop: acts once animations have caught up
+  // AI + auto-mulligan loop
   useEffect(() => {
     if (!engine || busy) return;
     if (engine.phase === 'mulligan' && engine.active === 1) {
-      const keep = engine.players[1].hand.map((_, i) => i); // AI keeps its hand
+      const keep = engine.players[1].hand.map((_, i) => i);
       const t = setTimeout(() => dispatch({ type: 'MULLIGAN', keep }), 250);
       return () => clearTimeout(t);
     }

@@ -22,6 +22,10 @@ export interface GameConfig {
   leaders?: [CardDef | undefined, CardDef | undefined];
   rules?: Partial<RuleConfig>;
   skipMulligan?: boolean;
+  /** Pre-placed units per player (def ids), e.g. a boss on the enemy board. */
+  startUnits?: [string[], string[]];
+  /** Per-hero HP overrides (campaign encounters). */
+  heroHp?: [number, number];
 }
 
 const other = (p: PlayerId): PlayerId => (p === 0 ? 1 : 0);
@@ -65,11 +69,31 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
     active: 0, turn: 0, phase: 'mulligan', rngState: rng.state,
     nextUid: 1, winner: null, rules,
   };
+  // per-hero HP overrides (campaign)
+  if (cfg.heroHp) {
+    for (const p of [0, 1] as const) {
+      state.players[p].heroHp = cfg.heroHp[p];
+      state.players[p].heroMaxHp = cfg.heroHp[p];
+    }
+  }
   const sink = new EventSink();
   sink.emit({ t: 'gameStart', seed: cfg.seed, first: 0 });
   // opening hands: first player draws startingHand, second draws +1
   dealOpening(state, sink, rng, 0, rules.startingHand);
   dealOpening(state, sink, rng, 1, rules.startingHand + 1);
+  // pre-placed units (e.g. a boss on the enemy board), summoning-sick turn 1
+  if (cfg.startUnits) {
+    for (const p of [0, 1] as const) {
+      for (const defId of cfg.startUnits[p]) {
+        const def = DEFS.get(defId);
+        if (!def) continue;
+        const u = makeUnit(state, def, p); u.ready = false;
+        state.players[p].board.push(u);
+        sink.emit({ t: 'summon', uid: u.uid, defId: u.defId, owner: p, position: state.players[p].board.length - 1 });
+      }
+    }
+    recomputeAuras(state);
+  }
   if (cfg.skipMulligan) {
     beginTurn(state, sink, rng, 0);
   }
