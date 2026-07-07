@@ -173,6 +173,7 @@ function playCard(state: GameState, sink: EventSink, rng: Rng, handIndex: number
   pl.provision -= cost;
   pl.hand.splice(handIndex, 1);
   sink.emit({ t: 'cardPlayed', player: p, defId: card.id });
+  sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);
 
   if (card.type === 'minion') {
@@ -200,6 +201,7 @@ function heroPower(state: GameState, sink: EventSink, rng: Rng, targetUid?: numb
   pl.provision -= hp.cost;
   hp.usedThisTurn = true;
   sink.emit({ t: 'heroPower', player: p, name: hp.name });
+  sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);
   runTrigger(ctx, hp.effects, undefined, targetUid);
   settle(state, sink, rng, p);

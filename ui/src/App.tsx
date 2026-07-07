@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { simulate } from './sim.ts';
-import { useReplay } from './useReplay.ts';
+import { useMemo, useRef, useState } from 'react';
+import { useMatch, needsTarget } from './useMatch.ts';
 import { artUrl, CARD_BACK } from './data.ts';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import type { PlayerId } from '../../engine/src/index.ts';
+import { effAttack, type GameState, type CardDef, type UnitInstance } from '../../engine/src/index.ts';
 import './styles.css';
 
 const KW_LABEL: Record<string, string> = {
@@ -11,18 +10,21 @@ const KW_LABEL: Record<string, string> = {
   redeem: 'REDEEM', scatter: 'SCATTER',
 };
 
-function Minion({ u }: { u: VUnit }) {
+type Sel = null | { kind: 'hand'; index: number } | { kind: 'attacker'; uid: number };
+
+// ---- small building blocks -------------------------------------------------
+function Minion({ u, cls, onClick }: { u: VUnit; cls: string; onClick?: (e: React.MouseEvent) => void }) {
   const art = artUrl(u.defId);
-  const cls = ['minion'];
-  if (u.dead) cls.push('dead');
-  if (u.enter) cls.push('enter');
-  if (u.fulfilling) cls.push('fulfilling');
-  if (u.hit) cls.push('hit');
-  if (u.buffed) cls.push('buffed');
   const kw = u.keywords.find((k) => KW_LABEL[k]);
+  const c = ['minion', cls];
+  if (u.dead) c.push('dead');
+  if (u.enter) c.push('enter');
+  if (u.fulfilling) c.push('fulfilling');
+  if (u.hit) c.push('hit');
+  if (u.buffed) c.push('buffed');
   const style = u.lunge ? { transform: `translateY(${u.lunge * 16}px) scale(1.05)` } : undefined;
   return (
-    <div className={cls.join(' ')} style={style}>
+    <div className={c.join(' ')} style={style} onClick={onClick}>
       {u.keywords.includes('guard') && <div className="ward" />}
       <div className="body" style={art ? { backgroundImage: `url(${art})` } : undefined}>
         {!art && <div className="artFallback">{u.name[0]}</div>}
@@ -39,12 +41,24 @@ function Minion({ u }: { u: VUnit }) {
   );
 }
 
-function Hero({ h, side, name }: { h: HeroV; side: 'enemy' | 'you'; name: string }) {
+function HandCard({ c, playable, selected, onClick }:
+  { c: CardDef; playable: boolean; selected: boolean; onClick: (e: React.MouseEvent) => void }) {
+  const art = artUrl(c.id);
   return (
-    <div className={`hero ${side}${h.shake ? ' shake' : ''}`}>
-      <div className="portrait">
-        <div className="hpbadge">{h.hp}</div>
-      </div>
+    <div className={`handcard${playable ? ' playable' : ''}${selected ? ' selected' : ''}`} onClick={onClick}>
+      <div className="hcCost">{c.cost ?? 0}</div>
+      <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+      <div className="hcName">{c.name}</div>
+      {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
+    </div>
+  );
+}
+
+function Hero({ h, side, name, targetable, onClick }:
+  { h: HeroV; side: 'enemy' | 'you'; name: string; targetable?: boolean; onClick?: () => void }) {
+  return (
+    <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`} onClick={onClick}>
+      <div className="portrait"><div className="hpbadge">{h.hp}</div></div>
       <div className="namep">{name}</div>
       {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
       {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
@@ -65,53 +79,153 @@ function Mana({ p }: { p: Prov }) {
   );
 }
 
+// ---- app -------------------------------------------------------------------
 export default function App() {
-  const [seed, setSeed] = useState(1234);
-  const [speed, setSpeed] = useState(360);
-  const sim = useMemo(() => simulate(seed), [seed]);
-  const { view } = useReplay(sim.events, sim.heroHp, speed);
+  const { engine, view, busy, canAct, inMulligan, dispatch, newGame } = useMatch();
+  const [sel, setSel] = useState<Sel>(null);
+  const [src, setSrc] = useState<{ x: number; y: number } | null>(null);
+  const [ptr, setPtr] = useState<{ x: number; y: number } | null>(null);
+  const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
 
-  // auto-restart a couple seconds after a game ends
-  useEffect(() => {
-    if (view.over == null) return;
-    const t = setTimeout(() => setSeed((s) => s + 1), 3000);
-    return () => clearTimeout(t);
-  }, [view.over]);
+  if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
 
+  const you = engine.players[0];
+  const foe = engine.players[1];
+  const engUnit = (uid: number): UnitInstance | undefined =>
+    you.board.find((u) => u.uid === uid) ?? foe.board.find((u) => u.uid === uid);
+  const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0).map((u) => u.uid));
+  const guardActive = foe.board.some((u) => u.keywords.includes('guard'));
+
+  const clear = () => { setSel(null); setSrc(null); };
+  const at = (e: React.MouseEvent) => {
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
+
+  const clickHand = (i: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!canAct) return;
+    const card = you.hand[i];
+    if ((card.cost ?? 0) > you.provision) return;
+    if (card.type === 'minion' && you.board.length >= engine.rules.boardLimit) return;
+    if (needsTarget(card)) { setSel({ kind: 'hand', index: i }); setSrc(at(e)); }
+    else { dispatch({ type: 'PLAY_CARD', handIndex: i }); clear(); }
+  };
+
+  const clickUnit = (u: VUnit, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (sel?.kind === 'hand') { dispatch({ type: 'PLAY_CARD', handIndex: sel.index, targetUid: u.uid }); clear(); return; }
+    if (sel?.kind === 'attacker') {
+      if (u.owner === 1 && (!guardActive || u.keywords.includes('guard'))) {
+        dispatch({ type: 'ATTACK', attackerUid: sel.uid, targetUid: u.uid }); clear();
+      }
+      return;
+    }
+    if (canAct && u.owner === 0 && readyUids.has(u.uid)) { setSel({ kind: 'attacker', uid: u.uid }); setSrc(at(e)); }
+  };
+
+  const clickEnemyHero = () => {
+    if (sel?.kind === 'attacker' && !guardActive) { dispatch({ type: 'ATTACK', attackerUid: sel.uid, targetUid: 'hero' }); clear(); }
+  };
+
+  // targeting affordances
+  const targetableUnit = (u: VUnit): boolean => {
+    if (sel?.kind === 'hand') return true;
+    if (sel?.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
+    return false;
+  };
+
+  // ---- mulligan screen ----
+  if (inMulligan) {
+    return (
+      <div className="app">
+        <div className="topbar"><div className="brand">UNDERDOGS <span>· mulligan</span></div></div>
+        <div className="mulligan">
+          <h2>Keep your opening hand?</h2>
+          <div className="mulHand">
+            {you.hand.map((c, i) => (
+              <div key={i} className={`mulCard${keep.has(i) ? ' keep' : ''}`}
+                onClick={() => setKeep((k) => { const n = new Set(k); n.has(i) ? n.delete(i) : n.add(i); return n; })}>
+                <HandCard c={c} playable selected={keep.has(i)} onClick={() => {}} />
+                <div className="mulTag">{keep.has(i) ? 'KEEP' : 'REPLACE'}</div>
+              </div>
+            ))}
+          </div>
+          <button className="bigbtn" onClick={() => dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) })}>
+            Confirm
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- board ----
   return (
-    <div className="app">
+    <div className="app" onClick={clear} onMouseMove={(e) => setPtr({ x: e.clientX, y: e.clientY })}>
       <div className="topbar">
         <div className="brand">UNDERDOGS <span>· battle slice</span></div>
         <div className="controls">
-          <span className="turnLbl">Turn {view.turn}</span>
-          <button onClick={() => setSpeed((s) => (s === 360 ? 160 : 360))}>{speed === 360 ? 'Fast' : 'Normal'}</button>
-          <button onClick={() => setSeed((s) => s + 1)}>New Game</button>
+          <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : "Opponent"}</span>
+          <button onClick={(e) => { e.stopPropagation(); newGame(); }}>New Game</button>
         </div>
       </div>
 
       <div className={`table${view.over != null ? ' ended' : ''}`}>
-        <Hero h={view.heroes[1]} side="enemy" name="Player 2" />
+        <Hero h={view.heroes[1]} side="enemy" name="Adversary"
+          targetable={sel?.kind === 'attacker' && !guardActive} onClick={clickEnemyHero} />
         <div className={`boardRow enemy${view.heroes[1].shake ? ' shake' : ''}`}>
-          {view.boards[1].map((u) => <Minion key={u.uid} u={u} />)}
+          {view.boards[1].map((u) => (
+            <Minion key={u.uid} u={u} onClick={(e) => clickUnit(u, e)}
+              cls={targetableUnit(u) ? 'foeTarget' : ''} />
+          ))}
         </div>
 
         <div className="divider" />
 
         <div className={`boardRow you${view.heroes[0].shake ? ' shake' : ''}`}>
-          {view.boards[0].map((u) => <Minion key={u.uid} u={u} />)}
+          {view.boards[0].map((u) => (
+            <Minion key={u.uid} u={u} onClick={(e) => clickUnit(u, e)}
+              cls={[sel?.kind === 'attacker' && sel.uid === u.uid ? 'sel' : '',
+                    readyUids.has(u.uid) ? 'ready' : (u.owner === 0 ? 'sick' : '')].join(' ')} />
+          ))}
         </div>
-        <Hero h={view.heroes[0]} side="you" name="Player 1" />
+        <Hero h={view.heroes[0]} side="you" name="You" />
 
         <Mana p={view.prov[view.active]} />
         <div className="deckpile"><img src={CARD_BACK} alt="deck" /></div>
 
         {view.banner && <div className={`banner${view.over != null ? ' win' : ''}`} key={view.banner}>{view.banner}</div>}
-        {view.over != null && <div className="turnGlow" />}
+        {busy && <div className="thinking">…</div>}
       </div>
 
-      <div className="footer">
-        Deterministic engine · animating the GameEvent stream · both sides played by the greedy demo AI
+      {/* your hand */}
+      <div className="hand">
+        {you.hand.map((c, i) => (
+          <HandCard key={i} c={c}
+            playable={canAct && (c.cost ?? 0) <= you.provision && !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit)}
+            selected={sel?.kind === 'hand' && sel.index === i}
+            onClick={(e) => clickHand(i, e)} />
+        ))}
+        <button className={`endturn${canAct ? ' hot' : ''}`} disabled={!canAct}
+          onClick={(e) => { e.stopPropagation(); dispatch({ type: 'END_TURN' }); clear(); }}>
+          End Turn
+        </button>
       </div>
+
+      {/* opponent hand (face-down) */}
+      <div className="foeHand">
+        {Array.from({ length: foe.hand.length }).map((_, i) => <img key={i} src={CARD_BACK} alt="" />)}
+      </div>
+
+      {/* targeting arrow */}
+      {sel && src && ptr && (
+        <svg className="arrowLayer">
+          <defs><marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#ffca4d" /></marker></defs>
+          <line x1={src.x} y1={src.y} x2={ptr.x} y2={ptr.y} stroke="#ffca4d" strokeWidth="4"
+            strokeLinecap="round" markerEnd="url(#ah)" opacity="0.9" />
+        </svg>
+      )}
     </div>
   );
 }
