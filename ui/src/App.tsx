@@ -355,7 +355,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
       <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`} data-board={board}>
         {/* L0–L3 — the board diorama (per-chapter scene, dim and behind cards) */}
         <Board enc={sceneOverride ?? meta?.id} danger={dangerLevel} flare={flare}
-          goliath={foe.board.some((u) => u.defId === 'goliath_of_gath')} />
+          goliath={foe.board.some((u) => u.defId === 'goliath_of_gath')}
+          enemyLow={view.heroes[1].hp / Math.max(1, view.heroes[1].maxHp) < 0.33} />
         {/* L1 stage — zone plate (consistent carved trays) */}
         <div className="plate">
           <div className="tray foeTray" /><div className="tray youTray" /><div className="centerStrip" />

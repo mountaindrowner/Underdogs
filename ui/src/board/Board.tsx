@@ -228,8 +228,8 @@ function Scene({ id, goliath }: { id: BoardId; goliath: boolean }) {
 }
 
 // ---- the board ------------------------------------------------------------
-export function Board({ enc, danger, flare, goliath }:
-  { enc?: string; danger: number; flare: number; goliath: boolean }) {
+export function Board({ enc, danger, flare, goliath, enemyLow }:
+  { enc?: string; danger: number; flare: number; goliath: boolean; enemyLow?: boolean }) {
   const id = boardForEncounter(enc);
   const t = BOARDS[id];
   const style = {
@@ -237,7 +237,7 @@ export function Board({ enc, danger, flare, goliath }:
     '--danger-tint': t.dangerTint, '--flare-tint': t.flareTint,
   } as CSS;
   return (
-    <div className={`boardScene board-${id}${goliath ? ' goliath-present' : ''}`} style={style}>
+    <div className={`boardScene board-${id}${goliath ? ' goliath-present' : ''}${enemyLow ? ' walls-lean' : ''}`} style={style}>
       <div className="board-backdrop" style={{ background: t.backdrop }} />
       <div className="board-props">
         <Scene id={id} goliath={goliath} />

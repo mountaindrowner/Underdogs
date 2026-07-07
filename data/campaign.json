@@ -48,6 +48,22 @@
       "playerDeck": ["isaiah", "fire_from_heaven", "benaiah", "watchman", "stephen", "eager_convert",
         "shepherd_boy", "firstborn_heir", "ruth", "sarah", "shepherd_david"],
       "enemyDeck": ["the_serpent", "delilah", "sisera", "jezebel", "amalekite_raider"]
+    },
+    {
+      "id": "exile",
+      "title": "The Fiery Furnace",
+      "subtitle": "Nebuchadnezzar's Decree",
+      "art": "nebuchadnezzar",
+      "narrative": "Bow to the golden image or burn. Three men would not bow, so the furnace was heated seven times hotter. Yet the king rose in alarm — for a fourth walked with them in the fire, and not a hair was singed.  — Daniel 3",
+      "tip": "Nebuchadnezzar is a 7/9 boss already on the board — he isn't a Guard, so he'll swing for your hero. Chip him down with Elijah's Fire and Fire from Heaven, and hold the line with Endure and Guard bodies.",
+      "playerLeader": "elijah_leader",
+      "playerHp": 30,
+      "enemyLeader": null,
+      "enemyHp": 26,
+      "enemyBoard": ["nebuchadnezzar"],
+      "playerDeck": ["fire_from_heaven", "isaiah", "benaiah", "watchman", "stephen", "eager_convert",
+        "shepherd_boy", "firstborn_heir", "ruth", "sarah", "faithful_sheepdog"],
+      "enemyDeck": ["sennacheribs_host", "sanballat_and_tobiah", "haman_the_agagite", "amalekite_raider", "chariot_of_iron"]
     }
   ]
 }
