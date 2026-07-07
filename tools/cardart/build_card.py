@@ -177,8 +177,8 @@ body{background:#1b1b1b;display:flex;padding:40px}
   opacity:.14;mix-blend-mode:multiply;pointer-events:none;}
 .sigil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:200px;color:rgba(90,60,20,.06);pointer-events:none;}
-.rules{position:relative;font-size:19px;line-height:1.32;color:var(--ink);font-weight:600;}
-.flav{position:relative;margin-top:10px;font-size:14px;font-style:italic;color:#6b5327;line-height:1.28;}
+.rules{position:relative;font-size:28px;line-height:1.24;color:var(--ink);font-weight:600;}
+.flav{position:relative;margin-top:9px;font-size:14px;font-style:italic;color:#6b5327;line-height:1.26;}
 /* ---- stats: seated fantasy medallions, not buttons ---- */
 .att,.hp{position:absolute;bottom:0;width:100px;height:100px;z-index:7;
   align-items:center;justify-content:center;font-size:47px;font-weight:800;color:#fff;
