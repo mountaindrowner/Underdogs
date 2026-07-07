@@ -6,6 +6,7 @@
 
 | # | Decision | Notes / supersedes |
 |---|---|---|
+| D-21 | **Game name is UNDERDOGS.** Working title "COVENANT" is retired. The tone is comedic-underdog (David vs. Goliath); the card back reads UNDERDOGS with the deadpan tagline "Giants sold separately." **Note:** *Covenant* remains the Patriarch **keyword** and appears in card names (Covenant of Stars, Covenant Renewed) — that is a mechanic, unrelated to the product title; do NOT blanket-rename it. | Resolves open-Q "final game name." Repo was already named Underdogs. |
 | D-20 | **Rarity is a frame-only style layer, never art or power.** The rarity gem color is the primary signal (Common grey / Rare blue / Epic purple / Legendary gold); Common→Legendary add *escalating* frame accents (trim ring, art/banner glow, Legendary name flourish) while the **art window, stats, cost, and banner stay identical in size & position**. Art quality is never gated by rarity. The gold frame signals "collectible chase / build-around," not strength. | Reaffirms D-19 & CLAUDE.md §7 in the frame language. See `docs/05-art-direction.md` §Rarity. Implemented in the card compositor. |
 | D-19 | **Workflow: image API generates the illustration; the card frame is composed in code** (HTML/CSS → PNG) so every card is pixel-consistent and data-driven from the schema. | Frame is not baked into the generated art (keeps text crisp, recolorable, rarity-swappable). |
 | D-18 | **Animation is a first-class requirement** with a defined vocabulary (CLAUDE.md §12; `docs/07-animation-and-feel.md`). Optional: a subtle CSS light-sweep **shimmer on Legendary frames only**, `prefers-reduced-motion`-gated. | Attack arrows, lunge/impact/shake, summon/death, keyword beats. |
@@ -32,7 +33,7 @@
 1. **Fill the last ~23 cards.** Priest, Shepherd, Patriarch are light (see counts in `docs/04-card-database.md`). Needs: more Sheep-synergy commons (Shepherd), heal/Endure bodies (Priest), Covenant/Heir commons (Patriarch), and 2–3 more Legendaries.
 2. **Leaders + Hero Powers:** draft 2 per class (12 total). Suggested seeds — Prophet "Foresee 2"; Warrior "Rally: +1 attack this turn"; Priest "Restore 2"; Shepherd "Summon a 1/1 Sheep"; Patriarch "Summon a 1/1 Heir"; Disciple "Summon a 1/1 Disciple." Tune so none beats a 2-drop.
 3. **Master art style-prompt + bake-off.** `docs/05-art-direction.md` has the master prompt; still need a 3–5 card style-frame test before batch production (illuminated-manuscript-modern vs painted-epic).
-4. **Final game name.** Working title COVENANT. Alternatives to test: Testament, Canon, Ebenezer, Selah.
+4. ~~**Final game name.**~~ **Resolved (D-21): UNDERDOGS.**
 5. **Bible translation licensing** for the in-app Scroll Study reader (WEB/KJV are free; ESV/CSB need permission). Decide before building the reader.
 6. **First mini-set** = "The Wisdom Books" (Job, Proverbs, Ecclesiastes, Song)? Greenlight or hold.
 7. **Rotation names** (future): Canon / Apocrypha vs plain Standard / Legacy.

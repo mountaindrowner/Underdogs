@@ -1,0 +1,694 @@
+{
+  "images": 96,
+  "usd": 3.7198577999999993,
+  "runs": [
+    {
+      "id": "scribe_of_the_word",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "samuel_the_seer",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "nathan_the_prophet",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jeremiah",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "ezekiel",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "elisha",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jonah",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "word_of_the_lord",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "deborah_the_prophetess",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "micaiah",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "daniel",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "daniel_the_beloved",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "daniel.png"
+      ]
+    },
+    {
+      "id": "moses_of_midian",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "moses_signs_and_wonders",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "moses_of_midian.png"
+      ]
+    },
+    {
+      "id": "left_handed_ehud",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "shamgar",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jonathan",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "joshua_and_caleb",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "three_mighty_men",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jaels_tent_peg",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "coronation",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "trumpets_at_jericho",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "solomon_the_king",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "josiah_the_boy_king",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "abishai",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "widow_of_zarephath",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "levite_attendant",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "physicians_care",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "eleazar_the_faithful",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "ezra_the_teacher",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "atonement",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_tabernacle",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "samuel_raised_at_the_altar",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "samuel_the_seer.png"
+      ]
+    },
+    {
+      "id": "incense_offering",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "consecration",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "hur_the_upholder",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "phinehas_the_zealous",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "zadok_the_high_priest",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "day_of_atonement",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "faithful_sheepdog",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "rachel_at_the_well",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "amos_the_herdsman",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "not_one_lost",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jacob_the_herdsman",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_good_fold",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "lost_sheep",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "ewe_and_lamb",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "rod_and_staff",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "green_pastures",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "sheepfold_gate",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jabez",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "abel_keeper_of_flocks",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_ninety_nine",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "eliezer_the_steward",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "isaac",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "sons_of_jacob",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_birthright",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "enoch",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "noah_ark_builder",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "jacob",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "jacob_the_herdsman.png"
+      ]
+    },
+    {
+      "id": "israel",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "jacob.png"
+      ]
+    },
+    {
+      "id": "joseph_the_dreamer",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "joseph_lord_of_egypt",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "joseph_the_dreamer.png"
+      ]
+    },
+    {
+      "id": "moses_the_lawgiver",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "moses_of_midian.png"
+      ]
+    },
+    {
+      "id": "terahs_caravan",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "keturahs_heirs",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "covenant_renewed",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "well_of_the_oath",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "land_of_promise",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "andrew_the_first",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "philip",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "thomas",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "barnabas",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "silas",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "pentecost",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "great_commission",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "dorcas",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "simon_the_fisherman",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "peter_the_rock",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": [
+        "simon_the_fisherman.png"
+      ]
+    },
+    {
+      "id": "apollos",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "timothy",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "matthias",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "boaz",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "shepherd_neutral",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "scribe",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "physician",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "musician",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "craftsman",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "cupbearer",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "gatekeeper",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "scarlet_cord",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "naaman_the_healed",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "the_widows_mite",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "melchizedeks_blessing",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "job",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    },
+    {
+      "id": "onesimus",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03874,
+      "refs": []
+    }
+  ]
+}
