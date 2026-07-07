@@ -1,13 +1,12 @@
 /**
- * Card DATA pipeline: load the /data JSON (cards.seed, tokens, adversaries,
- * leaders) into typed CardDef[] and a registry. Cards are the single source of
- * content; the engine reads this, never hardcoded card logic.
+ * Card DATA helpers (browser-safe — no node:fs). Cards are the single source
+ * of content; the engine reads this, never hardcoded card logic. For loading
+ * from disk in Node, see cards.node.ts.
  */
-import { readFileSync } from 'node:fs';
 import type { CardDef } from './types.ts';
 
 /** The data files use slightly different top-level keys; flatten them all. */
-function flatten(json: unknown): CardDef[] {
+export function flattenCards(json: unknown): CardDef[] {
   if (Array.isArray(json)) return json as CardDef[];
   const obj = json as Record<string, unknown>;
   for (const key of ['cards', 'tokens', 'adversaries', 'leaders']) {
@@ -16,11 +15,11 @@ function flatten(json: unknown): CardDef[] {
   return [];
 }
 
-export function loadCardData(files: string[]): CardDef[] {
+/** Flatten several parsed JSON blobs into one CardDef[] (drops `_note` entries). */
+export function collectDefs(...blobs: unknown[]): CardDef[] {
   const defs: CardDef[] = [];
-  for (const f of files) {
-    const j = JSON.parse(readFileSync(f, 'utf8'));
-    for (const c of flatten(j)) {
+  for (const b of blobs) {
+    for (const c of flattenCards(b)) {
       if (c && typeof c.id === 'string' && !c.id.startsWith('_')) defs.push(c);
     }
   }

@@ -6,3 +6,5 @@ __pycache__/
 .DS_Store
 node_modules/
 engine/node_modules/
+ui/dist/
+ui/.vite/

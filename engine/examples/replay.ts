@@ -9,9 +9,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
   createGame, applyAction, registerDefs, effAttack,
-  loadCardData, makeRegistry, buildDeck,
+  makeRegistry, buildDeck,
   type GameState, type Action, type GameEvent, type PlayerId, type CardDef,
 } from '../src/index.ts';
+import { loadCardData } from '../src/cards.node.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(here, '..', '..', 'data');

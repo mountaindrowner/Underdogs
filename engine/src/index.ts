@@ -9,5 +9,6 @@ export * from './types.ts';
 export * from './events.ts';
 export { makeRng, rngFromState, type Rng } from './rng.ts';
 export { createGame, applyAction, registerDefs, effAttack, type GameConfig } from './engine.ts';
-export { loadCardData, makeRegistry, buildDeck } from './cards.ts';
+export { flattenCards, collectDefs, makeRegistry, buildDeck } from './cards.ts';
+// Node-only disk loader lives in ./cards.node.ts (kept out of the browser bundle).
 export { applyEffect, runTrigger, resolveTargets, type Ctx, type Target } from './effects.ts';
