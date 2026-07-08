@@ -343,7 +343,9 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   }
   if (inMulligan) {
     return (
-      <div className="app">
+      <div className="app mulliganApp">
+        <div className="mulBg"><Board enc={sceneOverride ?? meta?.id} danger={0} flare={0} goliath={false} /></div>
+        <div className="mulScrim" />
         <div className="topbar"><div className="brand">UNDERDOGS <span>· casting lots</span></div>
           <button onClick={onExit}>Menu</button></div>
         <div className="mulligan">

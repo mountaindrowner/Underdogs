@@ -5,8 +5,12 @@ import { useState } from 'react';
 import { Scene, type SceneId } from './scenes.tsx';
 import './title.css';
 
-// a swatch of the coat's dyed wools (not a spectrum) — the recurring brand accent
-const RIBBON = ['#9a3428', '#c39a48', '#6d773a', '#3f6b5c', '#33447a', '#5f4468', '#b5623a'];
+// a woven band of the coat's dyed wools (not a spectrum) — uneven panels,
+// muted dye tones, gold seams between. The recurring brand accent.
+const RIBBON: [string, number][] = [
+  ['#8a3a2c', 1.3], ['#a9843f', 0.8], ['#5f6b38', 1.1], ['#3c6154', 0.7],
+  ['#334769', 1.2], ['#584158', 0.9], ['#9c5636', 1.0],
+];
 
 function Filigree({ pos }: { pos: string }) {
   return (
@@ -38,7 +42,7 @@ export function Title({ scene, onBegin }: { scene: SceneId; onBegin: () => void 
 
       <div className="titleCenter">
         <div className="titleLogo">Underdogs</div>
-        <div className="ribbon">{RIBBON.map((c) => <span key={c} style={{ background: c }} />)}</div>
+        <div className="ribbon">{RIBBON.map(([c, w], i) => <span key={i} style={{ background: c, flexGrow: w }} />)}</div>
         <div className="tagline">Every hero starts unqualified.</div>
         <div className="tapBegin">TAP TO BEGIN</div>
       </div>

@@ -47,32 +47,74 @@ function CoatScene() {
   );
 }
 
+// A layer of organic reeds: tapered, gently-bent stalks of varied height with
+// feathery seed-heads and the odd leaf blade — not a barcode of straight lines.
+function Reeds({ n, hMin, hMax, stalk, head, leafColor, className }:
+  { n: number; hMin: number; hMax: number; stalk: string; head: string; leafColor?: string; className: string }) {
+  const H = 200, W = 1000;
+  const reeds = useMemo(() => Array.from({ length: n }, (_, i) => {
+    const x = (i + 0.5) * (W / n) + rand(-W / n * 0.4, W / n * 0.4);
+    const h = rand(hMin, hMax);
+    const bend = rand(-16, 16);
+    const bw = rand(3, 6.5);
+    return { x, h, bend, bw, head: Math.random() < 0.75, leaf: Math.random() < 0.22, lend: rand(-1, 1) < 0 ? -1 : 1 };
+  }), []);
+  return (
+    <svg className={className} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
+      {reeds.map((r, i) => {
+        const ty = H - r.h, tx = r.x + r.bend;
+        const d = `M${r.x - r.bw / 2},${H} Q${r.x - r.bw / 4 + r.bend * 0.5},${H - r.h * 0.55} ${tx - 0.6},${ty}`
+          + ` L${tx + 0.6},${ty} Q${r.x + r.bw / 4 + r.bend * 0.5},${H - r.h * 0.55} ${r.x + r.bw / 2},${H} Z`;
+        return (
+          <g key={i}>
+            <path d={d} fill={stalk} />
+            {r.head && <ellipse cx={tx} cy={ty - 4} rx="2.1" ry="6.5" fill={head} transform={`rotate(${r.bend * 0.4} ${tx} ${ty})`} />}
+            {r.leaf && leafColor && (() => {
+              const ly = H - r.h * 0.46, dir = r.lend, tipX = r.x + dir * 30, tipY = ly - 20;
+              return (
+                <path d={`M${r.x},${ly + 5} Q${r.x + dir * 20},${ly - 4} ${tipX},${tipY}`
+                  + ` Q${r.x + dir * 14},${ly + 2} ${r.x},${ly - 3} Z`}
+                  fill={leafColor} opacity=".85" />
+              );
+            })()}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 // ---- Reeds of the Nile -----------------------------------------------------
 function ReedsScene() {
   return (
     <div className="scene reeds">
       <div className="clouds" />
       <div className="rd-rays rays" />
-      <div className="rd-sun" />
+      <div className="rd-sun" /><div className="rd-sunbloom" />
       <div className="rd-haze" /><div className="rd-bank" />
       <div className="rd-water" /><div className="rd-ripple" /><div className="rd-glitter" />
       <svg className="rd-felucca" viewBox="0 0 150 150" aria-hidden>
-        <path d="M40 20 L40 96 L112 92 Z" fill="#e9ddc0" />
-        <path d="M40 20 L40 96" stroke="#5a3d22" strokeWidth="2.5" />
-        <path d="M34 96 L118 96 Q108 114 92 114 L60 114 Q46 114 34 96 Z" fill="#2a1c10" />
-        <path d="M40 116 L108 116 Q100 126 88 126 L60 126 Z" fill="#123f3d" opacity=".45" />
+        <path d="M40 22 Q78 40 112 90 L40 96 Z" fill="#efe4ca" />
+        <path d="M40 22 Q60 42 74 66" stroke="#d8c8a2" strokeWidth="1" fill="none" opacity=".7" />
+        <path d="M40 18 L40 98" stroke="#5a3d22" strokeWidth="2.5" />
+        <path d="M34 96 L118 96 Q108 115 92 115 L60 115 Q46 115 34 96 Z" fill="#2b1d11" />
+        <path d="M40 118 Q78 132 108 118 L100 128 Q78 138 48 128 Z" fill="#0f3a38" opacity=".4" />
       </svg>
-      <div className="rd-reed far" /><div className="rd-reed mid" /><div className="rd-reed near" />
-      <svg className="rd-basket" viewBox="0 0 52 34" aria-hidden>
-        <ellipse cx="26" cy="22" rx="23" ry="11" fill="#8a6a3a" />
-        <ellipse cx="26" cy="15" rx="21" ry="7" fill="#6a4e28" />
-        <path d="M6 20 H46 M10 25 H42" stroke="#4a3418" strokeWidth="1" opacity=".6" />
+      <Reeds n={34} hMin={60} hMax={110} stalk="rgba(30,66,54,.5)" head="rgba(120,140,110,.5)" className="rd-reed far" />
+      <Reeds n={26} hMin={110} hMax={175} stalk="#13342a" head="#3f5a3a" leafColor="#1c4636" className="rd-reed mid" />
+      <Reeds n={18} hMin={175} hMax={250} stalk="#081f18" head="#2c4630" leafColor="#0f2f22" className="rd-reed near" />
+      <svg className="rd-basket" viewBox="0 0 60 40" aria-hidden>
+        <ellipse cx="30" cy="30" rx="26" ry="9" fill="#3a2a14" opacity=".4" />
+        <path d="M6 22 Q30 34 54 22 L52 26 Q30 38 8 26 Z" fill="#8a6a3a" />
+        <ellipse cx="30" cy="20" rx="24" ry="8" fill="#7a5a30" />
+        <ellipse cx="30" cy="18" rx="24" ry="6" fill="#9a7a44" />
+        <path d="M8 19 H52 M10 22 Q30 27 50 22 M12 16 H48" stroke="#5a4020" strokeWidth="1" opacity=".55" fill="none" />
       </svg>
-      <svg className="rd-birds" viewBox="0 0 120 40" aria-hidden fill="none" stroke="#2a2038" strokeWidth="1.6">
-        <path d="M8 16 q7 -7 13 0 q7 -7 13 0" /><path d="M60 10 q6 -6 11 0 q6 -6 11 0" opacity=".8" />
-        <path d="M92 22 q5 -5 10 0 q5 -5 10 0" opacity=".7" />
+      <svg className="rd-birds" viewBox="0 0 120 40" aria-hidden fill="none" stroke="#3a3348" strokeWidth="1.1" opacity=".55">
+        <path d="M8 16 q7 -6 13 0 q6 -6 13 0" /><path d="M60 11 q6 -5 11 0 q5 -5 11 0" opacity=".8" />
+        <path d="M92 21 q5 -4 10 0 q4 -4 10 0" opacity=".65" />
       </svg>
-      <Motes n={18} />
+      <Motes n={16} />
     </div>
   );
 }
@@ -98,7 +140,7 @@ function ElahScene() {
     <div className="scene elah">
       <div className="clouds" />
       <div className="el-rays rays" />
-      <div className="el-sun" />
+      <div className="el-sun" /><div className="el-sunbloom" />
       <div className="el-haze" />
       <div className="el-mtn"><svg viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden>
         <polygon points="0,20 0,11 14,6 28,12 44,5 60,11 74,6 88,12 100,7 100,20" fill="#6a3a52" /></svg></div>

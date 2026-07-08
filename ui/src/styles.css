@@ -120,7 +120,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .minion.r-adversary .body{--metal:linear-gradient(150deg,#8a4a3e 0%,#4a1c16 46%,#180a08 100%);--edge:#5a241c}
 .minion.r-token .body{--metal:linear-gradient(150deg,#cdb891 0%,#8a744e 46%,#4a3a24 100%);--edge:#5a4630}
 .minion .mFace{position:absolute;inset:3px;border-radius:9px;overflow:hidden;
-  background-size:cover;background-position:center 22%;background-color:#24303a;
+  background-size:auto 116%;background-position:center 20%;background-color:#24303a;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,224,150,.24),inset 0 -30px 26px rgba(0,0,0,.55)}
 .minion .body::before{content:'';position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:2;
   background:linear-gradient(158deg,rgba(255,255,255,.42),transparent 32%,transparent 68%,rgba(0,0,0,.3));
@@ -266,7 +266,9 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .handcard.playable:hover{transform:translateY(-26px) rotate(0deg) scale(1.12);z-index:30;filter:brightness(1.08)}
 .handcard.selected{transform:translateY(-30px) rotate(0deg) scale(1.12);z-index:31}
 .handcard.selected .hcInner{box-shadow:0 0 0 3px #ffca4d,0 0 20px #ffca4d}
-.hcArt{position:absolute;inset:0;background-size:cover;background-position:center 20%;background-color:#24303a}
+/* the source art carries a baked gold border + pale margin; zoom slightly past
+   cover so that margin crops out instead of showing as a bright edge line */
+.hcArt{position:absolute;inset:0;background-size:auto 116%;background-position:center 18%;background-color:#24303a}
 .hcCost{position:absolute;top:-5px;left:-5px;width:27px;height:27px;border-radius:50%;z-index:5;
   background:radial-gradient(circle at 35% 30%,#ffe6a6,#e6a33a 60%,#8a5410);
   box-shadow:0 0 0 2px #2a1c0c,0 0 0 3px rgba(255,220,150,.35),0 2px 5px rgba(0,0,0,.6);
@@ -345,7 +347,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .bcWindow{position:absolute;top:9px;left:9px;right:9px;height:150px;border-radius:9px;overflow:hidden;z-index:1;
   box-shadow:0 0 0 2px color-mix(in srgb,var(--edge) 80%,#000),0 0 0 3px rgba(255,224,150,.45),
     inset 0 0 0 1px rgba(0,0,0,.7),inset 0 -26px 26px rgba(0,0,0,.45)}
-.bcArt{position:absolute;inset:0;background-size:cover;background-position:center 22%;background-color:#24303a}
+.bcArt{position:absolute;inset:0;background-size:auto 114%;background-position:center 20%;background-color:#24303a}
 .bcArtFallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(255,240,200,.4)}
 .bcCost{position:absolute;top:5px;left:5px;width:34px;height:34px;border-radius:50%;z-index:5;
   background:radial-gradient(circle at 35% 30%,#ffe6a6,#e6a33a 60%,#8a5410);
@@ -385,7 +387,14 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .glossDesc{display:block;font-size:10.5px;line-height:1.3;color:#ddcba0;margin-top:1px}
 
 /* ===================== mulligan ===================== */
-.mulligan{display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:5vh}
+.mulliganApp{position:relative}
+.mulBg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.mulBg .boardScene{position:absolute;inset:0}
+.mulScrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 34%,rgba(14,11,8,.42) 0%,rgba(12,9,7,.72) 58%,rgba(8,6,5,.9) 100%)}
+.mulliganApp .topbar{position:relative;z-index:2}
+.mulligan{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:5vh}
+.mulligan h2{text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .mulligan h2{font-size:22px;color:#e9d9b0;letter-spacing:1px}
 .mulHand{display:flex;gap:26px}
 .mulCard{position:relative;cursor:pointer;transition:transform .12s}
@@ -394,11 +403,12 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .mulCard .handcard.big .hcName{font-size:12px;bottom:30px}
 .mulCard .handcard.big .hcAtk,.mulCard .handcard.big .hcHp{width:32px;height:32px;font-size:17px}
 .mulCard:hover{transform:translateY(-6px)}
-.mulCard.keep .handcard .hcInner{box-shadow:0 0 0 3px #8ef08a,0 0 20px rgba(120,240,120,.5)}
+.mulCard.keep .handcard .hcInner{box-shadow:0 0 0 2px #f0d488,0 0 22px rgba(240,196,120,.55)}
+.mulCard.keep{transform:translateY(-6px)}
 .mulCard:not(.keep) .handcard{filter:grayscale(.6) brightness(.8)}
 .mulTag{position:absolute;bottom:-24px;left:0;right:0;text-align:center;font-size:12px;letter-spacing:2px;
   font-weight:700;color:#e9d9b0}
-.mulCard.keep .mulTag{color:#8ef08a}
+.mulCard.keep .mulTag{color:#f0d488}
 .bigbtn{font-family:var(--serif);font-weight:800;font-size:18px;color:#2a1806;padding:12px 34px;border-radius:12px;
   border:2px solid #4d3510;cursor:pointer;background:linear-gradient(180deg,#f6da8c,#a9791f);box-shadow:0 5px 14px rgba(0,0,0,.6)}
 .bigbtn:hover{filter:brightness(1.08)}
