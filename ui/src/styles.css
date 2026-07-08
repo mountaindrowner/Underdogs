@@ -528,4 +528,10 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 
   /* the reader shrinks and tucks under the top bar */
   .preview{top:34px;right:4px;transform:scale(.62);transform-origin:top right}
+
+  /* perf: thin out ambient effects on phones (halve particles, drop the
+     spinning god-rays and the targeting blur — cheap wins for lower-end GPUs) */
+  .board-motes span:nth-child(2n),.coat .dust span:nth-child(2n),.embers span:nth-child(2n){display:none}
+  .rays{animation:none}
+  .table.aiming .boardScene{filter:none}
 }

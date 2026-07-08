@@ -12,19 +12,19 @@ export const registry = makeRegistry(defs);
 
 // ---- art: map defId -> illustration url (raw art, not the framed card) ------
 const artGlobs = {
-  ...import.meta.glob('../assets/cards/*.png', { eager: true, query: '?url', import: 'default' }),
-  ...import.meta.glob('../assets/tokens/*.png', { eager: true, query: '?url', import: 'default' }),
-  ...import.meta.glob('../assets/adversaries/*.png', { eager: true, query: '?url', import: 'default' }),
-  ...import.meta.glob('../assets/leaders/*.png', { eager: true, query: '?url', import: 'default' }),
+  ...import.meta.glob('../assets/cards/*.webp', { eager: true, query: '?url', import: 'default' }),
+  ...import.meta.glob('../assets/tokens/*.webp', { eager: true, query: '?url', import: 'default' }),
+  ...import.meta.glob('../assets/adversaries/*.webp', { eager: true, query: '?url', import: 'default' }),
+  ...import.meta.glob('../assets/leaders/*.webp', { eager: true, query: '?url', import: 'default' }),
 } as Record<string, string>;
 
 const artByFile = new Map<string, string>();
 for (const [path, url] of Object.entries(artGlobs)) {
-  const base = path.split('/').pop()!.replace('.png', '');
+  const base = path.split('/').pop()!.replace('.webp', '');
   artByFile.set(base, url);
 }
 
-import cardBack from '../assets/backs/underdogs-card-back.png';
+import cardBack from '../assets/backs/underdogs-card-back.webp';
 export const CARD_BACK = cardBack as string;
 
 export function artUrl(defId: string): string | undefined {
