@@ -8,6 +8,7 @@ import { effAttack, type CardDef } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
+import { music } from './audio.ts';
 import './styles.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -349,6 +350,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div className="brand">UNDERDOGS <span>· {meta ? meta.title : 'free play'}</span></div>
         <div className="controls">
           <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Adversary'}</span>
+          <MusicToggle />
           <button className="boardBtn" onPointerDown={(e) => e.stopPropagation()} onClick={cycleBoard}
             title="Change board look">◈ {BOARD_LABEL[board]}</button>
           <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}>Menu</button>
@@ -485,7 +487,7 @@ function Menu({ onPlay }: { onPlay: (cfg: MatchConfig, meta?: Encounter) => void
   const done = completed();
   return (
     <div className="app">
-      <div className="topbar"><div className="brand">UNDERDOGS <span>· campaign</span></div></div>
+      <div className="topbar"><div className="brand">UNDERDOGS <span>· campaign</span></div><MusicToggle /></div>
       <div className="menu">
         <h1 className="menuTitle">Choose your battle</h1>
         <div className="chapters">
@@ -518,6 +520,21 @@ function Menu({ onPlay }: { onPlay: (cfg: MatchConfig, meta?: Encounter) => void
 // ---- router ----------------------------------------------------------------
 export default function App() {
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
+  // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
+  useEffect(() => { if (battle) music.playBattle(); else music.playMenu(); }, [!!battle]);
   if (!battle) return <Menu onPlay={(cfg, meta) => setBattle({ cfg, meta })} />;
   return <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />;
+}
+
+function MusicToggle() {
+  const [muted, setMuted] = useState(() => music.isMuted());
+  const [vol, setVol] = useState(() => Math.round(music.volume() * 100));
+  return (
+    <div className="musicCtl" onPointerDown={(e) => e.stopPropagation()}>
+      <button className={`musicBtn${muted ? ' muted' : ''}`} title={muted ? 'Unmute music' : 'Mute music'}
+        onClick={() => setMuted(music.toggleMute())}>♪</button>
+      <input className="volSlider" type="range" min={0} max={100} value={vol} title="Music volume"
+        onChange={(e) => { const v = Number(e.currentTarget.value); setVol(v); music.setVolume(v / 100); }} />
+    </div>
+  );
 }
