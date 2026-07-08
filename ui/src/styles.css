@@ -3,6 +3,13 @@
   --red:#cc2a20; --blue:#1f80f6; --ink:#1a1206;
   --stone:#2c2418; --stone2:#1b160d;
   --r-common:#c3c3cc; --r-rare:#4aa3ff; --r-epic:#b061ff; --r-legendary:#ff9d2e;
+  /* rarity is expressed as the FRAME METAL, never the art. Commons get a warm,
+     crafted bronze — not a dead grey line. */
+  --m-common:linear-gradient(150deg,#e6c58e 0%,#b3823f 42%,#6d4a1e 100%);
+  --m-rare:linear-gradient(150deg,#cfe6ff 0%,#4a9de8 44%,#1c5390 100%);
+  --m-epic:linear-gradient(150deg,#ecccff 0%,#a95ef0 44%,#5f2896 100%);
+  --m-legendary:linear-gradient(150deg,#ffe9a8 0%,#f0a52e 42%,#8f5310 100%);
+  --edge-common:#7a5626; --edge-rare:#2a6bb0; --edge-epic:#7a3ab0; --edge-legendary:#b5751a;
   --serif:'Palatino Linotype', Georgia, serif;
   --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
@@ -61,7 +68,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   box-shadow:inset 0 4px 12px rgba(0,0,0,.72), inset 0 -3px 3px rgba(255,222,150,.14),
     inset 0 0 0 1px rgba(0,0,0,.5), 0 1px 0 rgba(255,232,170,.14);
   border:1px solid rgba(0,0,0,.4)}
-.table[data-board="relief"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.6),inset 0 0 0 2px #2a1806,inset 0 -30px 26px rgba(0,0,0,.55)}
+.table[data-board="relief"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.6)}
 
 /* ---- treatment: TAVERN TIMBER — warm wood + leather ---- */
 .table[data-board="timber"] .frame{
@@ -73,7 +80,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   background:linear-gradient(180deg, rgba(46,26,12,.55), rgba(70,44,22,.28));
   box-shadow:inset 0 4px 12px rgba(0,0,0,.65), inset 0 -3px 3px rgba(210,150,90,.16), inset 0 0 0 1px rgba(0,0,0,.45);
   border:1px solid rgba(120,78,36,.4)}
-.table[data-board="timber"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.55),inset 0 0 0 2px #2a1806,inset 0 -30px 26px rgba(0,0,0,.5)}
+.table[data-board="timber"] .minion .body{box-shadow:0 11px 16px rgba(0,0,0,.55)}
 
 /* ---- treatment: FLAT — the original minimal look ---- */
 .table[data-board="flat"] .frame{box-shadow:inset 0 0 0 5px #6d4d13, inset 0 0 0 8px #2a1806, inset 0 0 90px rgba(0,0,0,.4)}
@@ -92,10 +99,22 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .minion{width:96px;height:126px;position:relative;flex-shrink:0;transition:transform .14s ease-out}
 .minion.enter{animation:summon .34s ease-out}
 .minion.dead{animation:die .45s forwards}
-.minion .body{position:absolute;inset:0;border-radius:12px;overflow:hidden;
+/* the minion is a metal frame (.body) around the art face (.mFace), tinted
+   by rarity like the hand cards; adversaries get a villainous dark iron. */
+.minion .body{position:absolute;inset:0;border-radius:12px;padding:3px;
+  --metal:var(--m-common);--edge:var(--edge-common);
+  background:var(--metal);box-shadow:0 6px 12px rgba(0,0,0,.55)}
+.minion.r-rare .body{--metal:var(--m-rare);--edge:var(--edge-rare)}
+.minion.r-epic .body{--metal:var(--m-epic);--edge:var(--edge-epic)}
+.minion.r-legendary .body{--metal:var(--m-legendary);--edge:var(--edge-legendary)}
+.minion.r-adversary .body{--metal:linear-gradient(150deg,#8a4a3e 0%,#4a1c16 46%,#180a08 100%);--edge:#5a241c}
+.minion.r-token .body{--metal:linear-gradient(150deg,#cdb891 0%,#8a744e 46%,#4a3a24 100%);--edge:#5a4630}
+.minion .mFace{position:absolute;inset:3px;border-radius:9px;overflow:hidden;
   background-size:cover;background-position:center 22%;background-color:#24303a;
-  border:3px solid var(--gold2);box-shadow:0 5px 12px rgba(0,0,0,.6),inset 0 0 0 2px #2a1806,
-    inset 0 -30px 26px rgba(0,0,0,.55)}
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.7),inset 0 -30px 26px rgba(0,0,0,.55)}
+.minion .body::before{content:'';position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:2;
+  background:linear-gradient(158deg,rgba(255,255,255,.42),transparent 32%,transparent 68%,rgba(0,0,0,.3));
+  mix-blend-mode:overlay}
 .minion.hit .body{animation:hitflash .28s}
 .minion.buffed .atk,.minion.buffed .hp{animation:pop .3s}
 .artFallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -211,35 +230,52 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .handcard{position:relative;width:92px;height:126px;flex-shrink:0;margin:0 -14px;pointer-events:auto;
   transform-origin:bottom center;transform:translateY(var(--ty,0)) rotate(var(--rot,0deg));
   transition:transform .14s ease-out;cursor:default;filter:brightness(.82)}
-.handcard .hcInner{position:absolute;inset:0;border-radius:11px;overflow:hidden;
-  background:#20160a;border:2px solid var(--r-common);
-  box-shadow:0 5px 12px rgba(0,0,0,.6),inset 0 0 0 1px rgba(0,0,0,.5)}
-.handcard.r-rare .hcInner{border-color:var(--r-rare);box-shadow:0 5px 12px rgba(0,0,0,.6),0 0 8px rgba(74,163,255,.35)}
-.handcard.r-epic .hcInner{border-color:var(--r-epic);box-shadow:0 5px 12px rgba(0,0,0,.6),0 0 9px rgba(176,97,255,.4)}
-.handcard.r-legendary .hcInner{border-color:var(--r-legendary);box-shadow:0 5px 12px rgba(0,0,0,.6),0 0 11px rgba(255,157,46,.5)}
+/* the card is a crafted METAL FRAME (hcInner) around a clipped art face
+   (hcFace); orbs overhang on .handcard so they aren't clipped. */
+.handcard .hcInner{position:absolute;inset:0;border-radius:11px;padding:3px;
+  --metal:var(--m-common);--edge:var(--edge-common);
+  background:var(--metal);box-shadow:0 5px 12px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.45)}
+.handcard.r-rare .hcInner{--metal:var(--m-rare);--edge:var(--edge-rare)}
+.handcard.r-epic .hcInner{--metal:var(--m-epic);--edge:var(--edge-epic)}
+.handcard.r-legendary .hcInner{--metal:var(--m-legendary);--edge:var(--edge-legendary);
+  box-shadow:0 5px 12px rgba(0,0,0,.6),0 0 10px rgba(255,157,46,.45),0 0 0 1px rgba(0,0,0,.45)}
+/* polished-metal sheen across the frame */
+.handcard .hcInner::before{content:'';position:absolute;inset:0;border-radius:11px;pointer-events:none;
+  background:linear-gradient(158deg,rgba(255,255,255,.5),transparent 34%,transparent 66%,rgba(0,0,0,.28));
+  mix-blend-mode:overlay;z-index:2}
+/* four corner rivets */
+.handcard .hcInner::after{content:'';position:absolute;inset:0;border-radius:11px;pointer-events:none;z-index:2;
+  background:
+    radial-gradient(circle at 6px 6px,rgba(255,244,214,.9) 0 1.2px,rgba(0,0,0,.55) 1.2px 2.3px,transparent 2.6px),
+    radial-gradient(circle at calc(100% - 6px) 6px,rgba(255,244,214,.9) 0 1.2px,rgba(0,0,0,.55) 1.2px 2.3px,transparent 2.6px),
+    radial-gradient(circle at 6px calc(100% - 6px),rgba(255,244,214,.9) 0 1.2px,rgba(0,0,0,.55) 1.2px 2.3px,transparent 2.6px),
+    radial-gradient(circle at calc(100% - 6px) calc(100% - 6px),rgba(255,244,214,.9) 0 1.2px,rgba(0,0,0,.55) 1.2px 2.3px,transparent 2.6px)}
+.hcFace{position:relative;width:100%;height:100%;border-radius:8px;overflow:hidden;background:#20160a;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.7),inset 0 0 0 2px color-mix(in srgb,var(--edge) 70%,transparent)}
 .handcard.playable{filter:brightness(1);cursor:grab}
 .handcard.playable:hover{transform:translateY(-26px) rotate(0deg) scale(1.12);z-index:30;filter:brightness(1.08)}
 .handcard.selected{transform:translateY(-30px) rotate(0deg) scale(1.12);z-index:31}
 .handcard.selected .hcInner{box-shadow:0 0 0 3px #ffca4d,0 0 20px #ffca4d}
 .hcArt{position:absolute;inset:0;background-size:cover;background-position:center 20%;background-color:#24303a}
-.hcCost{position:absolute;top:-4px;left:-4px;width:26px;height:26px;border-radius:50%;z-index:3;
-  background:radial-gradient(circle at 35% 30%,#ffe6a6,#e6a33a 60%,#8a5410);border:2px solid var(--gold);
+.hcCost{position:absolute;top:-5px;left:-5px;width:27px;height:27px;border-radius:50%;z-index:5;
+  background:radial-gradient(circle at 35% 30%,#ffe6a6,#e6a33a 60%,#8a5410);
+  box-shadow:0 0 0 2px #2a1c0c,0 0 0 3px rgba(255,220,150,.35),0 2px 5px rgba(0,0,0,.6);
   display:flex;align-items:center;justify-content:center;font-weight:800;color:#3a2406;font-size:15px}
-.hcName{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-size:8.5px;color:#fff6df;
-  text-shadow:0 1px 2px #000;background:linear-gradient(180deg,transparent,rgba(40,10,8,.9));padding:2px}
-.hcAtk,.hcHp{position:absolute;bottom:-4px;width:26px;height:26px;border-radius:50%;z-index:3;
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;border:2px solid #241606}
-.hcAtk{left:-4px;background:radial-gradient(circle at 36% 28%,#ffeaa0,#e0a52a 55%,#7d4f0d)}
-.hcHp{right:-4px;background:radial-gradient(circle at 36% 28%,#ffa192,#cc2a20 55%,#6d0f09)}
+/* a defined stone nameplate, not a faint fade */
+.hcName{position:absolute;bottom:15px;left:5px;right:5px;text-align:center;font-size:8.5px;font-weight:600;
+  color:#ffeecb;letter-spacing:.2px;padding:2px 3px;border-radius:3px;z-index:3;
+  background:linear-gradient(180deg,rgba(38,26,12,.86),rgba(12,8,4,.92));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--edge) 60%,transparent),0 1px 2px rgba(0,0,0,.5);
+  text-shadow:0 1px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hcAtk,.hcHp{position:absolute;bottom:-5px;width:27px;height:27px;border-radius:50%;z-index:5;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;
+  box-shadow:0 0 0 2px #241606,0 2px 4px rgba(0,0,0,.6)}
+.hcAtk{left:-5px;background:radial-gradient(circle at 36% 28%,#ffeaa0,#e0a52a 55%,#7d4f0d)}
+.hcHp{right:-5px;background:radial-gradient(circle at 36% 28%,#ffa192,#cc2a20 55%,#6d0f09)}
 
-/* the lifted drag ghost (L4), rendered at document root, follows the pointer */
-.ghost{position:fixed;z-index:200;width:104px;height:142px;pointer-events:none;
+/* the lifted drag ghost (L4): reuses the .handcard frame, just repositioned */
+.ghost{position:fixed;z-index:200;width:104px;height:142px;margin:0;pointer-events:none;
   transition:transform .05s linear;filter:drop-shadow(0 18px 24px rgba(0,0,0,.7))}
-.ghost .hcInner{position:absolute;inset:0;border-radius:12px;overflow:hidden;background:#20160a;
-  border:2px solid var(--r-common)}
-.ghost.r-rare .hcInner{border-color:var(--r-rare)}
-.ghost.r-epic .hcInner{border-color:var(--r-epic)}
-.ghost.r-legendary .hcInner{border-color:var(--r-legendary)}
 
 /* ===================== End Turn seal (bottom-right) ===================== */
 .endturn{position:absolute;right:16px;bottom:26px;z-index:22;font-family:var(--serif);font-weight:800;
@@ -275,10 +311,20 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .preview{position:fixed;right:calc(14px + var(--safe-r));top:80px;width:230px;z-index:70;
   display:flex;flex-direction:column;gap:10px;pointer-events:none;animation:previewIn .16s ease-out}
 .bigcard{position:relative;width:220px;height:300px;border-radius:16px;overflow:hidden;
-  background:#1a1206;border:4px solid var(--r-common);box-shadow:0 12px 30px rgba(0,0,0,.7)}
-.bigcard.r-rare{border-color:var(--r-rare)}
-.bigcard.r-epic{border-color:var(--r-epic)}
-.bigcard.r-legendary{border-color:var(--r-legendary);box-shadow:0 12px 30px rgba(0,0,0,.7),0 0 18px rgba(255,157,46,.4)}
+  --metal:var(--m-common);--edge:var(--edge-common);
+  background:#1a1206;box-shadow:0 12px 30px rgba(0,0,0,.7)}
+.bigcard.r-rare{--metal:var(--m-rare);--edge:var(--edge-rare)}
+.bigcard.r-epic{--metal:var(--m-epic);--edge:var(--edge-epic)}
+.bigcard.r-legendary{--metal:var(--m-legendary);--edge:var(--edge-legendary);
+  box-shadow:0 12px 30px rgba(0,0,0,.7),0 0 22px rgba(255,157,46,.4)}
+/* rounded metal-gradient border via a masked ring (respects border-radius) */
+.bigcard::before{content:'';position:absolute;inset:0;border-radius:16px;padding:4px;z-index:6;pointer-events:none;
+  background:var(--metal);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.5)}
+.bigcard::after{content:'';position:absolute;inset:0;border-radius:16px;z-index:6;pointer-events:none;
+  background:linear-gradient(158deg,rgba(255,255,255,.28),transparent 30%);mix-blend-mode:overlay}
 .bcArt{position:absolute;top:0;left:0;right:0;height:150px;background-size:cover;background-position:center 22%;
   background-color:#24303a}
 .bcArtFallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(255,240,200,.4)}

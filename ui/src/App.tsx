@@ -36,7 +36,8 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
     onDown?: (e: React.PointerEvent) => void; onEnter?: () => void; onLeave?: () => void }) {
   const art = artUrl(u.defId);
   const kw = u.keywords.find((k) => KW_LABEL[k]);
-  const c = ['minion', cls];
+  const rarity = registry.get(u.defId)?.rarity ?? 'common';
+  const c = ['minion', `r-${rarity}`, cls];
   if (u.dead) c.push('dead'); if (u.enter) c.push('enter'); if (u.fulfilling) c.push('fulfilling');
   if (u.hit) c.push('hit'); if (u.buffed) c.push('buffed'); if (valid) c.push('validTgt');
   const style = u.lunge ? { transform: `translateY(${u.lunge * 18}px) scale(1.06)` } : undefined;
@@ -45,10 +46,12 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
       onMouseEnter={onEnter} onMouseLeave={onLeave}
       data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
       {u.keywords.includes('guard') && <div className="ward" />}
-      <div className="body" style={art ? { backgroundImage: `url(${art})` } : undefined}>
-        {!art && <div className="artFallback">{u.name[0]}</div>}
-        <div className="nameband">{u.name}</div>
-        {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
+      <div className="body">
+        <div className="mFace" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+          {!art && <div className="artFallback">{u.name[0]}</div>}
+          <div className="nameband">{u.name}</div>
+          {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
+        </div>
       </div>
       <div className="atk">{u.attack}</div><div className="hp">{u.health}</div>
       {u.dmg != null && <div className="float dmg">-{u.dmg}</div>}
@@ -66,12 +69,12 @@ function HandCard({ c, playable, selected, fan, onDown, onEnter, onLeave }:
   return (
     <div className={`handcard r-${c.rarity ?? 'common'}${playable ? ' playable' : ''}${selected ? ' selected' : ''}`}
       style={style} onPointerDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <div className="hcInner">
-        <div className="hcCost">{c.cost ?? 0}</div>
+      <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
         <div className="hcName">{c.name}</div>
-        {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
-      </div>
+      </div></div>
+      <div className="hcCost">{c.cost ?? 0}</div>
+      {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
     </div>
   );
 }
@@ -322,12 +325,12 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
               <div key={i} className={`mulCard${keep.has(i) ? ' keep' : ''}`}
                 onClick={() => setKeep((k) => { const n = new Set(k); n.has(i) ? n.delete(i) : n.add(i); return n; })}>
                 <div className={`handcard big r-${c.rarity ?? 'common'}`}>
-                  <div className="hcInner">
-                    <div className="hcCost">{c.cost ?? 0}</div>
+                  <div className="hcInner"><div className="hcFace">
                     <div className="hcArt" style={artUrl(c.id) ? { backgroundImage: `url(${artUrl(c.id)})` } : undefined} />
                     <div className="hcName">{c.name}</div>
-                    {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
-                  </div>
+                  </div></div>
+                  <div className="hcCost">{c.cost ?? 0}</div>
+                  {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
                 </div>
                 <div className="mulTag">{keep.has(i) ? 'KEEP' : 'REPLACE'}</div>
               </div>
@@ -465,14 +468,14 @@ function defOf(id: string): CardDef | null { return registry.get(id) ?? null; }
 function GhostCard({ card, x, y, tilt }: { card: CardDef; x: number; y: number; tilt: number }) {
   const art = artUrl(card.id);
   return (
-    <div className={`ghost r-${card.rarity ?? 'common'}`}
+    <div className={`ghost handcard r-${card.rarity ?? 'common'}`}
       style={{ left: x, top: y, transform: `translate(-50%,-58%) rotateY(${tilt}deg) rotate(${tilt * 0.2}deg)` }}>
-      <div className="hcInner">
-        <div className="hcCost">{card.cost ?? 0}</div>
+      <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
         <div className="hcName">{card.name}</div>
-        {card.type === 'minion' && <><div className="hcAtk">{card.attack}</div><div className="hcHp">{card.health}</div></>}
-      </div>
+      </div></div>
+      <div className="hcCost">{card.cost ?? 0}</div>
+      {card.type === 'minion' && <><div className="hcAtk">{card.attack}</div><div className="hcHp">{card.health}</div></>}
     </div>
   );
 }
