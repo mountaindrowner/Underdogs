@@ -5,11 +5,11 @@
 import { music } from './audio.ts';
 import type { GameEvent } from '../../engine/src/index.ts';
 
-const files = import.meta.glob('../assets/sfx/**/*.wav', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const files = import.meta.glob('../assets/sfx/**/*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 interface Entry { url: string; cat: string; name: string }
 const all: Entry[] = Object.entries(files).map(([path, url]) => {
-  const m = path.match(/assets\/sfx\/(.*)\/([^/]+)\.wav$/i);
+  const m = path.match(/assets\/sfx\/(.*)\/([^/]+)\.mp3$/i);
   return { url, cat: m ? m[1] : '', name: m ? m[2] : '' };
 });
 

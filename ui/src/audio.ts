@@ -43,9 +43,19 @@ class Music {
       if (this.unlocked) return;
       this.unlocked = true;
       if (this.wanted) this.start(this.wanted);
+      this.warm();
       for (const e of ['pointerdown', 'keydown', 'touchstart']) window.removeEventListener(e, unlock);
     };
     for (const e of ['pointerdown', 'keydown', 'touchstart']) window.addEventListener(e, unlock);
+  }
+
+  /** Prefetch the other tracks in the background so a later crossfade (e.g.
+   *  entering a battle) starts instantly instead of streaming from scratch. */
+  private warm() {
+    for (const src of [TRACK.battle, TRACK.menuMain, TRACK.menuAlt]) {
+      if (src === this.wanted) continue;
+      try { const a = new Audio(); a.preload = 'auto'; a.src = src; } catch { /* ignore */ }
+    }
   }
 
   private targetVol() { return this.muted ? 0 : this.baseVol; }
