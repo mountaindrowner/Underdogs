@@ -9,6 +9,7 @@ import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
 import { music } from './audio.ts';
+import { Title } from './title/Title.tsx';
 import './styles.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -519,9 +520,11 @@ function Menu({ onPlay }: { onPlay: (cfg: MatchConfig, meta?: Encounter) => void
 
 // ---- router ----------------------------------------------------------------
 export default function App() {
+  const [started, setStarted] = useState(false);
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
   // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
   useEffect(() => { if (battle) music.playBattle(); else music.playMenu(); }, [!!battle]);
+  if (!started) return <Title onBegin={() => setStarted(true)} />;
   if (!battle) return <Menu onPlay={(cfg, meta) => setBattle({ cfg, meta })} />;
   return <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />;
 }

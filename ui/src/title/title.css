@@ -1,0 +1,127 @@
+/* ============================================================================
+ * Title & front-end shell (docs/13). Boot -> title (a random HD scene) ->
+ * tap -> menu. All texture is CSS/SVG; fonts are bundled woff2 (offline-safe).
+ * ==========================================================================*/
+@font-face{font-family:'Cinzel';font-weight:400;font-display:swap;
+  src:url('../../assets/fonts/cinzel-400.woff2') format('woff2')}
+@font-face{font-family:'Cinzel';font-weight:700;font-display:swap;
+  src:url('../../assets/fonts/cinzel-700.woff2') format('woff2')}
+@font-face{font-family:'EBG';font-style:italic;font-weight:400;font-display:swap;
+  src:url('../../assets/fonts/ebgaramond-italic.woff2') format('woff2')}
+
+.title{position:fixed;inset:0;overflow:hidden;background:#0e0922;cursor:pointer;
+  animation:titleIn 1s ease both}
+.title.leaving{animation:titleOut .7s ease forwards}
+@keyframes titleIn{from{opacity:0}to{opacity:1}}
+@keyframes titleOut{to{opacity:0;transform:scale(1.04)}}
+
+/* shared scene overlays */
+.titleScene{position:absolute;inset:0;z-index:0}
+.titleGrain{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-size:200px 200px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E")}
+.titleVignette{position:absolute;inset:0;z-index:6;pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 42%,transparent 46%,rgba(6,4,14,.72) 100%)}
+.titleDim{position:absolute;inset:0;z-index:7;pointer-events:none;background:rgba(8,5,18,.28);
+  opacity:0;animation:dimIn 1.2s ease 1.5s forwards}
+@keyframes dimIn{to{opacity:1}}
+
+/* gold corner filigree */
+.filigree{position:absolute;width:120px;height:120px;z-index:8;opacity:.7;pointer-events:none;
+  filter:drop-shadow(0 0 4px rgba(255,210,120,.4))}
+.filigree.tl{top:14px;left:14px}
+.filigree.tr{top:14px;right:14px;transform:scaleX(-1)}
+.filigree.bl{bottom:14px;left:14px;transform:scaleY(-1)}
+.filigree.br{bottom:14px;right:14px;transform:scale(-1)}
+
+/* ---- title center stack ---- */
+.titleCenter{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;text-align:center;pointer-events:none}
+.titleLogo{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(48px,9vw,96px);line-height:1;
+  background:linear-gradient(#fff3cf,#f0c766 52%,#a86e24);-webkit-background-clip:text;background-clip:text;
+  color:transparent;letter-spacing:.12em;
+  filter:drop-shadow(0 2px 0 rgba(90,50,10,.6)) drop-shadow(0 0 26px rgba(240,199,102,.35));
+  animation:logoIn 1.3s cubic-bezier(.2,.7,.2,1) both}
+@keyframes logoIn{from{opacity:0;transform:scale(1.22);letter-spacing:.5em}
+  to{opacity:1;transform:scale(1);letter-spacing:.12em}}
+.ribbon{display:flex;gap:0;width:min(340px,60vw);height:7px;border-radius:4px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 1px rgba(255,220,150,.3);
+  opacity:0;animation:fadeUp .8s ease .9s both}
+.ribbon span{flex:1}
+.tagline{font-family:'EBG',Georgia,serif;font-style:italic;font-size:clamp(15px,2.4vw,21px);color:#e9dcc0;
+  text-shadow:0 1px 6px rgba(0,0,0,.7);opacity:0;animation:fadeUp .8s ease 1.05s both}
+.tapBegin{font-family:'Cinzel',serif;font-weight:400;font-size:13px;letter-spacing:.4em;color:#f4e2b0;
+  margin-top:10px;text-shadow:0 0 10px rgba(255,210,120,.5);
+  opacity:0;animation:fadeUp .8s ease 1.2s both,blink 2s ease-in-out 2s infinite}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.titleFooter{position:absolute;bottom:16px;left:0;right:0;z-index:10;text-align:center;pointer-events:none;
+  font-family:'Cinzel',serif;font-weight:400;font-size:10px;letter-spacing:.3em;color:#9a8a6a;
+  opacity:0;animation:fadeUp .8s ease 1.4s both}
+
+/* ============================ SCENE: Coat of Many Colors ==================== */
+.coat{position:absolute;inset:0;overflow:hidden;
+  background:radial-gradient(130% 96% at 50% -6%,#2a1c52 0%,#1a1238 52%,#0e0922 100%)}
+.coat .stars{position:absolute;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 12% 14%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 28% 8%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.4px 1.4px at 46% 18%,rgba(255,246,214,.7),transparent),
+    radial-gradient(1px 1px at 64% 10%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1px 1px at 80% 16%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1.2px 1.2px at 90% 8%,rgba(255,246,214,.6),transparent),
+    radial-gradient(1px 1px at 8% 26%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 54% 4%,rgba(255,255,255,.5),transparent)}
+.coatStage{position:absolute;inset:0;perspective:1400px;perspective-origin:50% 30%}
+/* the draped garment, tilted back in 3D */
+.robe{position:absolute;left:-8%;right:-8%;top:16%;bottom:-2%;transform:rotateX(3deg);transform-origin:50% 100%;
+  border-radius:44% 44% 0 0/16% 16% 0 0;overflow:hidden;
+  box-shadow:0 -10px 60px rgba(0,0,0,.5)}
+.robe>div{position:absolute;inset:0}
+/* 1 stripes — jewel-tone bands */
+.r-stripes{background:repeating-linear-gradient(92deg,
+  #c8322a 0 64px,#e07a2a 64px 128px,#eec13a 128px 192px,#3a9a54 192px 256px,
+  #2f8f9a 256px 320px,#3a4fa8 320px 384px,#7e46b8 384px 448px)}
+/* 2 round — light/dark within each band so stripes read rounded */
+.r-round{mix-blend-mode:soft-light;background:repeating-linear-gradient(92deg,
+  rgba(255,255,255,.55) 0 4px,rgba(255,255,255,.12) 4px 16px,transparent 22px 44px,
+  rgba(0,0,0,.30) 58px 64px)}
+/* 3 folds — broad diagonal shadow drapes */
+.r-folds{mix-blend-mode:multiply;filter:blur(10px);background:linear-gradient(101deg,
+  rgba(6,4,16,.5) 0%,transparent 12%,transparent 30%,rgba(6,4,16,.52) 44%,transparent 58%,
+  transparent 74%,rgba(6,4,16,.46) 88%,transparent 100%)}
+/* 4 light — highlight ridges on the fold crests */
+.r-light{mix-blend-mode:screen;background:linear-gradient(101deg,
+  transparent 4%,rgba(255,240,210,.20) 16%,transparent 26%,transparent 50%,rgba(255,240,210,.16) 62%,
+  transparent 72%,transparent 92%,rgba(255,240,210,.14) 99%)}
+/* 5 sheen — key-light bloom top-left */
+.r-sheen{mix-blend-mode:screen;background:radial-gradient(62% 52% at 24% 10%,rgba(255,246,220,.5),transparent 56%)}
+/* 6 weave — fabric grain */
+.r-weave{mix-blend-mode:overlay;opacity:.72;background-size:150px 150px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E")}
+/* 7 threads — warp + weft crosshatch */
+.r-threads{mix-blend-mode:overlay;opacity:.5;background:
+  repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 3px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
+/* 8 trim — gold embroidered seams along the bands + hem + collar */
+.r-trim{background:repeating-linear-gradient(92deg,
+  transparent 0 61px,rgba(90,60,20,.6) 61px 62px,rgba(255,220,140,.7) 62px 63px,rgba(90,60,20,.6) 63px 64px)}
+.r-hem{position:absolute;left:0;right:0;bottom:0;height:22px;
+  background:linear-gradient(180deg,transparent,rgba(90,60,20,.5) 40%,rgba(255,220,140,.55) 70%,rgba(120,80,26,.8));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+.r-collar{position:absolute;left:50%;top:-2px;width:38%;height:78px;transform:translateX(-50%);
+  border-radius:0 0 50% 50%/0 0 100% 100%;
+  background:radial-gradient(120% 150% at 50% 0%,#3a2a12,#241806 60%,transparent 72%);
+  box-shadow:inset 0 -3px 0 rgba(255,220,140,.4),0 3px 10px rgba(0,0,0,.5)}
+/* ambient occlusion + drifting gold dust */
+.coat .ao{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 44%,transparent 44%,rgba(6,4,14,.62) 100%)}
+.coat .dust{position:absolute;inset:0;pointer-events:none}
+.coat .dust span{position:absolute;width:3px;height:3px;border-radius:50%;background:#f0d79e;opacity:0;
+  will-change:transform,opacity;animation:dustFloat var(--d,14s) linear var(--dl,0s) infinite}
+@keyframes dustFloat{0%{opacity:0;transform:translateY(0)}16%{opacity:.5}100%{opacity:0;transform:translateY(-140px)}}
+
+@media (prefers-reduced-motion:reduce){
+  .title *{animation-duration:.01s!important;animation-iteration-count:1!important}
+  .coat .dust span{display:none}
+}
