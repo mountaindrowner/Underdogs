@@ -379,9 +379,16 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .bigbtn:hover{filter:brightness(1.08)}
 .bigbtn.ghost{background:linear-gradient(180deg,#4a3a1c,#2a1d0c);color:#e9d9b0;border-color:#6d4d13}
 
+/* ===================== story menu (chapter map on the scene) ===================== */
+.storyMenu{background:#0e0922}
+.storyWrap{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.backBtn{font-family:var(--serif);background:linear-gradient(180deg,#3a2c14,#221708);color:#f0d79e;border:2px solid #6d4d13;
+  font-weight:700;padding:5px 14px;border-radius:8px;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.5)}
+.backBtn:hover{filter:brightness(1.1)}
+
 /* ===================== menu / campaign ===================== */
 .menu{display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:4vh;width:min(1180px,97vw)}
-.menuTitle{font-size:30px;color:#ffe6a2;letter-spacing:2px;text-shadow:0 2px 6px #000}
+.menuTitle{font-family:'Cinzel',var(--serif);font-weight:700;font-size:30px;color:#ffe6a2;letter-spacing:3px;text-shadow:0 2px 6px #000}
 .chapters{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
 .chapter{position:relative;width:230px;height:300px;border-radius:16px;overflow:hidden;cursor:pointer;
   border:3px solid var(--gold2);box-shadow:0 8px 22px rgba(0,0,0,.6);transition:transform .14s;background:#1a1206}

@@ -1,8 +1,8 @@
 /** Boot title screen: a random HD scene behind the logo + load sequence.
  *  Tapping anywhere begins (arming/fading in the music) and hands off to the
  *  menu. Reverence: the scene and copy celebrate the underdog, never the holy. */
-import { useMemo, useState } from 'react';
-import { Scene, pickScene, SCENES, type SceneId } from './scenes.tsx';
+import { useState } from 'react';
+import { Scene, type SceneId } from './scenes.tsx';
 import './title.css';
 
 // a swatch of the coat's dyed wools (not a spectrum) — the recurring brand accent
@@ -21,12 +21,7 @@ function Filigree({ pos }: { pos: string }) {
   );
 }
 
-export function Title({ onBegin }: { onBegin: () => void }) {
-  // ?title= forces a specific scene (dev/preview); otherwise random at boot
-  const scene = useMemo<SceneId>(() => {
-    const q = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('title') : null;
-    return (SCENES as string[]).includes(q ?? '') ? (q as SceneId) : pickScene();
-  }, []);
+export function Title({ scene, onBegin }: { scene: SceneId; onBegin: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const begin = () => {
     if (leaving) return;

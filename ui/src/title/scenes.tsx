@@ -148,6 +148,24 @@ export type SceneId = 'coat' | 'reeds' | 'elah' | 'redsea';
 export const SCENES: SceneId[] = ['coat', 'reeds', 'elah', 'redsea'];
 export function pickScene(): SceneId { return SCENES[Math.floor(Math.random() * SCENES.length)]; }
 
+/** Scene for this session: a ?title= override (dev/preview), else random. */
+export function chooseScene(): SceneId {
+  const q = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('title') : null;
+  return (SCENES as string[]).includes(q ?? '') ? (q as SceneId) : pickScene();
+}
+
+/** The persistent shell background: the chosen scene under grain + vignette. */
+export function ShellBg({ scene }: { scene: SceneId }) {
+  return (
+    <>
+      <div className="titleScene"><Scene id={scene} /></div>
+      <div className="titleGrain" />
+      <div className="titleVignette" />
+      <div className="shellDim" />
+    </>
+  );
+}
+
 export function Scene({ id }: { id: SceneId }) {
   switch (id) {
     case 'reeds': return <ReedsScene />;

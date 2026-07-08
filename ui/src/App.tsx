@@ -9,7 +9,10 @@ import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
 import { music } from './audio.ts';
+import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
+import { MainMenu } from './title/MainMenu.tsx';
+import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
 import './styles.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -483,14 +486,21 @@ function GhostCard({ card, x, y, tilt }: { card: CardDef; x: number; y: number; 
   );
 }
 
-// ---- menu ------------------------------------------------------------------
-function Menu({ onPlay }: { onPlay: (cfg: MatchConfig, meta?: Encounter) => void }) {
+// ---- story / chapter map ---------------------------------------------------
+function StoryMenu({ scene, onPlay, onBack }:
+  { scene: SceneId; onPlay: (cfg: MatchConfig, meta?: Encounter) => void; onBack: () => void }) {
   const done = completed();
   return (
-    <div className="app">
-      <div className="topbar"><div className="brand">UNDERDOGS <span>· campaign</span></div><MusicToggle /></div>
+    <div className="app storyMenu">
+      <ShellBg scene={scene} />
+      <div className="storyWrap">
+      <div className="topbar">
+        <button className="backBtn" onClick={onBack}>‹ Menu</button>
+        <div className="brand">UNDERDOGS <span>· story</span></div>
+        <MusicToggle />
+      </div>
       <div className="menu">
-        <h1 className="menuTitle">Choose your battle</h1>
+        <h1 className="menuTitle">The Long Way Round</h1>
         <div className="chapters">
           {encounters.map((e, i) => {
             const locked = i > 0 && !done.has(encounters[i - 1].id);
@@ -514,30 +524,25 @@ function Menu({ onPlay }: { onPlay: (cfg: MatchConfig, meta?: Encounter) => void
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
 
 // ---- router ----------------------------------------------------------------
 export default function App() {
+  const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
+  const [screen, setScreen] = useState<'menu' | 'story'>('menu');
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
   // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
   useEffect(() => { if (battle) music.playBattle(); else music.playMenu(); }, [!!battle]);
-  if (!started) return <Title onBegin={() => setStarted(true)} />;
-  if (!battle) return <Menu onPlay={(cfg, meta) => setBattle({ cfg, meta })} />;
-  return <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />;
-}
 
-function MusicToggle() {
-  const [muted, setMuted] = useState(() => music.isMuted());
-  const [vol, setVol] = useState(() => Math.round(music.volume() * 100));
-  return (
-    <div className="musicCtl" onPointerDown={(e) => e.stopPropagation()}>
-      <button className={`musicBtn${muted ? ' muted' : ''}`} title={muted ? 'Unmute music' : 'Mute music'}
-        onClick={() => setMuted(music.toggleMute())}>♪</button>
-      <input className="volSlider" type="range" min={0} max={100} value={vol} title="Music volume"
-        onChange={(e) => { const v = Number(e.currentTarget.value); setVol(v); music.setVolume(v / 100); }} />
-    </div>
-  );
+  if (!started) return <Title scene={scene} onBegin={() => setStarted(true)} />;
+  if (battle) return <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />;
+  if (screen === 'story') {
+    return <StoryMenu scene={scene} onBack={() => setScreen('menu')}
+      onPlay={(cfg, meta) => setBattle({ cfg, meta })} />;
+  }
+  return <MainMenu scene={scene} onStory={() => setScreen('story')} onFreePlay={() => setBattle({ cfg: SANDBOX })} />;
 }
