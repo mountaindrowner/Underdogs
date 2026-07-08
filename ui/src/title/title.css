@@ -125,7 +125,95 @@
   will-change:transform,opacity;animation:dustFloat var(--d,14s) linear var(--dl,0s) infinite}
 @keyframes dustFloat{0%{opacity:0;transform:translateY(0)}16%{opacity:.5}100%{opacity:0;transform:translateY(-140px)}}
 
+/* shared scene bits */
+.scene{position:absolute;inset:0;overflow:hidden}
+.scene>div,.scene>svg{position:absolute}
+.el-mtn svg,.el-ridgeFar svg,.el-ridgeNear svg{display:block;width:100%;height:100%}
+.el-camp{position:absolute;width:120px;height:44px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.rays{mix-blend-mode:screen;transform:translate(-50%,-50%);border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,transparent 0 6deg,rgba(255,244,214,.13) 6deg 8deg,transparent 8deg 19deg);
+  animation:spinSlow 72s linear infinite}
+@keyframes spinSlow{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.motes span,.embers span{position:absolute;border-radius:50%;opacity:0;width:var(--s,3px);height:var(--s,3px);
+  will-change:transform,opacity;animation:driftUp var(--d,13s) linear var(--dl,0s) infinite}
+@keyframes driftUp{0%{opacity:0;transform:translateY(0)}16%{opacity:.5}100%{opacity:0;transform:translateY(-150px)}}
+.clouds{inset:0;mix-blend-mode:soft-light;opacity:.5;animation:cloudDrift 60s ease-in-out infinite alternate;
+  background:radial-gradient(40% 26% at 22% 20%,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(46% 24% at 62% 14%,rgba(255,255,255,.4),transparent 62%),
+    radial-gradient(36% 22% at 84% 24%,rgba(255,255,255,.35),transparent 60%)}
+@keyframes cloudDrift{to{transform:translateX(3%)}}
+
+/* ============================ SCENE: Reeds of the Nile ===================== */
+.reeds{background:linear-gradient(180deg,#f6d68a 0%,#f0b064 20%,#d98a5a 34%,#5a9a8a 50%,#2f7a78 68%,#155a58 100%)}
+.rd-sun{left:64%;top:16%;width:110px;height:110px;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,#fff6d8,#ffd98a 42%,rgba(255,200,120,.25) 70%,transparent);
+  box-shadow:0 0 90px 34px rgba(255,210,140,.42)}
+.rd-rays{left:64%;top:16%;width:1100px;height:1100px}
+.rd-haze{left:0;right:0;top:44%;height:12%;background:linear-gradient(180deg,transparent,rgba(255,214,150,.4),transparent)}
+.rd-bank{left:0;right:0;top:45%;height:5%;background:linear-gradient(180deg,#4a7a68,#2f5a4e)}
+.rd-water{left:0;right:0;top:49%;bottom:0;background:linear-gradient(180deg,#4a938a,#2f7a78 44%,#124e4c)}
+.rd-glitter{left:57%;top:49%;width:15%;bottom:0;transform:skewX(-4deg);mix-blend-mode:screen;filter:blur(3px);
+  background:linear-gradient(180deg,rgba(255,240,200,.55),transparent 66%)}
+.rd-ripple{left:0;right:0;top:49%;bottom:0;opacity:.5;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.10) 0 1px,transparent 1px 7px)}
+.rd-reed{left:-2%;right:-2%;bottom:0;background-repeat:repeat-x}
+.rd-reed.far{height:24%;opacity:.5;filter:blur(2px);
+  background:repeating-linear-gradient(90.6deg,transparent 0 11px,rgba(18,54,42,.55) 11px 13px,transparent 13px 24px)}
+.rd-reed.mid{height:33%;opacity:.75;
+  background:repeating-linear-gradient(89.4deg,transparent 0 15px,rgba(13,44,33,.72) 15px 18px,transparent 18px 32px)}
+.rd-reed.near{height:44%;
+  background:repeating-linear-gradient(90.7deg,transparent 0 20px,rgba(8,32,24,.92) 20px 25px,transparent 25px 42px)}
+.rd-felucca{left:36%;top:32%;width:150px;height:150px;transform:translate(-50%,0)}
+.rd-basket{left:16%;bottom:6%;width:52px;height:34px}
+.rd-birds{left:24%;top:20%;width:120px;height:40px;opacity:.7}
+.reeds .motes span{background:#ffe9b0}
+
+/* ============================ SCENE: Valley of Elah — Sunset =============== */
+.elah{background:linear-gradient(180deg,#221a4e 0%,#4a2a66 22%,#9a3a5e 42%,#dc6238 62%,#f2a850 80%,#caa060 100%)}
+.el-sun{left:50%;top:56%;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,#fff2cf,#ffb85a 44%,rgba(255,150,80,.3) 72%,transparent);
+  box-shadow:0 0 100px 40px rgba(255,150,90,.4)}
+.el-rays{left:50%;top:56%;width:1200px;height:1200px;opacity:.7}
+.el-haze{left:0;right:0;top:46%;height:16%;background:linear-gradient(180deg,transparent,rgba(255,170,110,.34),transparent)}
+.el-mtn{left:0;right:0;top:38%;height:14%}
+.el-ridgeFar{left:0;right:0;top:47%;height:16%}
+.el-ridgeNear{left:0;right:0;top:62%;bottom:0}
+.el-brook{left:8%;right:8%;top:59%;height:4px;border-radius:3px;mix-blend-mode:screen;filter:blur(1px);
+  background:linear-gradient(90deg,transparent,rgba(255,232,180,.7),rgba(200,220,255,.5),transparent);
+  animation:glintPulse 5s ease-in-out infinite}
+@keyframes glintPulse{0%,100%{opacity:.4}50%{opacity:.8}}
+.elah .motes span{background:#f0dcae}
+
+/* ============================ SCENE: The Red Sea Crossing ================== */
+.rs{background:linear-gradient(180deg,#0c0824 0%,#1e1642 28%,#33245a 50%,#5a3a4a 74%,#b89060 100%)}
+.rs-pillar{left:50%;top:-4%;width:66px;height:70%;transform:translateX(-50%);border-radius:50%/24%;filter:blur(5px);
+  background:linear-gradient(180deg,rgba(255,244,214,.55),rgba(240,166,60,.4) 55%,rgba(200,90,40,.2) 80%,transparent)}
+.rs-core{left:50%;top:2%;width:20px;height:56%;transform:translateX(-50%);border-radius:50%;filter:blur(2px);
+  mix-blend-mode:screen;background:linear-gradient(180deg,#fff6d8,#ffb15a 60%,transparent);
+  animation:coreFlick 2.6s ease-in-out infinite}
+@keyframes coreFlick{0%,100%{opacity:.8;transform:translateX(-50%) scaleY(1)}50%{opacity:1;transform:translateX(-50%) scaleY(1.05)}}
+.rs-wall{top:8%;height:74%;width:30%;overflow:hidden;
+  background:linear-gradient(180deg,#3f8a92 0%,#256a72 40%,#123f47 100%)}
+.rs-wall.l{left:0;clip-path:polygon(0 0,100% 6%,100% 100%,0 100%);box-shadow:inset -14px 0 30px rgba(0,0,0,.4)}
+.rs-wall.r{right:0;clip-path:polygon(0 6%,100% 0,100% 100%,0 100%);box-shadow:inset 14px 0 30px rgba(0,0,0,.4)}
+.rs-wall .foam{position:absolute;left:0;right:0;top:0;height:10px;background:linear-gradient(180deg,rgba(230,255,255,.7),transparent);filter:blur(1px)}
+.rs-wall .caus{position:absolute;inset:0;opacity:.22;mix-blend-mode:screen;
+  background:radial-gradient(50% 30% at 30% 30%,#cffcff,transparent 60%),radial-gradient(46% 26% at 70% 60%,#bff,transparent 60%);
+  animation:drift2 16s linear infinite}
+@keyframes drift2{to{background-position:60px 0,-60px 0}}
+.rs-wall .fish{position:absolute;width:5px;height:3px;border-radius:50%;background:#0d2a30;opacity:.6}
+.rs-seabed{left:0;right:0;bottom:0;height:32%;background:linear-gradient(180deg,#5a3e30,#9c774e 58%,#b89066);
+  clip-path:polygon(36% 0,64% 0,100% 100%,0 100%);
+  -webkit-mask:linear-gradient(180deg,transparent,#000 24%);mask:linear-gradient(180deg,transparent,#000 24%);
+  box-shadow:inset 0 30px 44px rgba(255,150,80,.18)}
+.rs-seabed::after{content:'';position:absolute;left:44%;right:44%;top:0;bottom:0;mix-blend-mode:screen;
+  background:linear-gradient(180deg,rgba(255,190,120,.35),transparent 70%);filter:blur(6px)}
+.rs-mist{left:26%;right:26%;top:40%;height:40%;mix-blend-mode:screen;opacity:.5;filter:blur(8px);
+  background:radial-gradient(60% 50% at 50% 60%,rgba(220,210,255,.4),transparent 70%)}
+.rs .embers span{background:#f0a63c;box-shadow:0 0 4px rgba(240,166,60,.6)}
+
 @media (prefers-reduced-motion:reduce){
   .title *{animation-duration:.01s!important;animation-iteration-count:1!important}
-  .coat .dust span{display:none}
+  .coat .dust span,.motes span,.embers span{display:none}
+  .rays,.clouds,.rs-core,.el-brook,.rd-glitter{animation:none!important}
 }
