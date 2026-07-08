@@ -9,6 +9,7 @@ import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
 import { music } from './audio.ts';
+import { sfx } from './sfx.ts';
 import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
 import { MainMenu } from './title/MainMenu.tsx';
@@ -19,8 +20,9 @@ const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduce
 
 type SrcHand = { kind: 'hand'; index: number; card: CardDef };
 type Src = SrcHand | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
-type Act = { src: Src; from: { x: number; y: number }; ptr: { x: number; y: number };
-  dragging: boolean; tilt: number; needsTgt: boolean };
+// Pointer position/tilt are NOT stored here — they live in refs and the ghost/
+// arrow are positioned imperatively, so a drag never re-renders the board.
+type Act = { src: Src; from: { x: number; y: number }; dragging: boolean; needsTgt: boolean };
 type Drop = { kind: 'none' | 'board' | 'foeHero' } | { kind: 'unit'; uid: number; owner: number };
 
 const needsTargetPower = (hp?: { effects?: { target?: string }[] }) =>
@@ -159,9 +161,12 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     return next;
   });
   const [flare, setFlare] = useState(0);
-  const tiltReset = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastX = useRef(0);
+  const ptrRef = useRef({ x: 0, y: 0 });
+  const tiltRef = useRef(0);
+  const ghostRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<SVGLineElement>(null);
   const flareLatch = useRef(false);
   const flareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -184,25 +189,20 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   useEffect(() => () => { if (flareTimer.current) clearTimeout(flareTimer.current); }, []);
 
   // ---- global pointer handling for the active grab -------------------------
+  // Pointer moves only touch refs; React state flips at most once (idle->drag),
+  // so the board is not re-rendered per frame.
   useEffect(() => {
     if (!act) return;
     const move = (e: PointerEvent) => {
-      const ptr = { x: e.clientX, y: e.clientY };
-      setAct((a) => {
-        if (!a) return a;
-        const moved = Math.hypot(ptr.x - a.from.x, ptr.y - a.from.y) > 10;
-        const dragging = a.dragging || moved;
-        let tilt = a.tilt;
-        if (dragging && !REDUCED) {
-          tilt = Math.max(-16, Math.min(16, (ptr.x - lastX.current) * 0.9));
-          if (tiltReset.current) clearTimeout(tiltReset.current);
-          tiltReset.current = setTimeout(() => setAct((z) => (z ? { ...z, tilt: 0 } : z)), 90);
-        }
-        lastX.current = ptr.x;
-        return { ...a, ptr, dragging, tilt };
-      });
+      ptrRef.current = { x: e.clientX, y: e.clientY };
+      if (!act.dragging && Math.hypot(e.clientX - act.from.x, e.clientY - act.from.y) > 10) {
+        setAct((a) => (a ? { ...a, dragging: true } : a));
+      }
+      if (!REDUCED) tiltRef.current = Math.max(-16, Math.min(16, (e.clientX - lastX.current) * 0.9));
+      lastX.current = e.clientX;
     };
     const up = (e: PointerEvent) => {
+      ptrRef.current = { x: e.clientX, y: e.clientY };
       setAct((a) => {
         if (!a) return a;
         if (a.dragging) { resolve(a.src, dropAt(e.clientX, e.clientY)); return null; }
@@ -213,7 +213,27 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     window.addEventListener('pointerup', up);
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [act?.src]);
+  }, [act?.src, act?.dragging]);
+
+  // rAF loop positions the ghost + arrow imperatively while a card is held
+  useEffect(() => {
+    if (!act) return;
+    let raf = 0;
+    const tick = () => {
+      const { x, y } = ptrRef.current;
+      if (arrowRef.current) { arrowRef.current.setAttribute('x2', String(x)); arrowRef.current.setAttribute('y2', String(y)); }
+      const g = ghostRef.current;
+      if (g) {
+        tiltRef.current *= 0.86;
+        const t = tiltRef.current;
+        g.style.left = `${x}px`; g.style.top = `${y}px`;
+        g.style.transform = `translate(-50%,-58%) rotateY(${t}deg) rotate(${t * 0.2}deg)`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [act?.src, act?.dragging]);
 
   if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
   const you = engine.players[0];
@@ -235,9 +255,12 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   }
   function beginGrab(src: Src, e: React.PointerEvent, needsTgt: boolean) {
     e.stopPropagation();
+    sfx.play('select');
     const from = center(e);
     lastX.current = e.clientX;
-    setAct({ src, from, ptr: { x: e.clientX, y: e.clientY }, dragging: false, tilt: 0, needsTgt });
+    ptrRef.current = { x: e.clientX, y: e.clientY };
+    tiltRef.current = 0;
+    setAct({ src, from, dragging: false, needsTgt });
     if (holdTimer.current) clearTimeout(holdTimer.current);
     holdTimer.current = setTimeout(() => setAct((a) => (a && !a.dragging ? { ...a, dragging: true } : a)), 170);
   }
@@ -341,7 +364,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
               </div>
             ))}
           </div>
-          <button className="bigbtn" onClick={() => dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) })}>Cast Lots</button>
+          <button className="bigbtn" onClick={() => { sfx.play('mulligan'); dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) }); }}>Cast Lots</button>
         </div>
       </div>
     );
@@ -429,7 +452,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         {/* End Turn, bottom-right seal */}
         <button className={`endturn${canAct ? ' hot' : ''}`} disabled={!canAct}
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => { dispatch({ type: 'END_TURN' }); clear(); }}>
+          onClick={() => { sfx.play('ui'); dispatch({ type: 'END_TURN' }); clear(); }}>
           <span className="etScroll">End Turn</span>
         </button>
 
@@ -446,13 +469,13 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           </div>
         )}
 
-        {/* L4 — interaction: targeting arrow + drag ghost */}
-        {act && (act.dragging || aiming) && (
+        {/* L4 — interaction: targeting arrow (positioned imperatively) */}
+        {act && aiming && (
           <svg className="arrowLayer">
             <defs><marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
               <path d="M0,0 L8,4 L0,8 Z" fill="#e6a33a" /></marker></defs>
-            {aiming && <line x1={act.from.x} y1={act.from.y} x2={act.ptr.x} y2={act.ptr.y}
-              stroke="#e6a33a" strokeWidth="5" strokeLinecap="round" markerEnd="url(#ah)" opacity="0.92" />}
+            <line ref={arrowRef} x1={act.from.x} y1={act.from.y} x2={ptrRef.current.x} y2={ptrRef.current.y}
+              stroke="#e6a33a" strokeWidth="5" strokeLinecap="round" markerEnd="url(#ah)" opacity="0.92" />
           </svg>
         )}
       </div>
@@ -460,9 +483,17 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
       {/* right-side card reader */}
       {previewCard && <CardPreview card={previewCard} />}
 
-      {/* the lifted drag ghost, follows the pointer */}
+      {/* the lifted drag ghost — starts at the source, then the rAF loop drives it */}
       {act && act.dragging && act.src.kind === 'hand' && (
-        <GhostCard card={act.src.card} x={act.ptr.x} y={act.ptr.y} tilt={act.tilt} />
+        <div ref={ghostRef} className={`ghost handcard r-${act.src.card.rarity ?? 'common'}`}
+          style={{ left: act.from.x, top: act.from.y, transform: 'translate(-50%,-58%)' }}>
+          <div className="hcInner"><div className="hcFace">
+            <div className="hcArt" style={artUrl(act.src.card.id) ? { backgroundImage: `url(${artUrl(act.src.card.id)})` } : undefined} />
+            <div className="hcName">{act.src.card.name}</div>
+          </div></div>
+          <div className="hcCost">{act.src.card.cost ?? 0}</div>
+          {act.src.card.type === 'minion' && <><div className="hcAtk">{act.src.card.attack}</div><div className="hcHp">{act.src.card.health}</div></>}
+        </div>
       )}
     </div>
   );
@@ -470,21 +501,6 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
 
 // hovering a board unit shows its definition in the reader
 function defOf(id: string): CardDef | null { return registry.get(id) ?? null; }
-
-function GhostCard({ card, x, y, tilt }: { card: CardDef; x: number; y: number; tilt: number }) {
-  const art = artUrl(card.id);
-  return (
-    <div className={`ghost handcard r-${card.rarity ?? 'common'}`}
-      style={{ left: x, top: y, transform: `translate(-50%,-58%) rotateY(${tilt}deg) rotate(${tilt * 0.2}deg)` }}>
-      <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-        <div className="hcName">{card.name}</div>
-      </div></div>
-      <div className="hcCost">{card.cost ?? 0}</div>
-      {card.type === 'minion' && <><div className="hcAtk">{card.attack}</div><div className="hcHp">{card.health}</div></>}
-    </div>
-  );
-}
 
 // ---- story / chapter map ---------------------------------------------------
 function StoryMenu({ scene, onPlay, onBack }:

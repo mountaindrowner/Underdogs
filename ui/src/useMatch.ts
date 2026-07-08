@@ -10,6 +10,7 @@ import {
 import { registry } from './data.ts';
 import { initialView, applyEvent, clearTransient, type View } from './view.ts';
 import { pickAction } from './ai.ts';
+import { sfx } from './sfx.ts';
 import type { MatchConfig } from './campaign.ts';
 
 export function needsTarget(c: CardDef): boolean {
@@ -52,6 +53,7 @@ export function useMatch(cfg: MatchConfig) {
       if (cursor.current < feed.current.length) {
         const e = feed.current[cursor.current];
         cursor.current += 1;
+        sfx.forEvent(e);
         setView((v) => applyEvent(clearTransient(v), e, registry));
         setBusy(cursor.current < feed.current.length);
       } else if (busy) {
