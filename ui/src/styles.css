@@ -464,3 +464,68 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 @keyframes winIn{0%{opacity:0;transform:scale(.7)}20%{opacity:1;transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
 @keyframes previewIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:translateX(0)}}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+
+/* ===================== compact mobile landscape (phone) =====================
+   Phones in landscape are wide + short with browser chrome eating height, so
+   the framed 16:9 board wastes space and the cards overlap. Here we fill the
+   screen edge-to-edge, slim the top bar into an overlay, shrink the cards, and
+   spread the rows so nothing collides. Desktop/tablet keep the framed board. */
+@media (orientation:landscape) and (max-height:520px){
+  .app{padding:0;gap:0;position:relative;height:100dvh}
+  /* top bar becomes a slim, non-blocking overlay */
+  .topbar{position:absolute;top:0;left:0;right:0;width:auto;z-index:70;padding:2px 8px calc(2px);
+    background:linear-gradient(180deg,rgba(6,4,10,.6),transparent);pointer-events:none}
+  .topbar>*{pointer-events:auto}
+  .brand{font-size:14px;letter-spacing:2px}.brand span{font-size:8px}
+  .controls{gap:6px}.turnLbl{font-size:9px}
+  .controls button{padding:3px 8px;font-size:10px}
+  .musicBtn{width:24px;height:22px;font-size:12px}.volSlider{width:48px}
+
+  /* the board fills the screen */
+  .table{width:100vw;height:100dvh;max-height:none;aspect-ratio:auto;border-radius:0;box-shadow:none}
+  .frame{border-radius:0;box-shadow:inset 0 0 0 3px #6d4d13,inset 0 0 0 5px #241606}
+  .tray{left:6px;right:6px;height:92px}
+  .tray.foeTray{top:30px}.tray.youTray{bottom:100px}
+  .centerStrip{display:none}
+
+  /* smaller minions */
+  .minion{width:68px;height:90px}
+  .minion .atk,.minion .hp{width:22px;height:22px;font-size:12px;bottom:-5px}
+  .minion .atk{left:-5px}.minion .hp{right:-5px}
+  .minion .nameband{font-size:7px;bottom:14px}
+  .minion .kw{font-size:5px;bottom:5px}
+  .boardRow{height:90px}
+  .boardRow.enemy{top:30px;left:96px;right:104px}
+  .boardRow.you{bottom:100px;left:104px;right:96px}
+
+  /* compact hero corners */
+  .corner{width:100px;height:90px}
+  .youCorner{left:4px;bottom:2px}.foeCorner{right:4px;top:30px}
+  .corner .hero{width:54px;height:54px}
+  .youCorner .hero{left:2px;top:2px}.foeCorner .hero{right:2px;top:2px}
+  .hero .hpbadge{width:24px;height:24px;font-size:12px;bottom:-3px;right:-4px}
+  .youCorner .cornerMeta{left:58px;top:4px}.foeCorner .cornerMeta{right:58px;top:4px}
+  .namep{font-size:8px;letter-spacing:1px}
+  .provRail{max-width:70px;gap:2px}.provRail .drop{width:9px;height:11px}.provNum{font-size:8px}
+  .deck{width:40px;height:60px}.youCorner .deck{right:2px;bottom:2px}.foeCorner .deck{left:2px;bottom:2px}
+  .deckStack{width:38px;height:56px}.deckStack img{width:38px;height:56px}.deckCount{font-size:15px}
+  .deckReadout{font-size:11px;bottom:60px}.foeCorner .deckReadout{top:60px}
+  .hpower{width:42px;height:42px;left:2px;bottom:2px}.hpGlyph{font-size:15px}
+  .hpLabel{font-size:6px}.hpower .hpCost{width:17px;height:17px;font-size:10px}
+
+  /* opponent facedown hand + decks */
+  .foeHand{top:24px}.foeHand img{width:24px;margin-left:-12px}
+
+  /* hand: full-width strip at the very bottom, smaller cards */
+  .handTray{left:108px;right:88px;bottom:4px;height:90px}
+  .handcard{width:66px;height:90px;margin:0 -10px}
+  .handcard.playable:hover,.handcard.selected{transform:translateY(-18px) scale(1.16)}
+  .hcCost{width:22px;height:22px;font-size:12px}
+  .hcAtk,.hcHp{width:22px;height:22px;font-size:12px}
+  .hcName{font-size:7px;bottom:12px}
+
+  .endturn{width:60px;height:60px;font-size:11px;right:8px;bottom:16px}
+
+  /* the reader shrinks and tucks under the top bar */
+  .preview{top:34px;right:4px;transform:scale(.62);transform-origin:top right}
+}
