@@ -20,18 +20,23 @@ export function CardPreview({ card }: { card: CardDef }) {
   return (
     <div className="preview" data-rarity={rarity}>
       <div className={`bigcard r-${rarity}`}>
-        <div className="bcCost">{card.cost ?? 0}</div>
-        <div className="bcArt" style={art ? { backgroundImage: `url(${art})` } : undefined}>
-          {!art && <div className="bcArtFallback">{card.name[0]}</div>}
+        <div className="bcWindow">
+          <div className="bcArt" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+            {!art && <div className="bcArtFallback">{card.name[0]}</div>}
+          </div>
         </div>
-        <div className="bcPlate">
+        <div className="bcCost">{card.cost ?? 0}</div>
+        <div className="bcRarity">{rarity}</div>
+        <div className="bcNameplate">
           <div className="bcName">{card.name}</div>
           <div className="bcType">{line || card.type}</div>
         </div>
-        <div className="bcText">{card.text || <span className="vanilla">— No card text —</span>}</div>
-        {flavor && <div className="bcFlavor">{flavor}</div>}
+        <div className="bcPanel">
+          <div className="bcText">{card.text || <span className="vanilla">— No card text —</span>}</div>
+          {flavor && <div className="bcFlavor">{flavor}</div>}
+        </div>
         {card.type === 'minion' && <><div className="bcAtk">{card.attack}</div><div className="bcHp">{card.health}</div></>}
-        <div className="bcRarity">{rarity}</div>
+        <div className="bcGem" title={rarity} />
       </div>
       {gloss.length > 0 && (
         <div className="glossary">
