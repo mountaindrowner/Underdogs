@@ -16,7 +16,7 @@ function CoatScene() {
         <div className="robe">
           <div className="r-stripes" /><div className="r-round" /><div className="r-folds" />
           <div className="r-light" /><div className="r-sheen" /><div className="r-weave" />
-          <div className="r-threads" /><div className="r-trim" />
+          <div className="r-threads" />
           <div className="r-collar" /><div className="r-hem" />
         </div>
       </div>

@@ -5,7 +5,8 @@ import { useMemo, useState } from 'react';
 import { Scene, pickScene } from './scenes.tsx';
 import './title.css';
 
-const RIBBON = ['#c8322a', '#e07a2a', '#eec13a', '#3a9a54', '#2f8f9a', '#3a4fa8', '#7e46b8'];
+// a swatch of the coat's dyed wools (not a spectrum) — the recurring brand accent
+const RIBBON = ['#9a3428', '#c39a48', '#6d773a', '#3f6b5c', '#33447a', '#5f4468', '#b5623a'];
 
 function Filigree({ pos }: { pos: string }) {
   return (

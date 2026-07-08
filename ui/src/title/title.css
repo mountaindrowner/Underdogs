@@ -75,37 +75,41 @@
 .coatStage{position:absolute;inset:0;perspective:1400px;perspective-origin:50% 30%}
 /* the draped garment, tilted back in 3D */
 .robe{position:absolute;left:-8%;right:-8%;top:16%;bottom:-2%;transform:rotateX(3deg);transform-origin:50% 100%;
-  border-radius:44% 44% 0 0/16% 16% 0 0;overflow:hidden;
+  border-radius:44% 44% 0 0/16% 16% 0 0;overflow:hidden;filter:saturate(.86) brightness(.97);
   box-shadow:0 -10px 60px rgba(0,0,0,.5)}
 .robe>div{position:absolute;inset:0}
-/* 1 stripes — jewel-tone bands */
+/* 1 stripes — dyed-wool panels, irregular widths & non-spectrum order, with a
+   thin dark+gold seam sewn between each panel (baked in so seams stay aligned) */
 .r-stripes{background:repeating-linear-gradient(92deg,
-  #c8322a 0 64px,#e07a2a 64px 128px,#eec13a 128px 192px,#3a9a54 192px 256px,
-  #2f8f9a 256px 320px,#3a4fa8 320px 384px,#7e46b8 384px 448px)}
-/* 2 round — light/dark within each band so stripes read rounded */
-.r-round{mix-blend-mode:soft-light;background:repeating-linear-gradient(92deg,
-  rgba(255,255,255,.55) 0 4px,rgba(255,255,255,.12) 4px 16px,transparent 22px 44px,
-  rgba(0,0,0,.30) 58px 64px)}
-/* 3 folds — broad diagonal shadow drapes */
-.r-folds{mix-blend-mode:multiply;filter:blur(10px);background:linear-gradient(101deg,
-  rgba(6,4,16,.5) 0%,transparent 12%,transparent 30%,rgba(6,4,16,.52) 44%,transparent 58%,
-  transparent 74%,rgba(6,4,16,.46) 88%,transparent 100%)}
+  #9a3428 0 56px,#4a3016 56px 57px,#d8b878 57px 58px,
+  #33447a 58px 118px,#4a3016 118px 119px,#d8b878 119px 120px,
+  #c39a48 120px 160px,#4a3016 160px 161px,#d8b878 161px 162px,
+  #6d773a 162px 220px,#4a3016 220px 221px,#d8b878 221px 222px,
+  #5f4468 222px 270px,#4a3016 270px 271px,#d8b878 271px 272px,
+  #b5623a 272px 328px,#4a3016 328px 329px,#d8b878 329px 330px,
+  #3f6b5c 330px 376px,#4a3016 376px 377px,#d8b878 377px 378px,
+  #cdbd98 378px 414px,#4a3016 414px 415px,#d8b878 415px 416px,
+  #8a4a2e 416px 470px,#4a3016 470px 471px,#d8b878 471px 472px)}
+/* 2 nap — fine vertical wool fibres (not band-locked) */
+.r-round{mix-blend-mode:soft-light;opacity:.7;background:repeating-linear-gradient(92deg,
+  rgba(255,255,255,.10) 0 1px,transparent 1px 2px,rgba(0,0,0,.10) 2px 3px,transparent 3px 5px)}
+/* 3 folds — broad soft drape shadows down the hanging cloth */
+.r-folds{mix-blend-mode:multiply;filter:blur(12px);background:linear-gradient(98deg,
+  rgba(8,5,16,.6) 0%,transparent 9%,rgba(8,5,16,.28) 18%,transparent 27%,rgba(8,5,16,.6) 40%,
+  transparent 50%,rgba(8,5,16,.34) 60%,transparent 70%,rgba(8,5,16,.58) 82%,transparent 91%,rgba(8,5,16,.4) 100%)}
 /* 4 light — highlight ridges on the fold crests */
-.r-light{mix-blend-mode:screen;background:linear-gradient(101deg,
-  transparent 4%,rgba(255,240,210,.20) 16%,transparent 26%,transparent 50%,rgba(255,240,210,.16) 62%,
-  transparent 72%,transparent 92%,rgba(255,240,210,.14) 99%)}
+.r-light{mix-blend-mode:screen;filter:blur(6px);background:linear-gradient(98deg,
+  transparent 3%,rgba(255,244,214,.26) 13%,transparent 22%,transparent 44%,rgba(255,244,214,.20) 54%,
+  transparent 65%,transparent 86%,rgba(255,244,214,.18) 95%)}
 /* 5 sheen — key-light bloom top-left */
-.r-sheen{mix-blend-mode:screen;background:radial-gradient(62% 52% at 24% 10%,rgba(255,246,220,.5),transparent 56%)}
-/* 6 weave — fabric grain */
-.r-weave{mix-blend-mode:overlay;opacity:.72;background-size:150px 150px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E")}
+.r-sheen{mix-blend-mode:screen;background:radial-gradient(62% 52% at 24% 10%,rgba(255,244,216,.42),transparent 56%)}
+/* 6 weave — coarse wool grain */
+.r-weave{mix-blend-mode:overlay;opacity:.9;background-size:120px 120px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7 0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E")}
 /* 7 threads — warp + weft crosshatch */
-.r-threads{mix-blend-mode:overlay;opacity:.5;background:
-  repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 3px),
-  repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
-/* 8 trim — gold embroidered seams along the bands + hem + collar */
-.r-trim{background:repeating-linear-gradient(92deg,
-  transparent 0 61px,rgba(90,60,20,.6) 61px 62px,rgba(255,220,140,.7) 62px 63px,rgba(90,60,20,.6) 63px 64px)}
+.r-threads{mix-blend-mode:overlay;opacity:.6;background:
+  repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.09) 0 1px,transparent 1px 3px)}
 .r-hem{position:absolute;left:0;right:0;bottom:0;height:22px;
   background:linear-gradient(180deg,transparent,rgba(90,60,20,.5) 40%,rgba(255,220,140,.55) 70%,rgba(120,80,26,.8));
   box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
