@@ -4,7 +4,7 @@
  *  free-play use the same loop. Input enabled only when animation catches up. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  createGame, applyAction, buildDeck,
+  createGame, applyAction, buildDeck, needsExplicitTarget, targetSide,
   type GameState, type GameEvent, type Action, type CardDef,
 } from '../../engine/src/index.ts';
 import { registry } from './data.ts';
@@ -14,7 +14,13 @@ import { sfx } from './sfx.ts';
 import type { MatchConfig } from './campaign.ts';
 
 export function needsTarget(c: CardDef): boolean {
-  return !!c.effects?.arrival?.some((op) => op.target === 'target');
+  return !!c.effects?.arrival?.some(needsExplicitTarget);
+}
+
+/** which side a targeted card may aim at ('enemy' | 'ally' | 'any') */
+export function targetSideOf(c: CardDef): 'enemy' | 'ally' | 'any' {
+  const op = c.effects?.arrival?.find(needsExplicitTarget);
+  return targetSide(op?.target);
 }
 
 const deck = (ids: string[]) => buildDeck(registry, ids);

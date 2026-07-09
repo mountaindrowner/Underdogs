@@ -148,6 +148,8 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   border:2px solid #241606;text-shadow:0 1px 0 rgba(0,0,0,.6);z-index:5}
 .minion .atk{left:-6px;background:radial-gradient(circle at 36% 28%,#ffeaa0,#e0a52a 55%,#7d4f0d)}
 .minion .hp{right:-6px;background:radial-gradient(circle at 36% 28%,#ffa192,#cc2a20 55%,#6d0f09)}
+/* stat is being boosted by an aura (David's banner): green-tinged glow */
+.minion .atk.aurad,.minion .hp.aurad{color:#c8ffb8;text-shadow:0 0 6px rgba(140,240,120,.8),0 1px 0 rgba(0,0,0,.6)}
 .minion .ward{position:absolute;inset:-4px;border-radius:14px;border:2px solid rgba(120,200,255,.6);
   box-shadow:0 0 12px rgba(120,200,255,.5);pointer-events:none}
 .minion .shield{position:absolute;inset:-3px;border-radius:13px;border:3px solid #bfe4ff;
@@ -612,6 +614,35 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 @keyframes mtT{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
 @keyframes mtTout{to{opacity:0}}
 
+/* ===================== tooltips (hover on PC, press-hold on touch) =========
+   Any element with data-tip explains itself: hover reveals after a beat on
+   desktop; on touch, pressing (and holding) shows the same label. */
+:where([data-tip]){position:relative}  /* zero specificity: never beats an element's own positioning */
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);left:50%;
+  transform:translateX(-50%);z-index:999;width:max-content;max-width:230px;
+  white-space:pre-line;font-family:var(--serif);font-weight:400;font-size:11.5px;line-height:1.35;
+  letter-spacing:.2px;color:#f0e4c4;text-align:center;text-shadow:none;
+  background:rgba(22,15,7,.97);border:1px solid var(--gold2);border-radius:8px;padding:6px 11px;
+  box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none;
+  opacity:0;visibility:hidden;transition:opacity .12s ease .3s,visibility 0s linear .42s}
+[data-tip]:hover::after,[data-tip]:active::after{opacity:1;visibility:visible}
+[data-tip][data-tip-side="bottom"]::after{bottom:auto;top:calc(100% + 9px)}
+/* edge-hugging elements anchor the bubble inward instead of centering it */
+[data-tip][data-tip-align="left"]::after{left:0;transform:none}
+[data-tip][data-tip-align="right"]::after{left:auto;right:0;transform:none}
+
+/* ===================== standing relics (The Tabernacle, The Good Fold…) ==== */
+.relicRow{position:absolute;z-index:21;display:flex;gap:6px}
+.relicRow.you{left:216px;bottom:158px}
+.relicRow.foe{right:216px;top:158px}
+.relicChip{width:34px;height:38px;display:flex;align-items:center;justify-content:center;cursor:help;
+  font-family:'Cinzel',var(--serif);font-weight:700;font-size:16px;color:#ffe6a2;
+  background:linear-gradient(180deg,#4a3620,#241811);
+  clip-path:polygon(50% 0,100% 26%,100% 74%,50% 100%,0 74%,0 26%);
+  box-shadow:inset 0 0 0 2px rgba(201,162,75,.55),0 3px 8px rgba(0,0,0,.5);
+  text-shadow:0 1px 2px #000}
+.relicChip:hover{filter:brightness(1.2)}
+
 /* rotate-to-play prompt in portrait */
 .rotate{display:none}
 @media (orientation:portrait) and (max-width:900px){
@@ -753,6 +784,9 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .hcName{font-size:6.5px;bottom:11px}
 
   .endturn{width:60px;height:60px;font-size:11px;right:8px;bottom:16px}
+  .relicRow.you{left:112px;bottom:100px}
+  .relicRow.foe{right:112px;top:128px}
+  .relicChip{width:26px;height:29px;font-size:12px}
 
   /* the reader shrinks and moves top-LEFT so it never covers the rival hero
      (the common case is reading a card mid-drag, which happens on the right) */

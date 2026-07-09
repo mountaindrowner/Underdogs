@@ -8,9 +8,11 @@ export function MusicToggle() {
   const [vol, setVol] = useState(() => Math.round(music.volume() * 100));
   return (
     <div className="musicCtl" onPointerDown={(e) => e.stopPropagation()}>
-      <button className={`musicBtn${muted ? ' muted' : ''}`} title={muted ? 'Unmute music' : 'Mute music'}
+      <button className={`musicBtn${muted ? ' muted' : ''}`}
+        data-tip={muted ? 'Unmute music & sound' : 'Mute music & sound'} data-tip-side="bottom"
         onClick={() => setMuted(music.toggleMute())}>♪</button>
-      <input className="volSlider" type="range" min={0} max={100} value={vol} title="Music volume"
+      <input className="volSlider" type="range" min={0} max={100} value={vol}
+        data-tip="Music volume" data-tip-side="bottom"
         onChange={(e) => { const v = Number(e.currentTarget.value); setVol(v); music.setVolume(v / 100); }} />
     </div>
   );

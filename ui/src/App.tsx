@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { useMatch, needsTarget } from './useMatch.ts';
+import { useMatch, needsTarget, targetSideOf } from './useMatch.ts';
 import { artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
   type Encounter, type MatchConfig } from './campaign.ts';
 import { FreePlaySetup } from './FreePlay.tsx';
 import { DecksScreen } from './Decks.tsx';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import { effAttack, type CardDef } from '../../engine/src/index.ts';
+import { effAttack, effCost, hasKeyword, needsExplicitTarget, type CardDef } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
@@ -28,7 +28,7 @@ type Act = { src: Src; from: { x: number; y: number }; dragging: boolean; needsT
 type Drop = { kind: 'none' | 'board' | 'foeHero' } | { kind: 'unit'; uid: number; owner: number };
 
 const needsTargetPower = (hp?: { effects?: { target?: string }[] }) =>
-  !!hp?.effects?.some((op) => op.target === 'target');
+  !!hp?.effects?.some((op) => needsExplicitTarget(op as never));
 
 function dropAt(x: number, y: number): Drop {
   const el = document.elementFromPoint(x, y);
@@ -54,7 +54,7 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
     <div className={c.join(' ')} style={style} onPointerDown={onDown}
       onMouseEnter={onEnter} onMouseLeave={onLeave}
       data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
-      {u.keywords.includes('guard') && <div className="ward" />}
+      {(u.keywords.includes('guard') || u.auraKw.includes('guard')) && <div className="ward" />}
       <div className="body">
         <div className="mFace" style={art ? { backgroundImage: `url(${art})` } : undefined}>
           {!art && <div className="artFallback">{u.name[0]}</div>}
@@ -62,7 +62,8 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
           {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
         </div>
       </div>
-      <div className="atk">{u.attack}</div><div className="hp">{u.health}</div>
+      <div className={`atk${u.auraAtk > 0 ? ' aurad' : ''}`}>{u.attack + u.auraAtk}</div>
+      <div className={`hp${u.auraHp > 0 ? ' aurad' : ''}`}>{u.health + u.auraHp}</div>
       {u.dmg != null && <div className="float dmg">-{u.dmg}</div>}
       {u.heal != null && <div className="float heal">+{u.heal}</div>}
       {u.endure && <div className="shield" />}{u.fulfilling && <div className="burst" />}
@@ -241,7 +242,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const you = engine.players[0];
   const foe = engine.players[1];
   const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0).map((u) => u.uid));
-  const guardActive = foe.board.some((u) => u.keywords.includes('guard'));
+  const guardActive = foe.board.some((u) => hasKeyword(u, 'guard'));
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
   if (won && meta) markComplete(meta.id);
@@ -273,7 +274,10 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     if (src.kind === 'hand') {
       const card = src.card;
       if (needsTarget(card)) {
-        if (drop.kind === 'unit') dispatch({ type: 'PLAY_CARD', handIndex: src.index, targetUid: drop.uid });
+        const side = targetSideOf(card);
+        const ok = drop.kind === 'unit'
+          && (side === 'any' || (side === 'enemy' ? drop.owner === 1 : drop.owner === 0));
+        if (ok && drop.kind === 'unit') dispatch({ type: 'PLAY_CARD', handIndex: src.index, targetUid: drop.uid });
       } else if (drop.kind === 'board' || drop.kind === 'unit') {
         dispatch({ type: 'PLAY_CARD', handIndex: src.index });
       }
@@ -293,7 +297,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     if (!canAct) { setHover(you.hand[i]); return; }
     if (act && !act.dragging) { resolve(act.src, { kind: 'none' }); return; } // second tap on hand cancels
     const card = you.hand[i];
-    const affordable = (card.cost ?? 0) <= you.provision &&
+    const affordable = effCost(engine, 0, card) <= you.provision &&
       !(card.type === 'minion' && you.board.length >= engine.rules.boardLimit);
     if (!affordable) { setHover(card); return; }
     beginGrab({ kind: 'hand', index: i, card }, e, needsTarget(card));
@@ -319,7 +323,11 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     if (!act) return false;
     if (act.src.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
     if (act.src.kind === 'heropower') return true;
-    if (act.src.kind === 'hand') return act.needsTgt;
+    if (act.src.kind === 'hand') {
+      if (!act.needsTgt) return false;
+      const side = targetSideOf(act.src.card);
+      return side === 'any' || (side === 'enemy' ? u.owner === 1 : u.owner === 0);
+    }
     return false;
   };
   const foeHeroTarget = !!act && act.src.kind === 'attacker' && !guardActive;
@@ -368,7 +376,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
               </div>
             ))}
           </div>
-          <button className="bigbtn" onClick={() => { sfx.play('mulligan'); dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) }); }}>Cast Lots</button>
+          <button className="bigbtn" data-tip="Trade every card not marked KEEP for a fresh draw"
+            onClick={() => { sfx.play('mulligan'); dispatch({ type: 'MULLIGAN', keep: [...keep].filter((i) => i < you.hand.length) }); }}>Cast Lots</button>
         </div>
       </div>
     );
@@ -383,8 +392,9 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Adversary'}</span>
           <MusicToggle />
           <button className="boardBtn" onPointerDown={(e) => e.stopPropagation()} onClick={cycleBoard}
-            title="Change board look">◈ {BOARD_LABEL[board]}</button>
-          <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}>Menu</button>
+            data-tip="Change the table's finish" data-tip-side="bottom">◈ {BOARD_LABEL[board]}</button>
+          <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}
+            data-tip="Leave the match" data-tip-side="bottom">Menu</button>
         </div>
       </div>
 
@@ -428,12 +438,29 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <HeroCorner h={view.heroes[0]} side="you" name="You" art={artUrl(you.leaderId ?? '')}
           prov={view.prov[0]} deck={you.deck.length}>
           {hpwr && (
-            <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} title={hpwr.text}>
+            <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} data-tip-align="left"
+              data-tip={`${hpwr.name} (${hpwr.cost} Provision, once per turn)\n${registry.get(you.leaderId ?? '')?.hero_power?.text ?? ''}`}>
               <div className="hpGlyph">✦</div><div className="hpCost">{hpwr.cost}</div>
               <div className="hpLabel">{hpwr.name}</div>
             </div>
           )}
         </HeroCorner>
+
+        {/* standing relics: small emblems by each hero corner */}
+        {([1, 0] as const).map((side) => view.relics[side].length > 0 && (
+          <div key={side} className={`relicRow ${side === 0 ? 'you' : 'foe'}`}>
+            {view.relics[side].map((defId, i) => {
+              const d = defOf(defId);
+              return (
+                <div key={`${defId}-${i}`} className="relicChip"
+                  data-tip={`${d?.name ?? defId}\n${d?.text ?? ''}`}
+                  onMouseEnter={() => setHover(d ?? null)} onMouseLeave={() => setHover(null)}>
+                  {(d?.name ?? '?')[0]}
+                </div>
+              );
+            })}
+          </div>
+        ))}
 
         {/* opponent face-down hand, top-center */}
         <div className="foeHand">{Array.from({ length: foe.hand.length }).map((_, i) => <img key={i} src={CARD_BACK} alt="" />)}</div>
@@ -443,7 +470,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           {you.hand.map((c, i) => {
             const off = i - (n - 1) / 2;
             const fan = { rot: Math.max(-9, Math.min(9, off * 3)), ty: Math.abs(off) * 5 };
-            const playable = canAct && (c.cost ?? 0) <= you.provision &&
+            const playable = canAct && effCost(engine, 0, c) <= you.provision &&
               !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit);
             const picked = act?.src.kind === 'hand' && act.src.index === i;
             return (
@@ -456,6 +483,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         {/* End Turn, bottom-right seal */}
         <button className={`endturn${canAct ? ' hot' : ''}`} disabled={!canAct}
           onPointerDown={(e) => e.stopPropagation()}
+          data-tip={canAct ? 'End your turn — pass to the rival' : 'Wait for your turn'} data-tip-align="right"
           onClick={() => { sfx.play('ui'); dispatch({ type: 'END_TURN' }); clear(); }}>
           <span className="etScroll">End Turn</span>
         </button>

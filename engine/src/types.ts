@@ -13,28 +13,52 @@ export type Tag =
 export type CardType = 'minion' | 'spell' | 'relic' | 'leader';
 
 export type Keyword =
-  | 'guard' | 'swift' | 'endure' | 'giant_slayer' | 'redeem' | 'scatter';
+  | 'guard' | 'swift' | 'endure' | 'giant_slayer' | 'redeem' | 'scatter'
+  // marker keywords (class flavor labels; no standalone rules of their own)
+  | 'foresee' | 'covenant' | 'raise'
+  // Jael's Tent Peg: destroys already-damaged units it strikes
+  | 'executes_damaged';
 
 /** Triggers that a card's `effects` map can key on. */
 export type Trigger =
-  | 'arrival'   // battlecry, on play
-  | 'legacy'    // deathrattle, on death
-  | 'redeem'    // Shepherd: when a small ally / Sheep dies
-  | 'covenant'  // Patriarch: start of your turn
-  | 'scatter'   // Disciple: on death, summon Disciple
-  | 'aura';     // continuous while in play
+  | 'arrival'      // battlecry, on play
+  | 'legacy'       // deathrattle, on death
+  | 'redeem'       // Shepherd: on death (ops with op.trigger are listeners instead)
+  | 'covenant'     // Patriarch: start of your turn
+  | 'scatter'      // Disciple: on death, summon Disciple (extra ops)
+  | 'aura'         // continuous while in play
+  | 'startOfTurn'  // start of your turn (non-Patriarch phrasing)
+  | 'endOfTurn'    // end of your turn
+  | 'onDeath'      // death replacement (Jonah, Elijah, Joseph)
+  | 'raise'        // Priest: listener — when an ally dies, restore it
+  | 'trigger'      // generic listener; ops carry `on` (ally_death, self_damaged)
+  | 'passive';     // static modifiers (Zadok: heals restore +1)
 
 /** The effect-verb vocabulary (CLAUDE.md §8). Adding a card should reuse these. */
 export type Verb =
   | 'deal' | 'healHero' | 'healUnit' | 'heal' | 'summon' | 'draw' | 'drawType'
   | 'buff' | 'giveKeyword' | 'foresee' | 'discover' | 'destroy' | 'setAttack'
-  | 'returnFromDiscard' | 'transform' | 'exile' | 'costReduce' | 'silence';
+  | 'returnFromDiscard' | 'transform' | 'exile' | 'costReduce' | 'silence'
+  | 'auraBuff'          // in aura: continuous; in arrival with grantToTarget: grants an aura
+  | 'returnToHand' | 'shuffleIntoDeck' | 'delayedTransform'
+  | 'conditionalDeal' | 'gainForEachSheep' | 'discoverFromDeck'
+  | 'onHealBonus' | 'discountHand';
 
 /** A targeting selector resolved at effect time. */
 export type TargetSpec =
   | 'self' | 'target' | 'allAllies' | 'allEnemies' | 'allUnits'
   | 'randomAlly' | 'randomEnemy' | 'ownHero' | 'enemyHero'
-  | 'strongestEnemy' | 'weakestEnemy';
+  | 'strongestEnemy' | 'weakestEnemy'
+  // explicit-target aliases (the player picks; the side is validated)
+  | 'enemy' | 'ally' | 'anyUnit' | 'anyCharacter' | 'anyFriendlyOrHero'
+  // computed selectors
+  | 'damagedAlly' | 'mostHealthEnemy' | 'cheapestEnemy' | 'allEnemiesWithoutGuard'
+  // tribes
+  | 'friendlySheep' | 'friendlyDisciple' | 'friendlyDisciples' | 'friendlyHeirs'
+  // graveyard selectors (returnFromDiscard)
+  | 'lastFallenAlly' | 'strongestFallenAlly' | 'alliesDiedThisTurn'
+  // cost auras
+  | 'allHand';
 
 export interface EffectOp {
   verb: Verb;
@@ -49,6 +73,30 @@ export interface EffectOp {
   tag?: Tag;          // for drawType/costReduce filters
   value?: number;     // generic (foresee X, costReduce amount)
   into?: string;      // transform target def id
+  // ---- modifiers ----
+  scope?: 'other' | 'all';          // aura: exclude the source ("your OTHER units")
+  condition?: string;               // fewer_units_than_enemy, control_david, target_is_priest…
+  grantToTarget?: boolean;          // auraBuff in arrival: the TARGET carries the aura
+  grantKeyword?: Keyword;           // aura: matching units also get this keyword
+  refreshEachTurn?: boolean;        // aura giveKeyword: re-arm at the start of your turn
+  perEnemyUnit?: boolean;           // buff: multiply by enemy unit count
+  ifLastCard?: { attack?: number; health?: number }; // Widow's Mite: bigger if hand is empty
+  thisTurn?: boolean;               // buff: temporary, wears off at your next dawn
+  toFull?: boolean;                 // heal: restore to max
+  toField?: boolean;                // returnFromDiscard: to the board (else to hand)
+  withKeyword?: Keyword;            // summon/returnFromDiscard: unit arrives with this
+  oncePerTurn?: boolean;            // raise listener throttle
+  oncePerGame?: boolean;            // Dorcas: once per game
+  replaceDeath?: boolean;           // onDeath: this op replaces going to the discard
+  onTurn?: number;                  // covenant: only on the Nth tick (Enoch)
+  random?: boolean;                 // drawType: random matching card instead of first
+  cardType?: CardType;              // alias of `type` used by some data
+  keep?: number;                    // discoverFromDeck: how many are kept
+  delayTurns?: number;              // delayedTransform: turns until return (Joseph)
+  drawIfLegendary?: boolean;        // foresee rider (Thomas)
+  trigger?: string;                 // op-level listener filter (friendlySheepDies)
+  on?: string;                      // `trigger` trigger: ally_death, self_damaged
+  delayToNextTurn?: boolean;        // queue the op for your next dawn (Job)
 }
 
 export interface FulfillSpec {
@@ -96,9 +144,25 @@ export interface UnitInstance {
   endure: boolean;
   /** continuous attack bonus from auras; recomputed on board changes. */
   auraAtk: number;
+  /** continuous health bonus from auras; recomputed on board changes. */
+  auraHp: number;
+  /** keywords granted by auras (revoked when the aura leaves). */
+  auraKw: Keyword[];
+  /** temporary attack (thisTurn buffs); cleared at the owner's next dawn. */
+  tempAtk: number;
+  /** how many of the owner's turns this unit has begun (covenant onTurn). */
+  covenantTicks: number;
+  /** global turn counter when this unit entered play (auto_next_turn). */
+  enteredTurn: number;
+  /** ops queued for the owner's next dawn (delayToNextTurn). */
+  pending?: EffectOp[];
+  /** raise-listener throttle: the turn it last fired. */
+  raiseUsedTurn?: number;
   /** bookkeeping for Fulfill conditions */
   survivedDamage?: boolean;
   slewGiant?: boolean;
+  survivedStronger?: boolean;
+  survivedDamagedTurn?: boolean;
 }
 
 export type PlayerId = 0 | 1;
@@ -119,8 +183,18 @@ export interface PlayerState {
   deck: CardDef[];        // draw from the front
   hand: CardDef[];
   board: UnitInstance[];
+  /** standing relics: persistent, non-attackable; their auras/turn triggers run. */
+  relics: UnitInstance[];
   discard: CardDef[];
   exiled: CardDef[];
+  /** friendly minions that died on the board (Raise / returnFromDiscard pool). */
+  fallen: { defId: string; turn: number }[];
+  /** units returning after a delay (Joseph, Lord of Egypt). */
+  delayed: { into: string; remaining: number }[];
+  /** oncePerGame effect gates already consumed (defId:trigger keys). */
+  usedOnce: string[];
+  /** discount on the next card(s) this turn (Terah's Caravan). */
+  nextCardDiscount: number;
   fatigue: number;        // escalating self-damage counter
   heroPower?: HeroPower;
   leaderId?: string;

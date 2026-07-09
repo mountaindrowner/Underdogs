@@ -1,28 +1,455 @@
 {
-  "_note": "Adversary pool — AI-only, never collectible (Law 2). Stats for the 9 'already-defined' villains (Goliath..The Serpent) are drafted to the stat rail and need a balance-sim review; the 13 from docs/08 use the doc's values.",
+  "_note": "Adversary pool \u2014 AI-only, never collectible (Law 2). Stats for the 9 'already-defined' villains (Goliath..The Serpent) are drafted to the stat rail and need a balance-sim review; the 13 from docs/08 use the doc's values.",
   "adversaries": [
-    {"id":"goliath_of_gath","name":"Goliath of Gath","class":"adversary","tag":"kingdom","type":"minion","cost":6,"attack":7,"health":6,"rarity":"adversary","boss":true,"keywords":["guard"],"text":"Guard.","flavor":"Nine feet of contempt. Nobody volunteered. Then a boy did. — 1 Samuel 17.","art":"A towering armored Philistine champion with a massive spear, sneering down from the height, cold bronze and shadow."},
-    {"id":"egyptian_taskmaster","name":"Egyptian Taskmaster","class":"adversary","tag":"exodus","type":"minion","cost":2,"attack":2,"health":3,"rarity":"adversary","text":"Arrival: an enemy unit gets -1 attack this turn.","flavor":"Quota's the quota. Make bricks without straw. — Exodus 5.","art":"A whip-coiled overseer glowering over brick-pits, hard-eyed, dust and cold gold."},
-    {"id":"philistine_soldier","name":"Philistine Soldier","class":"adversary","tag":"kingdom","type":"minion","cost":2,"attack":3,"health":2,"rarity":"adversary","text":"","flavor":"One of thousands. Confident, right up until the sling.","art":"A helmeted Philistine warrior with round shield and short sword, iron and crest-feathers, cold light."},
-    {"id":"amalekite_raider","name":"Amalekite Raider","class":"adversary","tag":"exodus","type":"minion","cost":3,"attack":3,"health":3,"rarity":"adversary","keywords":["swift"],"text":"Swift.","flavor":"Struck the stragglers at the back. Cowardly and quick. — Deuteronomy 25.","art":"A desert raider mid-charge on a lean horse, wrapped face, scavenger menace, dusk."},
-    {"id":"chariot_of_iron","name":"Chariot of Iron","class":"adversary","tag":"judges","type":"minion","cost":4,"attack":4,"health":4,"rarity":"adversary","keywords":["guard"],"text":"Guard.","flavor":"They had iron chariots, so the valley stayed unconquered. For a while. — Judges 1.","art":"A bristling iron war-chariot with scythed wheels, drawn by armored horses, cold and grinding."},
-    {"id":"jezebel","name":"Jezebel","class":"adversary","tag":"kingdom","type":"minion","cost":5,"attack":4,"health":5,"rarity":"adversary","boss":true,"text":"Arrival: silence an enemy unit and give it -2 attack.","flavor":"Painted her eyes and looked out the window to the very end. — 2 Kings 9.","art":"A cold, regal queen at a high window, kohl-lined eyes, ornate and merciless, deep shadow."},
-    {"id":"pharaohs_magician","name":"Pharaoh's Magician","class":"adversary","tag":"exodus","type":"minion","cost":3,"attack":2,"health":3,"rarity":"adversary","text":"Arrival: summon a 1/1 Serpent.","flavor":"Matched the first few signs. Then the staff ate theirs. — Exodus 7.","art":"A court sorcerer with a staff twisting into a snake, painted eyes, cold torchlit chamber."},
-    {"id":"idol_of_baal","name":"Idol of Ba'al","class":"adversary","tag":"kingdom","type":"relic","cost":3,"rarity":"adversary","text":"Standing. At the end of the AI's turn, give a random Adversary +1/+0.","flavor":"They shouted from morning till noon. Nobody answered. — 1 Kings 18.","art":"A looming bronze idol on a stone altar, cold and lifeless, hollow eyes, smoke curling unanswered."},
-    {"id":"the_serpent","name":"The Serpent","class":"adversary","tag":"genesis","type":"minion","cost":4,"attack":3,"health":4,"rarity":"adversary","boss":true,"text":"Arrival: an enemy unit's text is removed. (Did God really say...?)","flavor":"The subtlest of all. Asked a question that wasn't really a question. — Genesis 3.","art":"A great coiling serpent among shadowed garden branches, gleaming scales and a cold knowing eye — sinister, never comic."},
-
-    {"id":"pharaoh_the_hardened","name":"Pharaoh, the Hardened","class":"adversary","tag":"exodus","type":"minion","cost":7,"attack":6,"health":8,"rarity":"adversary","boss":true,"text":"Arrival: enemy units can't attack next turn (his heart hardens).","flavor":"Ten warnings. He kept every one of them. — Exodus.","art":"An enthroned king of Egypt, arms crossed, cold gold and lapis, a river of shadow behind."},
-    {"id":"haman_the_agagite","name":"Haman the Agagite","class":"adversary","tag":"exile","type":"minion","cost":5,"attack":5,"health":4,"rarity":"adversary","boss":true,"text":"Legacy: the gallows he built fall on the strongest enemy unit.","flavor":"Built a very tall gallows. Should have measured twice. — Esther 7.","art":"A sneering vizier beside an enormous empty gallows, torchlight, dread irony."},
-    {"id":"nebuchadnezzar","name":"Nebuchadnezzar","class":"adversary","tag":"exile","type":"minion","cost":8,"attack":7,"health":9,"rarity":"adversary","boss":true,"text":"Arrival: bow or burn — deal 3 to all enemy units without Guard.","flavor":"Built a golden statue and a furnace to match. Three men declined. — Daniel 3.","art":"A colossal golden statue with a king enthroned before it, furnace-glow, cold pride."},
-    {"id":"herod","name":"Herod","class":"adversary","tag":"apostles","type":"minion","cost":6,"attack":5,"health":6,"rarity":"adversary","boss":true,"text":"Arrival: destroy the enemy's cheapest unit.","flavor":"Paranoid on a too-large throne. Feared a child. — Matthew 2.","art":"A paranoid king on an oversized throne, soldiers in shadow, cold marble and gold."},
-    {"id":"sennacheribs_host","name":"Sennacherib's Host","class":"adversary","tag":"exile","type":"minion","cost":5,"attack":5,"health":5,"rarity":"adversary","text":"Arrival: summon two 2/2 Assyrian Soldiers.","flavor":"A vast army camped outside the walls. By morning, quiet. — 2 Kings 19.","art":"A vast siege camp bristling with spears outside a walled city at dusk, cold and countless."},
-    {"id":"delilah","name":"Delilah","class":"adversary","tag":"judges","type":"minion","cost":3,"attack":2,"health":3,"rarity":"adversary","text":"Arrival: an enemy unit loses its keywords and gets -2 attack.","flavor":"Asked the same question four times. He finally answered. — Judges 16.","art":"An elegant figure with shears, a sleeping strongman's silhouette, candlelit betrayal."},
-    {"id":"absalom","name":"Absalom","class":"adversary","tag":"kingdom","type":"minion","cost":4,"attack":5,"health":3,"rarity":"adversary","keywords":["swift"],"text":"Swift. Legacy: deal 2 to the enemy hero.","flavor":"Stole hearts at the gate. Undone by his own hair. — 2 Samuel 18.","art":"A proud prince on a mule beneath a great oak, long hair, storm light, cold beauty."},
-    {"id":"sisera","name":"Sisera","class":"adversary","tag":"judges","type":"minion","cost":4,"attack":4,"health":4,"rarity":"adversary","keywords":["guard"],"text":"Guard.","flavor":"Nine hundred chariots. Undone by a tent peg and a woman named Jael. — Judges 4.","art":"An iron-chariot commander surveying a plain, bronze and cruelty, cold dusk."},
-    {"id":"witch_of_endor","name":"The Witch of Endor","class":"adversary","tag":"kingdom","type":"minion","cost":3,"attack":2,"health":3,"rarity":"adversary","text":"Arrival: return a fallen Adversary from the discard.","flavor":"The king who banned mediums came looking for one by night. — 1 Samuel 28.","art":"A dim cave, a hooded figure over a guttering fire, cold blue smoke, dread."},
-    {"id":"sanballat_and_tobiah","name":"Sanballat & Tobiah","class":"adversary","tag":"exile","type":"minion","cost":3,"attack":3,"health":3,"rarity":"adversary","text":"Arrival: an enemy relic costs (2) more to activate.","flavor":"Mocked the builders. The wall went up in fifty-two days anyway. — Nehemiah 6.","art":"Two mocking officials pointing at a half-built wall, sneers, dusty ridge, cold light."},
-    {"id":"leviathan","name":"Leviathan","class":"adversary","tag":"","type":"minion","cost":8,"attack":8,"health":8,"rarity":"adversary","boss":true,"keywords":["guard"],"text":"Guard. Takes no damage from spells.","flavor":"Can you draw him out with a hook? No. — Job 41.","art":"A vast sea-serpent coiling through black water, moonlight on scales — awe, not gore."},
-    {"id":"behemoth","name":"Behemoth","class":"adversary","tag":"","type":"minion","cost":7,"attack":6,"health":8,"rarity":"adversary","boss":true,"keywords":["endure"],"text":"Endure.","flavor":"He eats grass like an ox and fears nothing. — Job 40.","art":"An enormous beast at a marsh's edge, cedar-strong, dawn mist, immense and calm."},
-    {"id":"the_golden_calf","name":"The Golden Calf","class":"adversary","tag":"exodus","type":"relic","cost":3,"rarity":"adversary","text":"Standing. At the end of the AI's turn, give a random Adversary +1/+1.","flavor":"Made a god from earrings while the mountain still smoked. — Exodus 32.","art":"A gilded calf idol on a pedestal, revelers' shadows, firelight, cold and hollow."}
+    {
+      "id": "goliath_of_gath",
+      "name": "Goliath of Gath",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "minion",
+      "cost": 6,
+      "attack": 7,
+      "health": 6,
+      "rarity": "adversary",
+      "boss": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard.",
+      "flavor": "Nine feet of contempt. Nobody volunteered. Then a boy did. \u2014 1 Samuel 17.",
+      "art": "A towering armored Philistine champion with a massive spear, sneering down from the height, cold bronze and shadow."
+    },
+    {
+      "id": "egyptian_taskmaster",
+      "name": "Egyptian Taskmaster",
+      "class": "adversary",
+      "tag": "exodus",
+      "type": "minion",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "rarity": "adversary",
+      "text": "Arrival: an enemy unit gets -1 attack this turn.",
+      "flavor": "Quota's the quota. Make bricks without straw. \u2014 Exodus 5.",
+      "art": "A whip-coiled overseer glowering over brick-pits, hard-eyed, dust and cold gold.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "buff",
+            "attack": -1,
+            "target": "enemy",
+            "thisTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "philistine_soldier",
+      "name": "Philistine Soldier",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "minion",
+      "cost": 2,
+      "attack": 3,
+      "health": 2,
+      "rarity": "adversary",
+      "text": "",
+      "flavor": "One of thousands. Confident, right up until the sling.",
+      "art": "A helmeted Philistine warrior with round shield and short sword, iron and crest-feathers, cold light."
+    },
+    {
+      "id": "amalekite_raider",
+      "name": "Amalekite Raider",
+      "class": "adversary",
+      "tag": "exodus",
+      "type": "minion",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "rarity": "adversary",
+      "keywords": [
+        "swift"
+      ],
+      "text": "Swift.",
+      "flavor": "Struck the stragglers at the back. Cowardly and quick. \u2014 Deuteronomy 25.",
+      "art": "A desert raider mid-charge on a lean horse, wrapped face, scavenger menace, dusk."
+    },
+    {
+      "id": "chariot_of_iron",
+      "name": "Chariot of Iron",
+      "class": "adversary",
+      "tag": "judges",
+      "type": "minion",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "rarity": "adversary",
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard.",
+      "flavor": "They had iron chariots, so the valley stayed unconquered. For a while. \u2014 Judges 1.",
+      "art": "A bristling iron war-chariot with scythed wheels, drawn by armored horses, cold and grinding."
+    },
+    {
+      "id": "jezebel",
+      "name": "Jezebel",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "minion",
+      "cost": 5,
+      "attack": 4,
+      "health": 5,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Arrival: silence an enemy unit and give it -2 attack.",
+      "flavor": "Painted her eyes and looked out the window to the very end. \u2014 2 Kings 9.",
+      "art": "A cold, regal queen at a high window, kohl-lined eyes, ornate and merciless, deep shadow.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "silence",
+            "target": "enemy"
+          },
+          {
+            "verb": "buff",
+            "attack": -2,
+            "target": "enemy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pharaohs_magician",
+      "name": "Pharaoh's Magician",
+      "class": "adversary",
+      "tag": "exodus",
+      "type": "minion",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "rarity": "adversary",
+      "text": "Arrival: summon a 1/1 Serpent.",
+      "flavor": "Matched the first few signs. Then the staff ate theirs. \u2014 Exodus 7.",
+      "art": "A court sorcerer with a staff twisting into a snake, painted eyes, cold torchlit chamber."
+    },
+    {
+      "id": "idol_of_baal",
+      "name": "Idol of Ba'al",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "relic",
+      "cost": 3,
+      "rarity": "adversary",
+      "text": "Standing. At the end of the AI's turn, give a random Adversary +1/+0.",
+      "flavor": "They shouted from morning till noon. Nobody answered. \u2014 1 Kings 18.",
+      "art": "A looming bronze idol on a stone altar, cold and lifeless, hollow eyes, smoke curling unanswered.",
+      "effects": {
+        "endOfTurn": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 0,
+            "target": "randomAlly"
+          }
+        ]
+      }
+    },
+    {
+      "id": "the_serpent",
+      "name": "The Serpent",
+      "class": "adversary",
+      "tag": "genesis",
+      "type": "minion",
+      "cost": 4,
+      "attack": 3,
+      "health": 4,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Arrival: an enemy unit's text is removed. (Did God really say...?)",
+      "flavor": "The subtlest of all. Asked a question that wasn't really a question. \u2014 Genesis 3.",
+      "art": "A great coiling serpent among shadowed garden branches, gleaming scales and a cold knowing eye \u2014 sinister, never comic.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "silence",
+            "target": "enemy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pharaoh_the_hardened",
+      "name": "Pharaoh, the Hardened",
+      "class": "adversary",
+      "tag": "exodus",
+      "type": "minion",
+      "cost": 7,
+      "attack": 6,
+      "health": 8,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Arrival: enemy units can't attack next turn (his heart hardens).",
+      "flavor": "Ten warnings. He kept every one of them. \u2014 Exodus.",
+      "art": "An enthroned king of Egypt, arms crossed, cold gold and lapis, a river of shadow behind."
+    },
+    {
+      "id": "haman_the_agagite",
+      "name": "Haman the Agagite",
+      "class": "adversary",
+      "tag": "exile",
+      "type": "minion",
+      "cost": 5,
+      "attack": 5,
+      "health": 4,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Legacy: the gallows he built fall on the strongest enemy unit.",
+      "flavor": "Built a very tall gallows. Should have measured twice. \u2014 Esther 7.",
+      "art": "A sneering vizier beside an enormous empty gallows, torchlight, dread irony.",
+      "effects": {
+        "legacy": [
+          {
+            "verb": "destroy",
+            "target": "strongestEnemy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nebuchadnezzar",
+      "name": "Nebuchadnezzar",
+      "class": "adversary",
+      "tag": "exile",
+      "type": "minion",
+      "cost": 8,
+      "attack": 7,
+      "health": 9,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Arrival: bow or burn \u2014 deal 3 to all enemy units without Guard.",
+      "flavor": "Built a golden statue and a furnace to match. Three men declined. \u2014 Daniel 3.",
+      "art": "A colossal golden statue with a king enthroned before it, furnace-glow, cold pride.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "deal",
+            "amount": 3,
+            "target": "allEnemiesWithoutGuard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "herod",
+      "name": "Herod",
+      "class": "adversary",
+      "tag": "apostles",
+      "type": "minion",
+      "cost": 6,
+      "attack": 5,
+      "health": 6,
+      "rarity": "adversary",
+      "boss": true,
+      "text": "Arrival: destroy the enemy's cheapest unit.",
+      "flavor": "Paranoid on a too-large throne. Feared a child. \u2014 Matthew 2.",
+      "art": "A paranoid king on an oversized throne, soldiers in shadow, cold marble and gold.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "destroy",
+            "target": "cheapestEnemy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sennacheribs_host",
+      "name": "Sennacherib's Host",
+      "class": "adversary",
+      "tag": "exile",
+      "type": "minion",
+      "cost": 5,
+      "attack": 5,
+      "health": 5,
+      "rarity": "adversary",
+      "text": "Arrival: summon two 2/2 Assyrian Soldiers.",
+      "flavor": "A vast army camped outside the walls. By morning, quiet. \u2014 2 Kings 19.",
+      "art": "A vast siege camp bristling with spears outside a walled city at dusk, cold and countless.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "summon",
+            "token": "tok_assyrian_soldier",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "delilah",
+      "name": "Delilah",
+      "class": "adversary",
+      "tag": "judges",
+      "type": "minion",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "rarity": "adversary",
+      "text": "Arrival: an enemy unit loses its keywords and gets -2 attack.",
+      "flavor": "Asked the same question four times. He finally answered. \u2014 Judges 16.",
+      "art": "An elegant figure with shears, a sleeping strongman's silhouette, candlelit betrayal.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "silence",
+            "target": "enemy"
+          },
+          {
+            "verb": "buff",
+            "attack": -2,
+            "target": "enemy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "absalom",
+      "name": "Absalom",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "minion",
+      "cost": 4,
+      "attack": 5,
+      "health": 3,
+      "rarity": "adversary",
+      "keywords": [
+        "swift"
+      ],
+      "text": "Swift. Legacy: deal 2 to the enemy hero.",
+      "flavor": "Stole hearts at the gate. Undone by his own hair. \u2014 2 Samuel 18.",
+      "art": "A proud prince on a mule beneath a great oak, long hair, storm light, cold beauty.",
+      "effects": {
+        "legacy": [
+          {
+            "verb": "deal",
+            "amount": 2,
+            "target": "enemyHero"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sisera",
+      "name": "Sisera",
+      "class": "adversary",
+      "tag": "judges",
+      "type": "minion",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "rarity": "adversary",
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard.",
+      "flavor": "Nine hundred chariots. Undone by a tent peg and a woman named Jael. \u2014 Judges 4.",
+      "art": "An iron-chariot commander surveying a plain, bronze and cruelty, cold dusk."
+    },
+    {
+      "id": "witch_of_endor",
+      "name": "The Witch of Endor",
+      "class": "adversary",
+      "tag": "kingdom",
+      "type": "minion",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "rarity": "adversary",
+      "text": "Arrival: return a fallen Adversary from the discard.",
+      "flavor": "The king who banned mediums came looking for one by night. \u2014 1 Samuel 28.",
+      "art": "A dim cave, a hooded figure over a guttering fire, cold blue smoke, dread.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "returnFromDiscard",
+            "target": "lastFallenAlly",
+            "toField": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "sanballat_and_tobiah",
+      "name": "Sanballat & Tobiah",
+      "class": "adversary",
+      "tag": "exile",
+      "type": "minion",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "rarity": "adversary",
+      "text": "Arrival: an enemy relic costs (2) more to activate.",
+      "flavor": "Mocked the builders. The wall went up in fifty-two days anyway. \u2014 Nehemiah 6.",
+      "art": "Two mocking officials pointing at a half-built wall, sneers, dusty ridge, cold light."
+    },
+    {
+      "id": "leviathan",
+      "name": "Leviathan",
+      "class": "adversary",
+      "tag": "",
+      "type": "minion",
+      "cost": 8,
+      "attack": 8,
+      "health": 8,
+      "rarity": "adversary",
+      "boss": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard. Takes no damage from spells.",
+      "flavor": "Can you draw him out with a hook? No. \u2014 Job 41.",
+      "art": "A vast sea-serpent coiling through black water, moonlight on scales \u2014 awe, not gore."
+    },
+    {
+      "id": "behemoth",
+      "name": "Behemoth",
+      "class": "adversary",
+      "tag": "",
+      "type": "minion",
+      "cost": 7,
+      "attack": 6,
+      "health": 8,
+      "rarity": "adversary",
+      "boss": true,
+      "keywords": [
+        "endure"
+      ],
+      "text": "Endure.",
+      "flavor": "He eats grass like an ox and fears nothing. \u2014 Job 40.",
+      "art": "An enormous beast at a marsh's edge, cedar-strong, dawn mist, immense and calm."
+    },
+    {
+      "id": "the_golden_calf",
+      "name": "The Golden Calf",
+      "class": "adversary",
+      "tag": "exodus",
+      "type": "relic",
+      "cost": 3,
+      "rarity": "adversary",
+      "text": "Standing. At the end of the AI's turn, give a random Adversary +1/+1.",
+      "flavor": "Made a god from earrings while the mountain still smoked. \u2014 Exodus 32.",
+      "art": "A gilded calf idol on a pedestal, revelers' shadows, firelight, cold and hollow.",
+      "effects": {
+        "endOfTurn": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 1,
+            "target": "randomAlly"
+          }
+        ]
+      }
+    }
   ]
 }

@@ -37,6 +37,11 @@ export type GameEvent =
   | { t: 'heroPower'; player: PlayerId; name: string }
   | { t: 'foresee'; player: PlayerId; count: number }
   | { t: 'discover'; player: PlayerId; count: number }
+  /** a unit's continuous aura bonuses changed (David's +1, Good Fold's Guard…) */
+  | { t: 'auraUpdate'; uid: number; attack: number; health: number; keywords: Keyword[] }
+  | { t: 'relicPlaced'; player: PlayerId; defId: string }        // standing relic set down
+  | { t: 'returnToHand'; player: PlayerId; defId: string }       // Lost Sheep comes home
+  | { t: 'shuffleIn'; player: PlayerId; defId: string }          // Jonah, three days later
   | { t: 'gameOver'; winner: PlayerId };
 
 /** Collects events during an action, in resolution order. */

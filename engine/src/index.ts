@@ -8,7 +8,9 @@
 export * from './types.ts';
 export * from './events.ts';
 export { makeRng, rngFromState, type Rng } from './rng.ts';
-export { createGame, applyAction, registerDefs, effAttack, type GameConfig } from './engine.ts';
+export { createGame, applyAction, registerDefs, effAttack, effHealth, hasKeyword, effCost,
+  type GameConfig } from './engine.ts';
 export { flattenCards, collectDefs, makeRegistry, buildDeck } from './cards.ts';
 // Node-only disk loader lives in ./cards.node.ts (kept out of the browser bundle).
-export { applyEffect, runTrigger, resolveTargets, type Ctx, type Target } from './effects.ts';
+export { applyEffect, runTrigger, resolveTargets, needsExplicitTarget, targetSide,
+  isSheep, isDisciple, isHeir, type Ctx, type Target } from './effects.ts';

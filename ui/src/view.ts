@@ -7,6 +7,7 @@ import type { GameEvent, PlayerId, CardDef } from '../../engine/src/index.ts';
 export interface VUnit {
   uid: number; defId: string; name: string; owner: PlayerId;
   attack: number; health: number; maxHealth: number; keywords: string[];
+  auraAtk: number; auraHp: number; auraKw: string[];
   // transient (one beat):
   enter?: boolean; dead?: boolean; lunge?: number; fulfilling?: boolean;
   dmg?: number; heal?: number; hit?: boolean; buffed?: boolean; endure?: boolean;
@@ -17,6 +18,7 @@ export interface Prov { cur: number; max: number; }
 export interface View {
   heroes: [HeroV, HeroV];
   boards: [VUnit[], VUnit[]];
+  relics: [string[], string[]];   // standing relic defIds per side
   prov: [Prov, Prov];
   active: PlayerId; turn: number; phase: string;
   banner?: string; over: PlayerId | null;
@@ -26,6 +28,7 @@ export function initialView(hp0: number, hp1: number = hp0): View {
   return {
     heroes: [{ hp: hp0, maxHp: hp0 }, { hp: hp1, maxHp: hp1 }],
     boards: [[], []],
+    relics: [[], []],
     prov: [{ cur: 0, max: 0 }, { cur: 0, max: 0 }],
     active: 0, turn: 0, phase: 'dawn', over: null,
   };
@@ -52,7 +55,8 @@ export function clearTransient(v: View): View {
 
 export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): View {
   const nv: View = { ...v, heroes: [{ ...v.heroes[0] }, { ...v.heroes[1] }],
-    boards: [[...v.boards[0]], [...v.boards[1]]], prov: [{ ...v.prov[0] }, { ...v.prov[1] }] };
+    boards: [[...v.boards[0]], [...v.boards[1]]], prov: [{ ...v.prov[0] }, { ...v.prov[1] }],
+    relics: [[...v.relics[0]], [...v.relics[1]]] };
   const upd = (uid: number, f: (u: VUnit) => VUnit) => {
     for (const b of [0, 1] as const) {
       const i = nv.boards[b].findIndex((u) => u.uid === uid);
@@ -71,7 +75,7 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
       const u: VUnit = {
         uid: e.uid, defId: e.defId, name: def?.name ?? e.defId, owner: e.owner,
         attack: def?.attack ?? 0, health: def?.health ?? 1, maxHealth: def?.health ?? 1,
-        keywords: [...(def?.keywords ?? [])], enter: true,
+        keywords: [...(def?.keywords ?? [])], auraAtk: 0, auraHp: 0, auraKw: [], enter: true,
       };
       const b = nv.boards[e.owner] = [...nv.boards[e.owner]];
       b.splice(Math.min(e.position, b.length), 0, u);
@@ -97,16 +101,22 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
     case 'keyword':
       upd(e.uid, (u) => ({ ...u, keywords: e.gained ? [...new Set([...u.keywords, e.keyword])] : u.keywords.filter((k) => k !== e.keyword) })); break;
     case 'silence':
-      upd(e.uid, (u) => ({ ...u, keywords: [] })); break;
+      upd(e.uid, (u) => ({ ...u, keywords: [], auraAtk: 0, auraHp: 0, auraKw: [] })); break;
+    case 'auraUpdate':
+      upd(e.uid, (u) => ({ ...u, auraAtk: e.attack, auraHp: e.health, auraKw: [...e.keywords],
+        buffed: e.attack > 0 || e.health > 0 ? true : u.buffed })); break;
     case 'death':
       upd(e.uid, (u) => ({ ...u, dead: true })); break;
     case 'fulfill': {
       const def = reg.get(e.intoDef);
       upd(e.uid, (u) => ({ ...u, defId: e.intoDef, name: def?.name ?? u.name,
         attack: def?.attack ?? u.attack, maxHealth: def?.health ?? u.maxHealth,
-        health: def?.health ?? u.maxHealth, keywords: [...(def?.keywords ?? [])], fulfilling: true }));
+        health: def?.health ?? u.maxHealth, keywords: [...(def?.keywords ?? [])],
+        auraAtk: 0, auraHp: 0, auraKw: [], fulfilling: true }));
       break;
     }
+    case 'relicPlaced':
+      nv.relics[e.player] = [...nv.relics[e.player], e.defId]; break;
     case 'gameOver':
       nv.over = e.winner; nv.banner = `Player ${e.winner + 1} wins`; break;
   }

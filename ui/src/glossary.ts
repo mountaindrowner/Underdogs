@@ -11,7 +11,7 @@ export const KW_LABEL: Record<string, string> = {
   guard: 'Guard', swift: 'Swift', endure: 'Endure', giant_slayer: 'Giant-Slayer',
   redeem: 'Redeem', scatter: 'Scatter', covenant: 'Covenant', raise: 'Raise',
   foresee: 'Foresee', discover: 'Discover', arrival: 'Arrival', legacy: 'Legacy',
-  fulfill: 'Fulfill',
+  fulfill: 'Fulfill', executes_damaged: 'Finisher',
 };
 
 /** Description for a keyword id, or undefined if we have none. */

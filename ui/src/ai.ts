@@ -4,17 +4,27 @@
  *  state, and take the best — passing only when nothing beats ending the turn.
  *  `pickAction` returns ONE action; the controller loops it until END_TURN. */
 import {
-  applyAction, effAttack,
+  applyAction, effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide,
   type GameState, type Action, type PlayerId, type CardDef, type UnitInstance,
 } from '../../engine/src/index.ts';
 
 function needsTargetCard(c: CardDef): boolean {
-  return !!c.effects?.arrival?.some((op) => op.target === 'target');
+  return !!c.effects?.arrival?.some(needsExplicitTarget);
+}
+
+/** which units a targeted card may legally pick */
+function targetPool(c: CardDef, allies: UnitInstance[], enemies: UnitInstance[]): UnitInstance[] {
+  const op = c.effects?.arrival?.find(needsExplicitTarget);
+  switch (targetSide(op?.target)) {
+    case 'enemy': return enemies;
+    case 'ally': return allies;
+    default: return [...allies, ...enemies];
+  }
 }
 
 function unitValue(u: UnitInstance): number {
   let v = 1 + effAttack(u) + u.health;                 // a body worth ~1 + its stats
-  if (u.keywords.includes('guard')) v += 1.5;
+  if (hasKeyword(u, 'guard')) v += 1.5;
   if (u.keywords.includes('endure')) v += 1;
   if (u.keywords.includes('giant_slayer')) v += 1.5;
   if (!u.ready) v -= 0.3;                               // summoning-sick this turn
@@ -43,12 +53,12 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   const enemies = s.players[foe].board;
   const acts: Action[] = [];
 
-  // plays (enumerate targets for targeted cards)
+  // plays (enumerate targets for targeted cards, on the legal side only)
   pl.hand.forEach((c, i) => {
-    if ((c.cost ?? 0) > pl.provision) return;
+    if (effCost(s, me, c) > pl.provision) return;
     if (c.type === 'minion' && pl.board.length >= s.rules.boardLimit) return;
     if (needsTargetCard(c)) {
-      for (const t of [...pl.board, ...enemies]) acts.push({ type: 'PLAY_CARD', handIndex: i, targetUid: t.uid });
+      for (const t of targetPool(c, pl.board, enemies)) acts.push({ type: 'PLAY_CARD', handIndex: i, targetUid: t.uid });
     } else {
       acts.push({ type: 'PLAY_CARD', handIndex: i });
     }
@@ -57,7 +67,7 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   // hero power
   const hp = pl.heroPower;
   if (hp && !hp.usedThisTurn && pl.provision >= hp.cost) {
-    if (hp.effects.some((op) => op.target === 'target')) {
+    if (hp.effects.some(needsExplicitTarget)) {
       for (const t of [...pl.board, ...enemies]) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
     } else {
       acts.push({ type: 'HERO_POWER' });
@@ -65,7 +75,7 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   }
 
   // attacks (respect Guard)
-  const guards = enemies.filter((u) => u.keywords.includes('guard'));
+  const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
   for (const u of pl.board) {
     if (!u.ready || u.attacksThisTurn >= 1 || effAttack(u) <= 0) continue;
     if (guards.length) {
