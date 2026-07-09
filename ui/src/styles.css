@@ -422,7 +422,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .bigbtn{font-family:var(--serif);font-weight:800;font-size:18px;color:#2a1806;padding:12px 34px;border-radius:12px;
   border:2px solid #4d3510;cursor:pointer;background:linear-gradient(180deg,#f6da8c,#a9791f);box-shadow:0 5px 14px rgba(0,0,0,.6)}
 .bigbtn:hover{filter:brightness(1.08)}
-.bigbtn.ghost{background:linear-gradient(180deg,#4a3a1c,#2a1d0c);color:#e9d9b0;border-color:#6d4d13}
+.bigbtn.quiet{background:linear-gradient(180deg,#4a3a1c,#2a1d0c);color:#e9d9b0;border-color:#6d4d13}
 
 /* ===================== story menu (chapter map on the scene) ===================== */
 .storyMenu{background:#0e0922}
@@ -459,6 +459,158 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .intro .narr{font-size:17px;line-height:1.5;color:#e9dcc0}
 .intro .tip{font-size:14px;line-height:1.45;color:#bfe4ff;background:rgba(30,50,80,.35);border:1px solid #29406a;
   border-radius:10px;padding:10px 14px;max-width:620px}
+
+/* ===================== free play setup (the sparring pit) ===================== */
+.fpBody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;width:min(1020px,95vw)}
+.fpLabel{font-family:'Cinzel',var(--serif);font-size:13px;letter-spacing:.28em;color:#d9bd82;
+  text-transform:uppercase;margin-top:8px;text-shadow:0 1px 3px #000}
+.fpBlurb{font-family:'EBG',Georgia,serif;font-style:italic;font-size:14px;color:#c9b184;text-shadow:0 1px 3px #000}
+.fpNote{font-size:12px;font-style:italic;color:#9a8b66;text-shadow:0 1px 3px #000}
+.fpGo{margin-top:12px}
+
+.deckShelf{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:100%}
+.deckTile{position:relative;width:158px;padding:10px 12px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;font-family:inherit;text-align:center;border-radius:11px;
+  background:linear-gradient(180deg,#3a2a18,#241811);border:1px solid rgba(90,60,26,.6);
+  box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,150,.08);
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease}
+.deckTile:hover{transform:translateY(-3px);border-color:var(--gem,#c8a860)}
+.deckTile.sel{border-color:var(--gold-br);
+  box-shadow:0 0 0 2px var(--gold-br),0 0 18px rgba(255,201,92,.4),0 5px 12px rgba(0,0,0,.5)}
+.dtIcon{font-size:21px;line-height:1;
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--gem,#c8a860) 65%,transparent))}
+.dtName{font-family:'Cinzel',var(--serif);font-weight:700;font-size:12.5px;color:#f4e6c4;line-height:1.15}
+.dtSub{font-size:10px;font-style:italic;color:#b39c72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.deckTile.forgeTile{border-style:dashed;border-color:rgba(200,168,96,.55)}
+
+.diffRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.diffTile{width:190px;padding:9px 12px;display:flex;flex-direction:column;gap:2px;cursor:pointer;text-align:center;
+  font-family:inherit;border-radius:11px;background:linear-gradient(180deg,#3a2a18,#241811);
+  border:1px solid rgba(90,60,26,.6);box-shadow:0 3px 8px rgba(0,0,0,.45);
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease}
+.diffTile:hover{transform:translateY(-2px);border-color:#c8a860}
+.diffTile.sel{border-color:var(--gold-br);box-shadow:0 0 0 2px var(--gold-br),0 0 16px rgba(255,201,92,.35)}
+.dfName{font-family:'Cinzel',var(--serif);font-weight:700;font-size:14px;color:#f4e6c4}
+.dfSub{font-size:11px;font-style:italic;color:#b39c72}
+
+/* ===================== the armory (decks & collection) ===================== */
+.armTabs{display:flex;gap:8px;justify-content:center;margin-top:2px}
+.armTabs button{font-family:'Cinzel',var(--serif);font-weight:700;font-size:13px;letter-spacing:.08em;cursor:pointer;
+  color:#cbb283;background:linear-gradient(180deg,#2e2113,#1c130a);border:1px solid rgba(90,60,26,.6);
+  border-radius:999px;padding:6px 18px}
+.armTabs button.on{color:#2a1806;background:linear-gradient(180deg,#f6da8c,#a9791f);border-color:#4d3510}
+.armBody{flex:1;min-height:0;display:flex;gap:16px;justify-content:center;align-items:stretch;
+  width:min(1120px,96vw);padding:8px 0 12px}
+.armShelf{align-content:flex-start;overflow-y:auto;scrollbar-width:thin;max-width:530px;padding:4px}
+
+.deckDetail{width:min(430px,42vw);display:flex;flex-direction:column;gap:6px;min-height:0;
+  padding:14px;border-radius:14px;background:linear-gradient(160deg,rgba(48,33,20,.9),rgba(24,16,9,.94));
+  border:1px solid rgba(90,60,26,.6);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.ddName{flex:0 0 auto;font-family:'Cinzel',var(--serif);font-weight:700;font-size:19px;color:#ffe6a2}
+.ddSub{flex:0 0 auto;font-size:12px;font-style:italic;color:#b39c72}
+.ddList{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;margin-top:6px;
+  scrollbar-width:thin;padding-right:4px}
+.ddBtns{flex:0 0 auto;display:flex;gap:10px;margin-top:8px}
+.ddBtns .bigbtn{font-size:13px;padding:8px 16px}
+.ddDel{background:linear-gradient(180deg,#6a3226,#3a1710);color:#f0c4b4;border-color:#7a3a28}
+.ddDel.sure{background:linear-gradient(180deg,#a83a2c,#5a1c12);color:#fff}
+
+.dRow{display:flex;align-items:center;gap:8px;padding:3px 8px 3px 4px;border-radius:7px;cursor:pointer;
+  background:linear-gradient(180deg,rgba(58,42,24,.6),rgba(30,21,12,.7));
+  border:1px solid rgba(90,60,26,.45);border-left:3px solid var(--edge-common)}
+.dRow:hover{filter:brightness(1.15)}
+.dRow.r-rare{border-left-color:var(--edge-rare)}
+.dRow.r-epic{border-left-color:var(--edge-epic)}
+.dRow.r-legendary{border-left-color:var(--edge-legendary)}
+.drCost{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:12px;color:#3a2406;
+  background:radial-gradient(circle at 35% 30%,#ffe6a6,#e6a33a 60%,#8a5410);box-shadow:0 0 0 1px #2a1c0c}
+.drName{flex:1;min-width:0;font-size:12.5px;color:#f0e4c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drN{flex:0 0 auto;font-size:11px;font-weight:800;color:#ffdf8a}
+.drDel{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:1px solid #7a3a28;cursor:pointer;
+  background:linear-gradient(180deg,#5a2a1e,#2a120c);color:#f0c4b4;font-weight:800;line-height:1}
+.drDel:hover{filter:brightness(1.3)}
+
+.classPick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.classPick button{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;font-family:'Cinzel',var(--serif);
+  font-weight:700;font-size:14px;color:#f4e6c4;border-radius:10px;
+  background:linear-gradient(180deg,#3a2a18,#241811);border:1px solid rgba(90,60,26,.6)}
+.classPick button:hover{border-color:var(--gem);box-shadow:0 0 14px color-mix(in srgb,var(--gem) 45%,transparent)}
+.classPick button span{font-size:19px}
+
+/* grid cards (collection & forge browser) reuse the hand-card frame */
+.gridCard{width:112px;height:154px;margin:0;filter:none;transform:none;cursor:pointer;transition:transform .12s}
+.gridCard:hover{transform:translateY(-4px)}
+.gridCard .hcCost{width:24px;height:24px;font-size:13px}
+.gridCard .hcAtk,.gridCard .hcHp{width:24px;height:24px;font-size:13px}
+.gridCard .hcName{font-size:9px;bottom:18px}
+.gcCount{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);z-index:6;
+  font-size:11px;font-weight:800;color:#2a1806;background:linear-gradient(180deg,#f6da8c,#c89a3a);
+  border:1px solid #4d3510;border-radius:999px;padding:1px 8px;box-shadow:0 2px 5px rgba(0,0,0,.5)}
+
+.collChips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.chip{font-size:11.5px;font-family:var(--serif);color:#cbb283;cursor:pointer;border-radius:999px;padding:4px 12px;
+  background:rgba(30,21,12,.8);border:1px solid rgba(90,60,26,.6)}
+.chip.on{color:#2a1806;background:linear-gradient(180deg,#f6da8c,#a9791f);border-color:#4d3510;font-weight:700}
+.collGrid{flex:1;min-height:0;overflow-y:auto;display:flex;flex-wrap:wrap;gap:14px 10px;justify-content:center;
+  align-content:flex-start;width:min(1120px,96vw);padding:10px 4px 20px;scrollbar-width:thin}
+
+/* the forge (deck editor) */
+.forge{flex:1;min-height:0;display:flex;gap:14px;width:min(1160px,97vw);padding:6px 0 10px}
+.forgeSide{flex:0 0 270px;display:flex;flex-direction:column;gap:7px;min-height:0;
+  padding:12px;border-radius:14px;background:linear-gradient(160deg,rgba(48,33,20,.9),rgba(24,16,9,.94));
+  border:1px solid rgba(90,60,26,.6)}
+.forgeName{flex:0 0 auto;font-family:'Cinzel',var(--serif);font-weight:700;font-size:15px;color:#ffe6a2;
+  background:rgba(16,10,5,.7);border:1px solid rgba(120,84,32,.5);border-radius:8px;padding:7px 10px;outline:none}
+.forgeName:focus{border-color:var(--gold-br)}
+.forgeLeader{flex:0 0 auto;font-family:var(--serif);font-size:12px;color:#e9d9b0;background:rgba(16,10,5,.7);
+  border:1px solid rgba(120,84,32,.5);border-radius:8px;padding:6px 8px;outline:none}
+.forgeCount{flex:0 0 auto;font-family:'Cinzel',var(--serif);font-weight:700;font-size:14px;color:#e07b39;text-align:center}
+.forgeCount.ok{color:#8ef08a}
+.forgeList{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;scrollbar-width:thin;padding-right:3px}
+.forgeSave{flex:0 0 auto;font-size:13px;padding:9px 12px}
+.forgeSave:disabled{opacity:.55;cursor:default;filter:saturate(.5)}
+.forgeBrowse{flex:1;min-height:0;overflow-y:auto;display:flex;flex-wrap:wrap;gap:16px 10px;justify-content:center;
+  align-content:flex-start;scrollbar-width:thin;padding:6px 2px 16px}
+.fbCell{position:relative}
+.fbCell.spent .gridCard{filter:grayscale(.7) brightness(.7)}
+.fbInfo{position:absolute;top:-6px;right:-6px;z-index:7;width:20px;height:20px;border-radius:50%;cursor:pointer;
+  font-size:11px;line-height:1;color:#e9d9b0;background:rgba(20,14,6,.92);border:1px solid var(--gold2)}
+.fbInfo:hover{color:#2a1806;background:var(--gold-br)}
+
+/* card peek overlay (tap a row / a grid card) */
+.peek{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,4,2,.66);backdrop-filter:blur(2px);animation:menuFadeIn .15s ease both}
+.peek .preview{position:static;width:auto;animation:none;pointer-events:none}
+
+/* ===================== match-start transition (the doors) ===================== */
+.mtrans{position:fixed;inset:0;z-index:400;perspective:1400px;overflow:hidden}
+.mtDoor{position:absolute;top:0;bottom:0;width:50.5%;backface-visibility:hidden;
+  background:
+    radial-gradient(120% 100% at 50% 50%,rgba(90,62,30,.25),transparent 70%),
+    linear-gradient(160deg,#3a2918 0%,#241811 55%,#170f08 100%)}
+.mtDoor::before{content:'';position:absolute;inset:0;opacity:.4;mix-blend-mode:overlay;background-size:220px 220px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.035 0.05' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E")}
+.mtL{left:0;transform-origin:left center;border-right:3px solid #0c0704;
+  box-shadow:inset -24px 0 40px rgba(0,0,0,.5),inset 0 0 0 2px rgba(201,162,75,.25);
+  animation:mtIn .38s cubic-bezier(.2,.8,.3,1) both,mtOpenL .62s ease-in 1.5s both}
+.mtR{right:0;transform-origin:right center;border-left:3px solid #0c0704;
+  box-shadow:inset 24px 0 40px rgba(0,0,0,.5),inset 0 0 0 2px rgba(201,162,75,.25);
+  animation:mtInR .38s cubic-bezier(.2,.8,.3,1) both,mtOpenR .62s ease-in 1.5s both}
+@keyframes mtIn{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+@keyframes mtInR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+@keyframes mtOpenL{to{transform:rotateY(88deg);filter:brightness(.55)}}
+@keyframes mtOpenR{to{transform:rotateY(-88deg);filter:brightness(.55)}}
+.mtTitle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;text-align:center;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;
+  animation:mtT .5s ease .34s both,mtTout .3s ease 1.42s both}
+.mtName{font-family:'Cinzel',var(--serif);font-weight:700;font-size:clamp(22px,3.6vw,40px);letter-spacing:.1em;
+  background:linear-gradient(#fff3cf,#f0c766 52%,#a86e24);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(90,50,10,.55)) drop-shadow(0 0 18px rgba(240,199,102,.3))}
+.mtSub{font-family:'EBG',Georgia,serif;font-style:italic;font-size:clamp(12px,1.6vw,17px);color:#c9b184}
+@keyframes mtT{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes mtTout{to{opacity:0}}
 
 /* rotate-to-play prompt in portrait */
 .rotate{display:none}
@@ -518,6 +670,11 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .hcAtk,.hcHp{width:30px;height:30px;font-size:16px}
   .hcName{font-size:10px;bottom:17px}
   .ghost{width:120px;height:164px}
+  /* armory grid cards keep their own size (the .handcard bump above is for the hand) */
+  .gridCard{width:112px;height:154px;margin:0}
+  .gridCard .hcCost{width:24px;height:24px;font-size:13px}
+  .gridCard .hcAtk,.gridCard .hcHp{width:24px;height:24px;font-size:13px}
+  .gridCard .hcName{font-size:9px;bottom:18px}
 
   .endturn{width:90px;height:90px;font-size:16px;right:18px;bottom:30px}
   .banner{font-size:30px}
@@ -637,4 +794,46 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .intro h1{font-size:19px;margin-top:-26px}
   .intro .narr{font-size:12px;line-height:1.35}
   .intro .tip{font-size:11px;line-height:1.3;padding:5px 10px}
+
+  /* free play setup: everything on one short screen */
+  .fpBody{gap:5px;padding-top:26px}
+  .fpLabel{font-size:9.5px;margin-top:2px}
+  .fpBlurb{font-size:11px}.fpNote{font-size:9.5px}
+  .deckShelf{gap:6px}
+  .deckTile{width:116px;padding:5px 8px 5px}
+  .dtIcon{font-size:14px}.dtName{font-size:10px}.dtSub{font-size:8.5px}
+  .diffTile{width:134px;padding:4px 8px}
+  .dfName{font-size:11px}.dfSub{font-size:8.5px}
+  .fpGo{margin-top:3px;font-size:13px;padding:7px 20px}
+
+  /* armory: shelf becomes a strip, detail fills below */
+  .armTabs{margin-top:28px}
+  .armTabs button{font-size:11px;padding:4px 13px}
+  .armBody{flex-direction:column;gap:6px;padding:4px 10px 8px;align-items:center}
+  .armShelf{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;width:100%;
+    justify-content:flex-start;padding:4px 4px 6px}
+  .armShelf .deckTile{flex:0 0 auto}
+  .deckDetail{width:100%;flex:1;padding:6px 10px}
+  .ddName{font-size:14px}.ddSub{font-size:10px}
+  .ddBtns{margin-top:5px}
+  .ddBtns .bigbtn{font-size:11px;padding:4px 10px}
+  .dRow{padding:2px 6px 2px 3px}
+  .drCost{width:18px;height:18px;font-size:10px}
+  .drName{font-size:11px}
+  .classPick{grid-template-columns:repeat(3,1fr);gap:6px}
+  .classPick button{padding:7px 8px;font-size:11px}
+  .collChips{margin-top:2px}.chip{font-size:10px;padding:3px 9px}
+  .collGrid{gap:10px 7px;padding:6px 4px 12px}
+  .gridCard{width:88px;height:121px;margin:0}
+  .gridCard .hcCost{width:20px;height:20px;font-size:11px}
+  .gridCard .hcAtk,.gridCard .hcHp{width:20px;height:20px;font-size:11px}
+  .gridCard .hcName{font-size:7.5px;bottom:14px}
+  .forge{gap:8px;padding:32px 8px 8px}
+  .forgeSide{flex:0 0 196px;padding:8px}
+  .forgeName{font-size:12px;padding:5px 8px}
+  .forgeLeader{font-size:10.5px;padding:4px 6px}
+  .forgeCount{font-size:12px}
+  .forgeSave{font-size:11px;padding:6px 8px}
+  .forgeBrowse{gap:12px 7px}
+  .peek .preview{position:static;transform:scale(.82);transform-origin:center;left:auto;right:auto;top:auto}
 }

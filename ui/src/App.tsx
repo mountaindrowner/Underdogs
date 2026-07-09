@@ -3,6 +3,8 @@ import { useMatch, needsTarget } from './useMatch.ts';
 import { artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
   type Encounter, type MatchConfig } from './campaign.ts';
+import { FreePlaySetup } from './FreePlay.tsx';
+import { DecksScreen } from './Decks.tsx';
 import type { VUnit, HeroV, Prov } from './view.ts';
 import { effAttack, type CardDef } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
@@ -466,7 +468,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
             <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>
             <div className="ovBtns">
               <button className="bigbtn" onClick={() => newGame()}>{won ? 'Play Again' : 'Retry'}</button>
-              <button className="bigbtn ghost" onClick={onExit}>Menu</button>
+              <button className="bigbtn quiet" onClick={onExit}>Menu</button>
             </div>
           </div>
         )}
@@ -547,20 +549,57 @@ function StoryMenu({ scene, onPlay, onBack }:
   );
 }
 
+// ---- match-start transition: leather doors close, emboss, swing open -------
+function MatchTransition({ label, sub, onDone }: { label: string; sub?: string; onDone: () => void }) {
+  // reduced-motion (or anything else) can suppress the CSS animation, so a
+  // timer guarantees the covers always lift
+  useEffect(() => { const t = setTimeout(onDone, 2400); return () => clearTimeout(t); }, [onDone]);
+  return (
+    <div className="mtrans">
+      <div className="mtDoor mtL" />
+      <div className="mtDoor mtR" />
+      <div className="mtTitle">
+        <span className="mtName">{label}</span>
+        {sub && <span className="mtSub">{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
 // ---- router ----------------------------------------------------------------
 export default function App() {
   const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
-  const [screen, setScreen] = useState<'menu' | 'story'>('menu');
+  const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks'>('menu');
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
+  const [trans, setTrans] = useState<{ label: string; sub?: string } | null>(null);
   // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
   useEffect(() => { if (battle) music.playBattle(); else music.playMenu(); }, [!!battle]);
 
+  // every road into a match passes through the doors
+  const play = (cfg: MatchConfig, meta?: Encounter) => {
+    setTrans({ label: meta?.title ?? 'The Sparring Pit', sub: meta?.subtitle ?? 'a skirmish among friends' });
+    setBattle({ cfg, meta });
+  };
+
+  const overlay = trans && <MatchTransition label={trans.label} sub={trans.sub} onDone={() => setTrans(null)} />;
+
   if (!started) return <Title scene={scene} onBegin={() => setStarted(true)} />;
-  if (battle) return <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />;
-  if (screen === 'story') {
-    return <StoryMenu scene={scene} onBack={() => setScreen('menu')}
-      onPlay={(cfg, meta) => setBattle({ cfg, meta })} />;
+  if (battle) {
+    return <>
+      <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />
+      {overlay}
+    </>;
   }
-  return <MainMenu scene={scene} onStory={() => setScreen('story')} onFreePlay={() => setBattle({ cfg: SANDBOX })} />;
+  if (screen === 'story') {
+    return <>{<StoryMenu scene={scene} onBack={() => setScreen('menu')} onPlay={play} />}{overlay}</>;
+  }
+  if (screen === 'freeplay') {
+    return <>{<FreePlaySetup scene={scene} onBack={() => setScreen('menu')} onBegin={(cfg) => play(cfg)} />}{overlay}</>;
+  }
+  if (screen === 'decks') {
+    return <DecksScreen scene={scene} onBack={() => setScreen('menu')} />;
+  }
+  return <MainMenu scene={scene} onStory={() => setScreen('story')}
+    onFreePlay={() => setScreen('freeplay')} onDecks={() => setScreen('decks')} />;
 }

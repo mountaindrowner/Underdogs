@@ -17,6 +17,8 @@ export interface MatchConfig {
   playerLeader?: string; enemyLeader?: string;
   startUnits?: [string[], string[]];
   heroHp?: [number, number];
+  /** AI skill: 0 novice, 1 faithful, 2 valiant (default) */
+  difficulty?: 0 | 1 | 2;
 }
 
 export const encounters: Encounter[] =

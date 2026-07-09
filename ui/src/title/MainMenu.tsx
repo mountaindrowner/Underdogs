@@ -11,24 +11,25 @@ const RIBBON: [string, number][] = [
   ['#334769', 1.2], ['#584158', 0.9], ['#9c5636', 1.0],
 ];
 
-type Act = 'story' | 'freeplay' | 'soon';
+type Act = 'story' | 'freeplay' | 'decks' | 'soon';
 interface Item { key: string; gem: string; sub: string; act: Act; soon?: boolean }
 
 const ITEMS: Item[] = [
   { key: 'Story', gem: '#c8322a', sub: 'The Long Way Round — Eden to the ends of the earth.', act: 'story' },
-  { key: 'Free Play', gem: '#2f8f9a', sub: 'The Sparring Pit — no stakes. Still giants.', act: 'freeplay' },
-  { key: 'Collection', gem: '#eec13a', sub: 'The Armory — five smooth stones and change.', act: 'soon' },
+  { key: 'Free Play', gem: '#2f8f9a', sub: 'The Sparring Pit — pick a war-band, pick a fight.', act: 'freeplay' },
+  { key: 'Decks', gem: '#eec13a', sub: 'The Armory — war-bands, cards, and the forge.', act: 'decks' },
   { key: 'Packs', gem: '#3a9a54', sub: 'The Storehouse — store up for the lean years.', act: 'soon' },
   { key: 'Settings', gem: '#7e46b8', sub: 'Tent pegs & knobs.', act: 'soon' },
   { key: 'Path of the Faithful', gem: '#8a8474', sub: 'The wilderness awaits.', act: 'soon', soon: true },
 ];
 
-export function MainMenu({ scene, onStory, onFreePlay }:
-  { scene: SceneId; onStory: () => void; onFreePlay: () => void }) {
+export function MainMenu({ scene, onStory, onFreePlay, onDecks }:
+  { scene: SceneId; onStory: () => void; onFreePlay: () => void; onDecks: () => void }) {
   const [toast, setToast] = useState('');
   const click = (it: Item) => {
     if (it.act === 'story') onStory();
     else if (it.act === 'freeplay') onFreePlay();
+    else if (it.act === 'decks') onDecks();
     else { setToast(`${it.key} — coming soon`); setTimeout(() => setToast(''), 1700); }
   };
   return (

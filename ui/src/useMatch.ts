@@ -82,10 +82,10 @@ export function useMatch(cfg: MatchConfig) {
       return () => clearTimeout(t);
     }
     if (engine.phase === 'main' && engine.active === 1) {
-      const t = setTimeout(() => dispatch(pickAction(engine)), 420);
+      const t = setTimeout(() => dispatch(pickAction(engine, cfg.difficulty ?? 2)), 420);
       return () => clearTimeout(t);
     }
-  }, [engine, busy, dispatch]);
+  }, [engine, busy, dispatch, cfg.difficulty]);
 
   const canAct = !!engine && !busy && engine.phase === 'main' && engine.active === 0;
   const inMulligan = !!engine && engine.phase === 'mulligan' && engine.active === 0;

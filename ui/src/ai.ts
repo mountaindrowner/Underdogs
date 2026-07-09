@@ -78,16 +78,34 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   return acts;
 }
 
-export function pickAction(state: GameState): Action {
+/** AI difficulty: 2 = Valiant (always the best line), 1 = Faithful (may take
+ *  the second-best line when it's close), 0 = Novice (picks loosely among the
+ *  decent lines). Deterministic — the "noise" is hashed from the state, never
+ *  Math.random, so seeded games stay reproducible. */
+export type AiLevel = 0 | 1 | 2;
+
+function stateHash(s: GameState, me: PlayerId): number {
+  const p = s.players[me], f = s.players[(me ^ 1) as PlayerId];
+  return (s.turn * 7919 + p.hand.length * 131 + p.board.length * 17 + f.board.length * 29 + p.provision * 3) >>> 0;
+}
+
+export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const me = state.active;
   const pass: Action = { type: 'END_TURN' };
   // baseline: the value of simply ending the turn now
-  let best: Action = pass;
-  let bestScore = evaluate(applyAction(state, pass).state, me);
+  const passScore = evaluate(applyAction(state, pass).state, me);
 
+  const scored: { a: Action; sc: number }[] = [];
   for (const a of legalActions(state, me)) {
     const sc = evaluate(applyAction(state, a).state, me);
-    if (sc > bestScore + 1e-6) { bestScore = sc; best = a; }
+    if (sc > passScore + 1e-6) scored.push({ a, sc });
   }
-  return best;
+  if (!scored.length) return pass;
+  scored.sort((x, y) => y.sc - x.sc);
+
+  if (level >= 2) return scored[0].a;
+  const margin = level === 1 ? 1.5 : 4;
+  const k = level === 1 ? 2 : 3;
+  const pool = scored.filter((x) => x.sc >= scored[0].sc - margin).slice(0, k);
+  return pool[stateHash(state, me) % pool.length].a;
 }
