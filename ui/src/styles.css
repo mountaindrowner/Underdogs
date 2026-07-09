@@ -17,10 +17,14 @@
 *{margin:0;box-sizing:border-box}
 body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   -webkit-user-select:none;user-select:none;touch-action:none}
-.app{height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center;gap:8px;
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
   padding:8px calc(8px + var(--safe-r)) calc(8px + var(--safe-b)) calc(8px + var(--safe-l))}
 
-.topbar{width:min(1180px,97vw);display:flex;justify-content:space-between;align-items:center;flex:0 0 auto}
+.topbar{width:min(1520px,97.5vw);display:flex;justify-content:space-between;align-items:center;flex:0 0 auto}
+/* any bare topbar button (mulligan / intro "Menu") gets the gold treatment */
+.topbar>button{font-family:var(--serif);background:linear-gradient(180deg,#f6da8c,#a9791f);border:2px solid #4d3510;
+  border-radius:8px;font-weight:700;color:#2a1806;padding:5px 14px;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.5)}
+.topbar>button:hover{filter:brightness(1.08)}
 .brand{font-size:23px;font-weight:800;letter-spacing:3px;color:var(--gold-br);text-shadow:0 2px 4px #000}
 .brand span{font-size:13px;letter-spacing:2px;color:#b79a5e;font-weight:400}
 .controls{display:flex;gap:10px;align-items:center}
@@ -42,7 +46,12 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .volSlider{width:74px;height:16px;cursor:pointer;accent-color:var(--gold-br)}
 
 /* ===================== the table (fixed layer stack) ===================== */
-.table{position:relative;width:min(1180px,97vw);aspect-ratio:16/9;max-height:80vh;
+/* The table sizes from the viewport: as tall as the window allows, 16:9,
+   never wider than the screen. Big monitors get a genuinely bigger board
+   (element sizes scale up in the large-screen MQ below) instead of a small
+   framed board floating in dead space. */
+.table{position:relative;width:auto;height:calc(100dvh - 60px);max-height:calc(97.5vw * 9 / 16);
+  aspect-ratio:16/9;max-width:97.5vw;
   border-radius:20px;overflow:hidden;box-shadow:0 26px 64px rgba(0,0,0,.75)}
 
 /* L0 — backdrop: the only layer that changes per chapter */
@@ -393,7 +402,8 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .mulScrim{position:absolute;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(120% 90% at 50% 34%,rgba(14,11,8,.42) 0%,rgba(12,9,7,.72) 58%,rgba(8,6,5,.9) 100%)}
 .mulliganApp .topbar{position:relative;z-index:2}
-.mulligan{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:5vh}
+.mulligan{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:24px;margin-top:0;padding-bottom:4vh;width:100%}
 .mulligan h2{text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .mulligan h2{font-size:22px;color:#e9d9b0;letter-spacing:1px}
 .mulHand{display:flex;gap:26px}
@@ -475,6 +485,53 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 @keyframes previewIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:translateX(0)}}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 
+/* ===================== large screens (desktop) =====================
+   The table already grows to fill the window; here the pieces on it grow to
+   match (~1.17x) so a big monitor feels furnished, not sparse. */
+@media (min-width:1280px) and (min-height:740px){
+  .minion{width:112px;height:148px}
+  .minion .atk,.minion .hp{width:34px;height:34px;font-size:18px;bottom:-7px}
+  .minion .atk{left:-7px}.minion .hp{right:-7px}
+  .minion .nameband{font-size:10.5px;bottom:26px}
+  .minion .kw{font-size:7.5px;bottom:12px}
+  .boardRow{height:176px;gap:10px}
+  .boardRow.enemy{left:46px;right:248px}
+  .boardRow.you{left:248px;right:46px}
+  .tray{height:176px}
+
+  .corner{width:232px;height:188px}
+  .corner .hero{width:102px;height:102px}
+  .hero .hpbadge{width:40px;height:40px;font-size:20px}
+  .youCorner .cornerMeta{left:112px}.foeCorner .cornerMeta{right:112px}
+  .namep{font-size:12px}
+  .provRail{max-width:116px}.provRail .drop{width:15px;height:18px}.provNum{font-size:11px}
+  .deck{width:68px;height:104px}
+  .deckStack{width:64px;height:94px}.deckStack img{width:64px;height:94px}
+  .deckCount{font-size:25px}
+  .deckReadout{bottom:100px}.foeCorner .deckReadout{top:100px}
+  .hpower{width:66px;height:66px}.hpGlyph{font-size:23px}.hpLabel{font-size:8.5px;max-width:60px}
+  .foeHand img{width:38px;margin-left:-18px}
+
+  .handTray{height:152px;left:248px;right:210px;bottom:16px}
+  .handcard{width:106px;height:146px;margin:0 -16px}
+  .hcCost{width:30px;height:30px;font-size:17px}
+  .hcAtk,.hcHp{width:30px;height:30px;font-size:16px}
+  .hcName{font-size:10px;bottom:17px}
+  .ghost{width:120px;height:164px}
+
+  .endturn{width:90px;height:90px;font-size:16px;right:18px;bottom:30px}
+  .banner{font-size:30px}
+  .preview{top:90px}
+
+  /* mulligan grows with the room */
+  .mulligan h2{font-size:26px}
+  .mulHand{gap:32px}
+  .mulCard .handcard.big{width:176px;height:242px}
+  .mulCard .handcard.big .hcCost{width:36px;height:36px;font-size:20px}
+  .mulCard .handcard.big .hcName{font-size:13.5px;bottom:34px}
+  .mulCard .handcard.big .hcAtk,.mulCard .handcard.big .hcHp{width:36px;height:36px;font-size:19px}
+}
+
 /* ===================== compact mobile landscape (phone) =====================
    Phones in landscape are wide + short with browser chrome eating height, so
    the framed 16:9 board wastes space and the cards overlap. Here we fill the
@@ -508,40 +565,76 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .boardRow.enemy{top:30px;left:96px;right:104px}
   .boardRow.you{bottom:100px;left:104px;right:96px}
 
-  /* compact hero corners */
-  .corner{width:100px;height:90px}
-  .youCorner{left:4px;bottom:2px}.foeCorner{right:4px;top:30px}
-  .corner .hero{width:54px;height:54px}
-  .youCorner .hero{left:2px;top:2px}.foeCorner .hero{right:2px;top:2px}
-  .hero .hpbadge{width:24px;height:24px;font-size:12px;bottom:-3px;right:-4px}
-  .youCorner .cornerMeta{left:58px;top:4px}.foeCorner .cornerMeta{right:58px;top:4px}
-  .namep{font-size:8px;letter-spacing:1px}
-  .provRail{max-width:70px;gap:2px}.provRail .drop{width:9px;height:11px}.provNum{font-size:8px}
-  .deck{width:40px;height:60px}.youCorner .deck{right:2px;bottom:2px}.foeCorner .deck{left:2px;bottom:2px}
-  .deckStack{width:38px;height:56px}.deckStack img{width:38px;height:56px}.deckCount{font-size:15px}
-  .deckReadout{font-size:11px;bottom:60px}.foeCorner .deckReadout{top:60px}
-  .hpower{width:42px;height:42px;left:2px;bottom:2px}.hpGlyph{font-size:15px}
-  .hpLabel{font-size:6px}.hpower .hpCost{width:17px;height:17px;font-size:10px}
+  /* compact hero corners: portrait column + a second column (hero power /
+     deck) so nothing overlaps in the short strip beside the hand */
+  .corner{width:100px;height:96px}
+  .youCorner{left:8px;bottom:4px}.foeCorner{right:10px;top:30px}
+  .corner .hero{width:48px;height:48px}
+  .youCorner .hero{left:0;top:0}.foeCorner .hero{right:0;top:0}
+  .hero .hpbadge{width:22px;height:22px;font-size:11px;bottom:-3px;right:-2px}
+  .youCorner .cornerMeta{left:0;top:52px}.foeCorner .cornerMeta{right:0;top:52px}
+  .namep{display:none}
+  .provRail{max-width:100px;gap:2px}.provRail .drop{width:9px;height:11px}.provNum{font-size:8px}
+  .deck{width:40px;height:54px}
+  .youCorner .deck{right:auto;left:52px;bottom:0}
+  .foeCorner .deck{left:auto;right:52px;top:0;bottom:auto}
+  .deckStack{width:36px;height:48px}.deckStack img{width:36px;height:48px}.deckCount{font-size:14px}
+  .deckReadout{font-size:11px;bottom:56px}.foeCorner .deckReadout{top:56px}
+  .hpower{width:38px;height:38px;left:52px;top:0;bottom:auto}.hpGlyph{font-size:14px}
+  .hpLabel{display:none}.hpower .hpCost{width:16px;height:16px;font-size:9px}
 
   /* opponent facedown hand + decks */
   .foeHand{top:24px}.foeHand img{width:24px;margin-left:-12px}
 
-  /* hand: full-width strip at the very bottom, smaller cards */
-  .handTray{left:108px;right:88px;bottom:4px;height:90px}
-  .handcard{width:66px;height:90px;margin:0 -10px}
-  .handcard.playable:hover,.handcard.selected{transform:translateY(-18px) scale(1.16)}
-  .hcCost{width:22px;height:22px;font-size:12px}
-  .hcAtk,.hcHp{width:22px;height:22px;font-size:12px}
-  .hcName{font-size:7px;bottom:12px}
+  /* hand: full-width strip at the very bottom, smaller cards (orbs overhang
+     5px below the card, so leave 8px under the tray or they clip offscreen) */
+  .handTray{left:108px;right:88px;bottom:8px;height:86px}
+  .handcard{width:62px;height:84px;margin:0 -9px}
+  .handcard.playable:hover,.handcard.selected{transform:translateY(-16px) scale(1.16)}
+  .hcCost{width:20px;height:20px;font-size:11px}
+  .hcAtk,.hcHp{width:20px;height:20px;font-size:11px}
+  .hcName{font-size:6.5px;bottom:11px}
 
   .endturn{width:60px;height:60px;font-size:11px;right:8px;bottom:16px}
 
-  /* the reader shrinks and tucks under the top bar */
-  .preview{top:34px;right:4px;transform:scale(.62);transform-origin:top right}
+  /* the reader shrinks and moves top-LEFT so it never covers the rival hero
+     (the common case is reading a card mid-drag, which happens on the right) */
+  .preview{top:30px;right:auto;left:4px;transform:scale(.56);transform-origin:top left}
 
   /* perf: thin out ambient effects on phones (halve particles, drop the
      spinning god-rays and the targeting blur — cheap wins for lower-end GPUs) */
   .board-motes span:nth-child(2n),.coat .dust span:nth-child(2n),.embers span:nth-child(2n){display:none}
   .rays{animation:none}
   .table.aiming .boardScene{filter:none}
+
+  /* mulligan: fits with room to spare on short phones */
+  .mulligan{gap:12px;padding-top:26px;padding-bottom:0}
+  .mulligan h2{font-size:16px}
+  .mulHand{gap:18px}
+  .mulCard .handcard.big{width:132px;height:182px}
+  .mulCard .handcard.big .hcCost{width:28px;height:28px;font-size:15px}
+  .mulCard .handcard.big .hcName{font-size:10.5px;bottom:26px}
+  .mulCard .handcard.big .hcAtk,.mulCard .handcard.big .hcHp{width:28px;height:28px;font-size:14px}
+  .mulTag{bottom:-18px;font-size:10px}
+  .bigbtn{font-size:14px;padding:8px 24px}
+
+  /* story menu: one horizontally-scrollable shelf of smaller chapters
+     (the overlay topbar's centered brand would collide with the title) */
+  .storyMenu .brand{display:none}
+  .menu{margin-top:34px;gap:6px;width:100vw}
+  .menuTitle{font-size:19px}
+  .chapters{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:12px;
+    width:100%;padding:6px 16px 14px;scrollbar-width:thin}
+  .chapter{width:168px;height:232px;flex:0 0 auto}
+  .chNo{font-size:9px;top:7px;left:9px}
+  .chTitle{font-size:15px;bottom:34px;left:9px;right:9px}
+  .chSub{font-size:11px;bottom:17px;left:9px;right:9px}
+  .chLock{font-size:12px}
+
+  /* chapter intro: compact so art + narrative + button all fit */
+  .intro{margin-top:0;gap:7px;width:min(640px,92vw)}
+  .introArt{height:104px}
+  .intro h1{font-size:19px;margin-top:-26px}
+  .intro .narr{font-size:12px;line-height:1.35}
+  .intro .tip{font-size:11px;line-height:1.3;padding:5px 10px}
 }
