@@ -6,7 +6,7 @@ import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
 import { FreePlaySetup } from './FreePlay.tsx';
 import { DecksScreen } from './Decks.tsx';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import { effAttack, effCost, hasKeyword, needsExplicitTarget, type CardDef } from '../../engine/src/index.ts';
+import { effAttack, effCost, hasKeyword, needsExplicitTarget, type CardDef, type Action, type PendingChoice } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
@@ -139,6 +139,68 @@ function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children,
   );
 }
 
+// A small face used inside the choice overlay (same frame as the mulligan cards).
+function ChoiceFace({ c }: { c: CardDef }) {
+  const art = artUrl(c.id);
+  return (
+    <div className={`handcard big r-${c.rarity ?? 'common'}`}>
+      <div className="hcInner"><div className="hcFace">
+        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcName">{c.name}</div>
+      </div></div>
+      <div className="hcCost">{c.cost ?? 0}</div>
+      {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
+    </div>
+  );
+}
+
+// Foresee / Discover choice overlay. Foresee: tap cards to send them to the
+// bottom (the rest stay on top in order). Discover: tap to pick exactly N.
+function ChoiceOverlay({ choice, onResolve }: { choice: PendingChoice; onResolve: (a: Action) => void }) {
+  const cards = choice.cardIds.map((id) => registry.get(id)).filter(Boolean) as CardDef[];
+  const foresee = choice.kind === 'foresee';
+  const [bottomed, setBottomed] = useState<Set<number>>(new Set());
+  const [picked, setPicked] = useState<Set<number>>(new Set());
+  const toggle = (i: number) => {
+    if (foresee) setBottomed((s) => { const n = new Set(s); n.has(i) ? n.delete(i) : n.add(i); return n; });
+    else setPicked((s) => { const n = new Set(s); if (n.has(i)) n.delete(i); else if (n.size < choice.pick) n.add(i); return n; });
+  };
+  const confirm = () => onResolve(foresee
+    ? { type: 'RESOLVE_CHOICE', keep: cards.map((_, i) => i).filter((i) => !bottomed.has(i)), bottom: [...bottomed] }
+    : { type: 'RESOLVE_CHOICE', picked: [...picked] });
+  const ready = foresee || picked.size === choice.pick;
+  // running "TOP n" numbering for the kept cards
+  let topN = 0;
+  return (
+    <div className="overlay choiceOverlay" onPointerDown={(e) => e.stopPropagation()}>
+      <div className="choiceHead">{foresee ? 'Foresee' : 'Discover'}</div>
+      <div className="choiceSub">
+        {foresee
+          ? 'Tap a card to send it to the bottom of your deck. The rest stay on top, in this order.'
+          : `Choose ${choice.pick} to take into your hand.`}
+      </div>
+      <div className="choiceRow">
+        {cards.map((c, i) => {
+          const bottom = foresee && bottomed.has(i);
+          const sel = !foresee && picked.has(i);
+          if (foresee && !bottom) topN += 1;
+          return (
+            <div key={i} className={`choiceCard${bottom ? ' bottomed' : ''}${sel ? ' picked' : ''}`} onClick={() => toggle(i)}>
+              <ChoiceFace c={c} />
+              <div className="choiceTag">
+                {foresee ? (bottom ? '↓ BOTTOM' : `TOP ${topN}`) : (sel ? '✓ KEEP' : 'TAP TO KEEP')}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <button className="bigbtn" disabled={!ready} onClick={confirm}>
+        {foresee ? 'Set the Order' : `Take ${picked.size}/${choice.pick}`}
+      </button>
+    </div>
+  );
+}
+
 // optional ?scene= override lets any board scene be previewed in free play
 const sceneOverride = typeof location !== 'undefined'
   ? (new URLSearchParams(location.search).get('scene') ?? undefined) : undefined;
@@ -149,7 +211,7 @@ const BOARD_LABEL: Record<BoardStyle, string> = { relief: 'Carved Stone', timber
 
 // ---- battle ----------------------------------------------------------------
 function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onExit: () => void }) {
-  const { engine, view, busy, canAct, inMulligan, dispatch, newGame } = useMatch(cfg);
+  const { engine, view, busy, canAct, inMulligan, choice, dispatch, newGame } = useMatch(cfg);
   const [act, setAct] = useState<Act | null>(null);
   const [hover, setHover] = useState<CardDef | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
@@ -491,6 +553,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         {/* L6 — announcements / overlays */}
         {view.banner && !over && <div className="banner" key={view.banner}>{view.banner}</div>}
         {busy && engine.active === 1 && <div className="thinking">the Adversary ponders…</div>}
+        {choice && !over && <ChoiceOverlay choice={choice} onResolve={(a) => { sfx.play('select'); dispatch(a); }} />}
         {over && (
           <div className="overlay" onPointerDown={(e) => e.stopPropagation()}>
             <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>

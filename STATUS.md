@@ -2,15 +2,31 @@
 
 > **Read this before starting any work.** `CLAUDE.md` is the *constitution* (laws + canon that never change). This file is the *state of the union* — what is built, what is half-built, what is not built, and the traps that will bite you. When this file and reality disagree, **fix this file in the same commit.** A stale STATUS is worse than none.
 >
-> Last verified: **2026-07-10** (commit after "Card-effects audit + engine buildout"). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
+> Last verified: **2026-07-10** (after interactive Foresee/Discover shipped). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
 
 ---
 
 ## 30-second summary
 
-UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 167 card definitions all execute what their text says (verified by an audit). The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, iOS wrapper, and the interactive Foresee/Discover UI are NOT built yet.** No backend, no network, everything on-device — by design.
+UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 167 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 23 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 28 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+
+---
+
+## Keeping the docs honest (do this every change — it's cheap)
+
+Minimal but non-negotiable. Match the change to the file(s), touch **only** those, in the **same commit**:
+
+| If you changed… | Update |
+|---|---|
+| Anything the player can now do / can't yet do | **STATUS.md** (the What-works / What's-not / footguns lists) |
+| An engine capability (verb, trigger, target, keyword, condition) | the matching Set in **`tools/audit-cards.ts`** + **CLAUDE.md §8** verb list |
+| A rule of canon, a Law, a locked number | **CLAUDE.md** (and log the *why* in **docs/06-decisions-log.md**) |
+| A design decision or resolved open question | **docs/06-decisions-log.md** (new D-## on top; strike the resolved Q) |
+| Run/verify commands, counts, file map | **README.md** + **STATUS.md** |
+
+Rule of thumb: **if a fact in a doc is now false, fixing it is part of the change, not a follow-up.** When counts change, re-run [§ How to verify](#how-to-verify) and update the numbers here. Don't gold-plate — a one-line edit that keeps a fact true beats a paragraph.
 
 ---
 
@@ -19,7 +35,7 @@ UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 23, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 28, # fail 0
 node --test engine/test/*.test.ts
 
 # 2. Card-data audit  → expect: "all 167 definitions check out (3 deferred)"
@@ -89,7 +105,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - `createGame(cfg) → {state, events}` and `applyAction(state, action) → {state, events}`, a **pure, seeded, deterministic** reducer. Same seed + actions → identical state & events (tested).
 - Turn structure: Dawn (ready, +Provision, start triggers, draw) → Main → Dusk (end triggers). Provision 1→10. Fatigue. Board limit 7, hand limit 10, 30-card decks, mulligan.
 - Combat: attacks, Guard redirection, counter-damage, Giant-Slayer, Jael's "finisher" (executes damaged), win at 0 HP.
-- **Every implemented effect verb** (source of truth = the `VERBS`/`TRIGGERS`/`TARGETS` sets in `tools/audit-cards.ts`): deal, heal(Unit/Hero), buff, setAttack, giveKeyword, silence, destroy, exile, summon, draw, drawType, transform, foresee\*, discover\*, returnToHand, shuffleIntoDeck, delayedTransform, conditionalDeal, gainForEachSheep, discoverFromDeck\*, onHealBonus, discountHand, returnFromDiscard, auraBuff.
+- **Every implemented effect verb** (source of truth = the `VERBS`/`TRIGGERS`/`TARGETS` sets in `tools/audit-cards.ts`): deal, heal(Unit/Hero), buff, setAttack, giveKeyword, silence, destroy, exile, summon, draw, drawType, transform, foresee, discover, returnToHand, shuffleIntoDeck, delayedTransform, conditionalDeal, gainForEachSheep, discoverFromDeck, onHealBonus, discountHand, returnFromDiscard, auraBuff.
 - **Triggers:** arrival, legacy, redeem, covenant, scatter, aura, startOfTurn, endOfTurn, onDeath (+replaceDeath), raise, trigger (listeners), passive.
 - **Auras** (attack + health + granted keywords, with conditions & tribe filters), **standing relics** (persist, tick, render as chips), the **graveyard** (fallen-ally records powering Raise / returnFromDiscard), **Fulfill** transformations incl. the automatic Saul→Paul grace beat.
 - **Keyword vocabulary is closed** (guard, swift, endure, giant_slayer, redeem, scatter + marker labels foresee/covenant/raise + executes_damaged). Do not invent new keywords without human sign-off (Law-adjacent; CLAUDE.md §5).
@@ -101,6 +117,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 ### UI / game shell — a full loop
 - Title → Main Menu → **Story** (4 chapters, progress-gated) / **Free Play** (war-band + AI difficulty) / **Decks** (browse, collection gallery, forge custom decks).
 - A match: mulligan on the battlefield → **match-start "doors" transition** → play cards (tap-or-drag), attack, hero power, End Turn → victory/defeat.
+- **Interactive Foresee** (reveal the top X; tap to bottom, the rest stay on top in order) and **Discover** (reveal N, keep K into hand) via a choice overlay. The human pauses for the choice; the AI auto-resolves inline (determinism preserved).
 - Event-sourced animation: lunge, impact, floating damage, summon, death-fade, Fulfill burst, Endure shimmer, aura stat glow.
 - **Responsive:** desktop fills the screen with scaled pieces; mobile-landscape has a dedicated compact layout.
 - **Tooltips** on every in-game control (hover on desktop, press-hold on touch).
@@ -120,7 +137,6 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 
 ## What's PARTIAL or STUBBED
 
-- **Foresee / Discover have NO interactive UI.** ⚠️ The engine emits `foresee`/`discover` events but does **not** actually let the player look at / reorder / pick cards — it's a cosmetic no-op. Cards that say "Foresee 2" or "Discover" currently do nothing meaningful. This touches the Prophet class identity — **high-priority gap.**
 - **Main-menu SOON stubs:** **Packs**, **Settings**, **Path of the Faithful** show a "coming soon" toast — not built.
 - **In-game board scenes** (`board/`) are intentionally dim/desaturated behind the cards; they are functional but low-fidelity procedural art (a known aesthetic trade-off vs. the AI-painted cards).
 - **4 deferred adversary abilities** (tracked in `tools/audit-cards.ts` DEFERRED set): Pharaoh's Magician (needs a Serpent token), Pharaoh the Hardened (attack-prevention), Sanballat & Tobiah (relic-cost tax), Leviathan (spell immunity). They play as vanilla bodies until built.
@@ -165,12 +181,11 @@ Measured against `CLAUDE.md` and the design docs:
 ## Suggested next moves (not commitments — for whoever picks this up)
 
 Ranked by "makes the game more complete per its own canon":
-1. **Interactive Foresee/Discover UI** — closes a real mechanical hole and restores the Prophet class fantasy. (Engine already emits the events; needs a choice overlay + the actual deck reorder / card add.)
-2. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
-3. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
-4. **Settings screen** + the 3 remaining SOON stubs.
-5. **iOS/Capacitor wrapper** once the web build is content-complete.
-6. The 4 deferred adversary mechanics (each needs one small engine capability).
+1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
+2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
+3. **Settings screen** + the 3 remaining SOON stubs (Packs, Settings, Path of the Faithful).
+4. **iOS/Capacitor wrapper** once the web build is content-complete.
+5. The 4 deferred adversary mechanics (each needs one small engine capability).
 
 ---
 

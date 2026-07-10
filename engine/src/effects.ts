@@ -41,8 +41,12 @@ export interface Ctx {
   destroy(u: UnitInstance): void;
   transform(u: UnitInstance, intoDefId: string): void;
   exileUnit(u: UnitInstance): void;
-  foresee(p: PlayerId, count: number): void;
-  discover(p: PlayerId, count: number): void;
+  /** Foresee X: reveal the top X of the deck to reorder/bottom. Pauses for the
+   *  interactive player (sets state.pending); auto-resolves inline otherwise. */
+  foreseeChoice(count: number, source?: UnitInstance, targetUid?: number): void;
+  /** Discover: reveal `count` from the top of the deck, keep `keep` into hand.
+   *  Pauses for the interactive player; auto-keeps the first `keep` otherwise. */
+  discoverChoice(count: number, keep: number, source?: UnitInstance, targetUid?: number): void;
   addToHand(p: PlayerId, defId: string): void;
   returnUnitToHand(u: UnitInstance): void;
   shuffleUnitIntoDeck(u: UnitInstance): void;
@@ -296,8 +300,8 @@ export function applyEffect(
         op.count ?? op.amount ?? 1, op.random);
       break;
     case 'discoverFromDeck':
-      // v1 approximation of "Discover; keep N": N random cards from your deck
-      ctx.drawRandom(ctx.controller, op.keep ?? 2);
+      // reveal `count` from the deck, keep `keep` (Solomon: 3 → keep 2)
+      ctx.discoverChoice(op.count ?? 3, op.keep ?? 2, source, explicitTargetUid);
       break;
     case 'transform':
       if (op.into && source) ctx.transform(source, op.into);
@@ -306,14 +310,17 @@ export function applyEffect(
       if (op.into) ctx.queueDelayedReturn(ctx.controller, op.into, op.delayTurns ?? 2);
       break;
     case 'foresee': {
-      ctx.foresee(ctx.controller, op.value ?? op.amount ?? op.count ?? 2);
+      // Thomas's rider resolves before the reveal (the top card is about to be
+      // reordered): if the top is Legendary, draw it now.
       if (op.drawIfLegendary && ctx.peekTopOfDeck(ctx.controller)?.rarity === 'legendary') {
         ctx.draw(ctx.controller, 1);
       }
+      ctx.foreseeChoice(op.value ?? op.amount ?? op.count ?? 2, source, explicitTargetUid);
       break;
     }
     case 'discover':
-      ctx.discover(ctx.controller, op.count ?? 3);
+      // raw "choose 1 of 3 from your deck" (no collectible card uses this yet)
+      ctx.discoverChoice(op.count ?? 3, 1, source, explicitTargetUid);
       break;
     case 'returnToHand':
       if (op.oncePerGame && source && !ctx.onceGate(source.owner, `${source.defId}:returnToHand`)) break;
@@ -353,7 +360,8 @@ export function runTrigger(
 ): void {
   if (!effects) return;
   const memo: Memo = {};
-  for (const op of effects) {
+  for (let i = 0; i < effects.length; i++) {
+    const op = effects[i];
     const listenKey = op.trigger ?? op.on;
     if (filter ? listenKey !== filter : listenKey != null) continue;
     if (op.delayToNextTurn && source && filter) {
@@ -362,5 +370,11 @@ export function runTrigger(
       continue;
     }
     applyEffect(ctx, op, source, explicitTargetUid, memo);
+    // an interactive Foresee/Discover opened: suspend, stashing the rest to
+    // run when the player resolves it (e.g. Elisha's heal after the Foresee).
+    if (ctx.state.pending && ctx.state.pending.resume.length === 0) {
+      ctx.state.pending.resume = effects.slice(i + 1);
+      return;
+    }
   }
 }

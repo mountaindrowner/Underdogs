@@ -26,6 +26,9 @@ export interface GameConfig {
   startUnits?: [string[], string[]];
   /** Per-hero HP overrides (campaign encounters). */
   heroHp?: [number, number];
+  /** Which player pauses for interactive Foresee/Discover (the human). Omit
+   *  for headless/AI-vs-AI: all choices auto-resolve inline, no pauses. */
+  interactivePlayer?: PlayerId;
 }
 
 const other = (p: PlayerId): PlayerId => (p === 0 ? 1 : 0);
@@ -89,7 +92,9 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
     players: [mkPlayer(0, cfg.decks[0], cfg.leaders?.[0]),
               mkPlayer(1, cfg.decks[1], cfg.leaders?.[1])],
     active: 0, turn: 0, phase: 'mulligan', rngState: rng.state,
-    nextUid: 1, winner: null, rules,
+    nextUid: 1, winner: null,
+    pending: null, interactivePlayer: cfg.interactivePlayer ?? null,
+    rules,
   };
   // per-hero HP overrides (campaign)
   if (cfg.heroHp) {
@@ -144,11 +149,14 @@ export function applyAction(prev: GameState, action: Action): { state: GameState
 
 function dispatch(state: GameState, sink: EventSink, rng: Rng, action: Action): void {
   if (state.phase === 'over') return;
+  // RESOLVE_CHOICE is the only legal action while a choice is pending.
+  if (state.pending && action.type !== 'RESOLVE_CHOICE') return;
   switch (action.type) {
     case 'MULLIGAN': return doMulligan(state, sink, rng, action.keep);
     case 'PLAY_CARD': return playCard(state, sink, rng, action.handIndex, action.targetUid, action.position);
     case 'ATTACK': return attack(state, sink, rng, action.attackerUid, action.targetUid);
     case 'HERO_POWER': return heroPower(state, sink, rng, action.targetUid);
+    case 'RESOLVE_CHOICE': return resolveChoice(state, sink, rng, action);
     case 'END_TURN': return endTurn(state, sink, rng);
   }
 }
@@ -291,6 +299,7 @@ function playCard(state: GameState, sink: EventSink, rng: Rng, handIndex: number
     runTrigger(ctx, card.effects?.arrival, undefined, targetUid);
     pl.discard.push(card);
   }
+  if (state.pending) return;              // a Foresee/Discover is waiting — settle on resolve
   settle(state, sink, rng, p);
 }
 
@@ -306,6 +315,7 @@ function heroPower(state: GameState, sink: EventSink, rng: Rng, targetUid?: numb
   sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);
   runTrigger(ctx, hp.effects, undefined, targetUid);
+  if (state.pending) return;              // Isaiah's Foresee is waiting — settle on resolve
   settle(state, sink, rng, p);
 }
 
@@ -439,8 +449,10 @@ function makeCtx(state: GameState, sink: EventSink, rng: Rng, controller: Player
     destroy: (u) => { u.health = -(u.auraHp ?? 0); },
     transform: (u, into) => transformUnit(state, sink, u, into),
     exileUnit: (u) => exileUnit(state, u),
-    foresee: (p, count) => sink.emit({ t: 'foresee', player: p, count }),
-    discover: (p, count) => sink.emit({ t: 'discover', player: p, count }),
+    foreseeChoice: (count, source, targetUid) =>
+      openChoice(state, sink, controller, 'foresee', count, 0, source, targetUid),
+    discoverChoice: (count, keep, source, targetUid) =>
+      openChoice(state, sink, controller, 'discover', count, keep, source, targetUid),
     addToHand: (p, defId) => { const def = DEFS.get(defId) ?? DEFS.get('tok_' + defId); if (def) addToHand(p, def); },
     returnUnitToHand: (u) => {
       const pl = state.players[u.owner];
@@ -522,6 +534,76 @@ function addToHandViaDraw(state: GameState, sink: EventSink, p: PlayerId, card: 
   } else {
     pl.hand.push(card); sink.emit({ t: 'draw', player: p, defId: card.id, toHandSize: pl.hand.length });
   }
+}
+
+function findUnitByUid(state: GameState, uid: number): UnitInstance | undefined {
+  for (const pl of state.players) {
+    const u = pl.board.find((x) => x.uid === uid) ?? pl.relics.find((x) => x.uid === uid);
+    if (u) return u;
+  }
+  return undefined;
+}
+
+// ---- interactive choices (Foresee / Discover) ------------------------------
+
+/** Reveal the top `count` of a player's deck. For the interactive player, set
+ *  a pending choice and stop; for everyone else, auto-resolve inline so the
+ *  engine stays fully-resolving (AI, headless, lookahead). The revealed cards
+ *  stay in the deck until resolveChoice pulls them. */
+function openChoice(state: GameState, sink: EventSink, player: PlayerId,
+                    kind: 'foresee' | 'discover', count: number, keep: number,
+                    source?: UnitInstance, targetUid?: number): void {
+  const pl = state.players[player];
+  const n = Math.min(count, pl.deck.length);
+  if (n <= 0) return;                                    // empty deck → nothing to do
+  if (state.interactivePlayer === player) {
+    state.pending = {
+      kind, player, cardIds: pl.deck.slice(0, n).map((c) => c.id),
+      pick: kind === 'discover' ? Math.min(keep, n) : 0,
+      resume: [], sourceUid: source?.uid, targetUid,
+    };
+    sink.emit(kind === 'foresee' ? { t: 'foresee', player, count: n } : { t: 'discover', player, count: n });
+    return;
+  }
+  // auto-resolve inline
+  if (kind === 'foresee') return;                        // reveal only (keep order)
+  const k = Math.min(keep, n);
+  const slice = pl.deck.splice(0, n);
+  for (let i = 0; i < k; i++) addToHandViaDraw(state, sink, player, slice[i]);
+  for (let i = k; i < n; i++) pl.deck.push(slice[i]);    // unpicked → bottom
+}
+
+/** Apply the interactive player's Foresee reorder / Discover pick, then run any
+ *  ops that were queued to run after the choice (e.g. Elisha's heal) and settle. */
+function resolveChoice(state: GameState, sink: EventSink, rng: Rng,
+                       action: { keep?: number[]; bottom?: number[]; picked?: number[] }): void {
+  const pc = state.pending;
+  if (!pc) return;
+  const pl = state.players[pc.player];
+  const n = pc.cardIds.length;
+  const slice = pl.deck.splice(0, n);                    // pull the revealed cards
+  const inRange = (i: number) => i >= 0 && i < n;
+
+  if (pc.kind === 'foresee') {
+    const bottom = new Set((action.bottom ?? []).filter(inRange));
+    const keep = (action.keep ?? []).filter((i) => inRange(i) && !bottom.has(i));
+    const mentioned = new Set([...keep, ...bottom]);
+    // kept order first, then any card the UI didn't mention (still on top)
+    const topIdx = [...keep, ...slice.map((_, i) => i).filter((i) => !mentioned.has(i))];
+    pl.deck.unshift(...topIdx.map((i) => slice[i]));
+    pl.deck.push(...[...bottom].map((i) => slice[i]));
+  } else {
+    const picked = (action.picked ?? Array.from({ length: pc.pick }, (_, i) => i)).filter(inRange);
+    const set = new Set(picked);
+    for (const i of picked) addToHandViaDraw(state, sink, pc.player, slice[i]);
+    for (let i = 0; i < n; i++) if (!set.has(i)) pl.deck.push(slice[i]);  // unpicked → bottom
+  }
+
+  const { resume, sourceUid, targetUid } = pc;
+  state.pending = null;
+  const ctx = makeCtx(state, sink, rng, pc.player);
+  runTrigger(ctx, resume, sourceUid != null ? findUnitByUid(state, sourceUid) : undefined, targetUid);
+  settle(state, sink, rng, pc.player);
 }
 
 // token/def resolution: effects reference def ids (e.g. 'tok_sheep'); the token

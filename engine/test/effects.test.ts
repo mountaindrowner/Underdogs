@@ -46,6 +46,16 @@ function act(state: GameState, a: Action): GameState {
   return applyAction(state, a).state;
 }
 
+/** rig + a known deck top + interactive-player toggle (for Foresee/Discover). */
+function rigDeck(hand: string[], top: string[], interactive = true, heroHp?: number) {
+  let s = rig(hand);
+  s = structuredClone(s);
+  s.interactivePlayer = interactive ? 0 : null;
+  s.players[0].deck = [...top.map(card), ...s.players[0].deck];
+  if (heroHp != null) s.players[0].heroHp = heroHp;
+  return s;
+}
+
 // ---------------------------------------------------------------------------
 
 test('David, the King: other allies get +1 attack (aura), not himself', () => {
@@ -157,6 +167,68 @@ test('Jael\'s Tent Peg: wielder destroys an already-damaged unit it strikes', ()
   s = act(s, { type: 'PLAY_CARD', handIndex: 0, targetUid: ben.uid });
   s = act(s, { type: 'ATTACK', attackerUid: ben.uid, targetUid: goliath.uid });
   assert.equal(s.players[1].board.length, 0, 'the peg finds the temple');
+});
+
+test('Foresee (interactive): reveals the top of the deck and lets you bottom a card', () => {
+  let s = rigDeck(['scribe_of_the_word'], ['benaiah', 'ruth']); // Foresee 2
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.ok(s.pending, 'a choice is pending');
+  assert.equal(s.pending!.kind, 'foresee');
+  assert.deepEqual(s.pending!.cardIds, ['benaiah', 'ruth'], 'shows the top 2');
+  // send index 0 (benaiah) to the bottom; ruth rises to the top
+  s = act(s, { type: 'RESOLVE_CHOICE', bottom: [0] });
+  assert.equal(s.pending, null, 'choice resolved');
+  assert.equal(s.players[0].deck[0].id, 'ruth', 'kept card is now on top');
+  assert.equal(s.players[0].deck[s.players[0].deck.length - 1].id, 'benaiah', 'bottomed card is last');
+});
+
+test('Foresee resumes the ops after it — Elisha heals AFTER you look', () => {
+  let s = rigDeck(['elisha'], ['watchman', 'ruth'], true, 25); // Foresee 2, then restore 2
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.ok(s.pending, 'paused on the Foresee');
+  assert.equal(s.players[0].heroHp, 25, 'heal has NOT happened yet');
+  s = act(s, { type: 'RESOLVE_CHOICE', keep: [0, 1] });
+  assert.equal(s.pending, null);
+  assert.equal(s.players[0].heroHp, 27, 'the heal resumed after the choice');
+});
+
+test('Discover (Solomon): reveal 3, keep 2 into hand, the third is bottomed', () => {
+  let s = rigDeck(['solomon_the_king'], ['benaiah', 'ruth', 'stephen']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.ok(s.pending, 'a choice is pending');
+  assert.equal(s.pending!.kind, 'discover');
+  assert.equal(s.pending!.cardIds.length, 3);
+  assert.equal(s.pending!.pick, 2);
+  s = act(s, { type: 'RESOLVE_CHOICE', picked: [0, 2] }); // keep benaiah + stephen
+  assert.equal(s.pending, null);
+  const hand = s.players[0].hand.map((c) => c.id);
+  assert.ok(hand.includes('benaiah') && hand.includes('stephen'), 'kept cards are in hand');
+  assert.ok(!hand.includes('ruth'), 'unpicked card is not in hand');
+  assert.equal(s.players[0].deck[s.players[0].deck.length - 1].id, 'ruth', 'unpicked → bottom');
+});
+
+test('Choices auto-resolve inline for a non-interactive player (AI / headless)', () => {
+  // Foresee: no interactive player → no pause, deck order preserved
+  let f = rigDeck(['scribe_of_the_word'], ['benaiah', 'ruth'], false);
+  f = act(f, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(f.pending, null, 'no pause without an interactive player');
+  assert.equal(f.players[0].deck[0].id, 'benaiah', 'deck untouched by auto-foresee');
+  // Discover: auto-keeps the first `keep` into hand
+  let d = rigDeck(['solomon_the_king'], ['benaiah', 'ruth', 'stephen'], false);
+  d = act(d, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(d.pending, null);
+  const hand = d.players[0].hand.map((c) => c.id);
+  assert.ok(hand.includes('benaiah') && hand.includes('ruth'), 'auto-kept the first two');
+});
+
+test('While a choice is pending, other actions are refused', () => {
+  let s = rigDeck(['scribe_of_the_word', 'watchman'], ['benaiah', 'ruth']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.ok(s.pending);
+  const before = JSON.stringify(s.players[0].board.map((u) => u.defId));
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 }); // try to play watchman mid-choice
+  assert.ok(s.pending, 'still pending — the play was ignored');
+  assert.equal(JSON.stringify(s.players[0].board.map((u) => u.defId)), before, 'board unchanged');
 });
 
 test('AI difficulty is deterministic per level', async () => {

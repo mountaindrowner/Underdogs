@@ -58,6 +58,7 @@ class Sfx {
       case 'buff': this.play('buff'); break;
       case 'setAttack': case 'silence': this.play('debuff'); break;
       case 'fulfill': this.play('notify'); break;
+      case 'foresee': case 'discover': this.play('notify'); break;
       case 'burnCard': this.play('discard'); break;
       case 'gameStart': this.play('shuffle'); break;
       case 'phase': if (e.phase === 'dawn') this.play('beginTurn'); break;

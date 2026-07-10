@@ -45,6 +45,7 @@ export function useMatch(cfg: MatchConfig) {
       startUnits: cfg.startUnits,
       heroHp: cfg.heroHp,
       skipMulligan: false,
+      interactivePlayer: 0,          // the human pauses for Foresee / Discover
     });
     feed.current = [...g.events];
     cursor.current = 0;
@@ -93,8 +94,10 @@ export function useMatch(cfg: MatchConfig) {
     }
   }, [engine, busy, dispatch, cfg.difficulty]);
 
-  const canAct = !!engine && !busy && engine.phase === 'main' && engine.active === 0;
+  // a Foresee/Discover awaiting the human (only surface it once animations catch up)
+  const choice = engine?.pending && !busy ? engine.pending : null;
+  const canAct = !!engine && !busy && !engine.pending && engine.phase === 'main' && engine.active === 0;
   const inMulligan = !!engine && engine.phase === 'mulligan' && engine.active === 0;
 
-  return { engine, view, busy, canAct, inMulligan, dispatch, newGame: () => setSeed((s) => s + 1) };
+  return { engine, view, busy, canAct, inMulligan, choice, dispatch, newGame: () => setSeed((s) => s + 1) };
 }

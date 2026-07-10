@@ -202,6 +202,25 @@ export interface PlayerState {
 
 export type Phase = 'mulligan' | 'dawn' | 'main' | 'dusk' | 'over';
 
+/** A mid-resolution player decision (Foresee reorder / Discover pick). While
+ *  one is pending, the interactive player's normal actions are blocked; they
+ *  send a RESOLVE_CHOICE action to continue. Non-interactive players (the AI)
+ *  never pause — their choices auto-resolve inline, so the engine stays a pure,
+ *  fully-resolving reducer for lookahead and AI-vs-AI. */
+export interface PendingChoice {
+  kind: 'foresee' | 'discover';
+  player: PlayerId;
+  /** the revealed cards, in current order — always the top `cardIds.length`
+   *  cards of that player's deck (they stay in the deck until resolved). */
+  cardIds: string[];
+  /** discover: how many of the revealed cards to keep (0 for foresee). */
+  pick: number;
+  /** ops still to run after the choice resolves (e.g. Elisha's heal). */
+  resume: EffectOp[];
+  sourceUid?: number;
+  targetUid?: number;
+}
+
 export interface GameState {
   players: [PlayerState, PlayerState];
   active: PlayerId;
@@ -210,6 +229,11 @@ export interface GameState {
   rngState: number;
   nextUid: number;
   winner: PlayerId | null;
+  /** an open Foresee/Discover awaiting the interactive player (else null). */
+  pending: PendingChoice | null;
+  /** which player pauses for interactive choices (the human); null = auto-resolve
+   *  all choices inline (tests, AI-vs-AI). Set by the UI to 0. */
+  interactivePlayer: PlayerId | null;
   /** Config knobs (tunable per playtest — CLAUDE.md §3). */
   rules: RuleConfig;
 }
@@ -236,4 +260,8 @@ export type Action =
   | { type: 'PLAY_CARD'; handIndex: number; targetUid?: number; position?: number }
   | { type: 'ATTACK'; attackerUid: number; targetUid: number | 'hero' }
   | { type: 'HERO_POWER'; targetUid?: number }
+  // resolve an open Foresee/Discover. Indices are into PendingChoice.cardIds.
+  //  Foresee: `keep` = indices to place on top (in the given order); `bottom` =
+  //  indices sent to the bottom. Discover: `picked` = indices taken into hand.
+  | { type: 'RESOLVE_CHOICE'; keep?: number[]; bottom?: number[]; picked?: number[] }
   | { type: 'END_TURN' };

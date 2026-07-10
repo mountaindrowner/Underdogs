@@ -586,6 +586,26 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   background:rgba(6,4,2,.66);backdrop-filter:blur(2px);animation:menuFadeIn .15s ease both}
 .peek .preview{position:static;width:auto;animation:none;pointer-events:none}
 
+/* ===================== Foresee / Discover choice overlay ===================== */
+.choiceOverlay{flex-direction:column;gap:14px;padding:24px;
+  background:radial-gradient(120% 90% at 50% 30%,rgba(20,14,30,.72),rgba(6,4,10,.9))}
+.choiceHead{font-family:'Cinzel',var(--serif);font-weight:700;font-size:26px;letter-spacing:.14em;
+  background:linear-gradient(#fff3cf,#f0c766 55%,#a86e24);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(90,50,10,.5)) drop-shadow(0 0 18px rgba(240,199,102,.35))}
+.choiceSub{font-family:'EBG',Georgia,serif;font-style:italic;font-size:14px;color:#cbb488;
+  text-align:center;max-width:520px;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.choiceRow{display:flex;gap:18px;justify-content:center;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
+.choiceCard{position:relative;cursor:pointer;transition:transform .13s ease,filter .13s ease}
+.choiceCard .handcard.big{width:150px;height:206px;margin:0;filter:none;transform:none}
+.choiceCard:hover{transform:translateY(-5px)}
+.choiceCard.bottomed{filter:grayscale(.7) brightness(.6);transform:translateY(10px)}
+.choiceCard.picked .handcard .hcInner{box-shadow:0 0 0 3px #8ef08a,0 0 22px rgba(120,240,120,.55)}
+.choiceTag{position:absolute;bottom:-22px;left:0;right:0;text-align:center;
+  font-family:'Cinzel',var(--serif);font-size:11px;font-weight:700;letter-spacing:.14em;color:#e9d9b0}
+.choiceCard.bottomed .choiceTag{color:#b98f7a}
+.choiceCard.picked .choiceTag{color:#8ef08a}
+.choiceOverlay .bigbtn{margin-top:18px}
+
 /* ===================== match-start transition (the doors) ===================== */
 .mtrans{position:fixed;inset:0;z-index:400;perspective:1400px;overflow:hidden}
 .mtDoor{position:absolute;top:0;bottom:0;width:50.5%;backface-visibility:hidden;

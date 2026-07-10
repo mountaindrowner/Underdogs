@@ -8,6 +8,7 @@
 
 | # | Decision | Notes / supersedes |
 |---|---|---|
+| D-29 | **Foresee & Discover are interactive** (were cosmetic no-ops). The engine pauses on a `PendingChoice` for the human (`interactivePlayer`) and resolves via a `RESOLVE_CHOICE` action; the AI/headless auto-resolves inline so the reducer stays fully-resolving and deterministic (AI-vs-AI + lookahead unaffected). Foresee = reveal top X, keep/bottom; Discover (Solomon) = reveal N, keep K. Ops after the choice (Elisha's heal) resume on resolution. | Closes decisions-log open-Q1. 6 regression tests; overlay screenshot-verified. `foresee`/`discover` in CLAUDE.md §8 are no longer starred no-ops. |
 | D-28 | **Fail-safe status doc: [`STATUS.md`](../STATUS.md) at the repo root.** It is the single source of truth for what's built / stubbed / missing, how to verify, and the known footguns. Rule: any commit that changes project state updates STATUS.md in the same commit. | Prevents "we forgot what we built." README + CLAUDE.md §11 point to it. |
 | D-27 | **Card data is enforced by an audit: `tools/audit-cards.ts`.** It walks every definition and fails if the data uses a trigger/verb/target/keyword/condition the engine doesn't implement. Its constant Sets ARE the contract of engine capability. `tools/soak.ts` plays AI-vs-AI across all 36 class matchups as a crash test. | Run both after any card or engine change. Caught 133 silent no-ops on first run (incl. King David's aura, all standing relics, Saul→Paul). |
 | D-26 | **Effect system built out to execute all authored card text.** Auras gained health + granted-keywords + conditions; standing relics get a real zone; new triggers (startOfTurn, endOfTurn, onDeath+replaceDeath, raise, generic listeners, passive); explicit-target aliases with side validation; a graveyard powering Raise/returnFromDiscard; Fulfill conditions incl. automatic Saul→Paul. New verbs documented in CLAUDE.md §8. | Turned the card JSON from ~26% executable to 100% (167 defs, 3 deferred). 23 regression tests. |
@@ -38,6 +39,7 @@
 | D-1 | **The Laws** (Jesus never a card; faithful-only for players; reverent VFX; received-not-won Cross beat). | Inviolable. See `CLAUDE.md` §2. |
 
 ## Resolved since the first build pass
+- ~~Interactive Foresee / Discover.~~ **Done (D-29) — real choice overlay + engine pause/resume.**
 - ~~Q1 Fill the last ~23 cards.~~ **Done — 126 collectible cards, all classes 17–21.**
 - ~~Q2 Leaders + Hero Powers.~~ **Done — 12 leaders with hero powers (`data/leaders.json`).**
 - ~~Q4 Final game name.~~ **UNDERDOGS (D-21).**
@@ -45,19 +47,17 @@
 
 ## Open questions (need a human ruling or a build pass)
 
-1. **Interactive Foresee / Discover UI.** ⚠️ The engine emits the events but there is no player-facing choice — "Foresee 2" / "Discover" currently do nothing. This guts the Prophet fantasy. Highest-priority mechanical gap (see STATUS).
-2. **Economy model** (CLAUDE.md §10): collection ownership, packs (pity + dupe protection), Talents, Fragments. None built — the Armory shows everything unlocked. Decide the unlock/ownership model before it means anything to win.
-3. **The sacred interlude** (Law 5): the received-not-won Cross/Resurrection beat. Not built. Must be a non-combat encounter type, un-gamified. Needs a design + a human sign-off on presentation.
-4. **Bible translation licensing** for the Scroll Study reader (WEB/KJV free; ESV/CSB need permission). Decide before building the reader.
-5. **Master art style-prompt + bake-off.** Card art exists, but no locked style-frame test on record (`docs/05-art-direction.md` has the master prompt). Revisit if regenerating.
-6. **The 4 deferred adversary mechanics** (audit DEFERRED set): Serpent token, attack-prevention, relic-cost tax, spell immunity. Each is one small engine capability.
-7. **First mini-set** = "The Wisdom Books"? And **rotation names** (Canon/Apocrypha vs Standard/Legacy). Future; greenlight or hold.
-8. **iOS/Capacitor wrapper** — deferred until the web build is content-complete.
+1. **Economy model** (CLAUDE.md §10): collection ownership, packs (pity + dupe protection), Talents, Fragments. None built — the Armory shows everything unlocked. Decide the unlock/ownership model before it means anything to win.
+2. **The sacred interlude** (Law 5): the received-not-won Cross/Resurrection beat. Not built. Must be a non-combat encounter type, un-gamified. Needs a design + a human sign-off on presentation.
+3. **Bible translation licensing** for the Scroll Study reader (WEB/KJV free; ESV/CSB need permission). Decide before building the reader.
+4. **Master art style-prompt + bake-off.** Card art exists, but no locked style-frame test on record (`docs/05-art-direction.md` has the master prompt). Revisit if regenerating.
+5. **The 4 deferred adversary mechanics** (audit DEFERRED set): Serpent token, attack-prevention, relic-cost tax, spell immunity. Each is one small engine capability.
+6. **First mini-set** = "The Wisdom Books"? And **rotation names** (Canon/Apocrypha vs Standard/Legacy). Future; greenlight or hold.
+7. **iOS/Capacitor wrapper** — deferred until the web build is content-complete.
 
 ## Suggested build order (updated — see STATUS "Suggested next moves")
-1. Interactive Foresee/Discover UI (Q1) — closes a real hole, restores the Prophet class.
-2. Economy v1 (Q2) — ownership + packs + Talents, so winning matters.
-3. The sacred interlude (Q3) — the Cross/Resurrection beat as a non-combat encounter.
-4. Settings screen + retire the remaining SOON stubs (Packs, Settings, Path of the Faithful).
-5. iOS/Capacitor wrapper once content-complete.
-6. The 4 deferred adversary mechanics (Q6).
+1. Economy v1 (Q1) — ownership + packs + Talents, so winning matters.
+2. The sacred interlude (Q2) — the Cross/Resurrection beat as a non-combat encounter.
+3. Settings screen + retire the remaining SOON stubs (Packs, Settings, Path of the Faithful).
+4. iOS/Capacitor wrapper once content-complete.
+5. The 4 deferred adversary mechanics (Q5).
