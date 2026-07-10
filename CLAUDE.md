@@ -127,17 +127,17 @@ Per-class rarity spread per set (Hearthstone-shaped): ~8 Common / ~5 Rare / ~3 E
 - **AI opponent:** heuristic v1 (curve-out + trade evaluation, as in the prototype) → 1-ply lookahead later. **Not an LLM** — a deterministic in-engine heuristic.
 - **Art generation (build-time only):** a script in `/tools` reads each card's `art` prompt, prepends the master style prompt (`docs/05-art-direction.md`), passes a per-hero character-sheet reference for consistency, calls the **Gemini image API (Nano Banana family)**, and writes `<card_id>.png` to `/ui/assets/cards`. Google AI Studio's free tier (~500 img/day) covers the whole set; ~$0.03–0.04/image if paid. **This is a build tool, never called at game runtime.**
 
-**Repo shape to grow into:**
+**Repo shape (as built — see `STATUS.md` for the annotated map):**
 ```
-/engine      TypeScript rules engine (deterministic, seeded)
-/data        cards.json, keywords.json, schema  ← single source for card content
-/ui          React components (board mirrors the prototype) + /ui/assets/cards (generated art)
-/ai          opponent heuristics + AI-vs-AI sim harness
-/campaign    chapter scripts (the gospel arc)
-/tools       art batch-generation script (card art prompts → image API → PNGs)
+/engine/src  TypeScript rules engine (deterministic, seeded) + /engine/test
+/data        cards.seed.json (cards) + tokens/leaders/adversaries/campaign json, schema, keywords
+/ui/src      React + Vite app; opponent AI is ui/src/ai.ts, campaign wiring ui/src/campaign.ts
+/ui/assets   generated card art (WebP), audio, sfx, fonts   /ui/dist  built output (force-added)
+/tools       audit-cards.ts (data↔engine check), soak.ts (AI-vs-AI), cardart/ (art pipeline)
 /docs        design docs (this repo)
 /prototypes  reference HTML slice
 ```
+*(Earlier drafts of this section named top-level `/ai` and `/campaign` dirs; those never materialised — that logic lives in `ui/src/`. `data/cards.json` is actually `cards.seed.json`.)*
 
 ---
 
@@ -162,9 +162,11 @@ Free. Currency = **Talents** (from wins, quests, campaign, achievements, and the
 
 ## 11. Current status & what's next
 
-- **Done:** full rules canon; 6-class role system + era tags; ~97 of ~120 Set-1 cards written with flavor + art seeds; playable Hearthstone-style battle slice (`/prototypes/battle-slice.html`); economy + set architecture.
-- **Open (see `docs/06-decisions-log.md`):** fill the remaining ~23 cards (Priest/Shepherd/Patriarch are light); draft 2 Leaders + Hero Powers per class; build the TS engine + card-JSON pipeline; animation pass (see §12); art bake-off; final game name; Bible translation for Scroll Study.
-- **First engineering task:** stand up `/engine` + `/data` — load `cards.seed.json`, implement the effect-verb library, and make the battle slice's rules run off data instead of hardcoded logic. Keep it deterministic and tested. **No backend, no network — everything local.**
+> **The living, detailed status is [`STATUS.md`](./STATUS.md)** — what's built, what's stubbed, what's missing, how to verify, and the footguns. Keep it current; this section is the summary.
+
+- **Built & verified:** the deterministic seeded **rules engine** (`/engine`) + effect-verb interpreter driving all content from data; **126 collectible cards + 12 leaders + 22 adversaries + 8 tokens**, every definition audited to actually execute its text; a full **front-end game loop** (Title → Menu → Story / Free Play / Decks → mulligan → match → result) on desktop and mobile-landscape; **The Armory** (browse/collection/forge) and **The Sparring Pit** (war-band + AI difficulty); music + SFX; the animation baseline (lunge, impact, floats, summon, death-fade, Fulfill burst, aura glow). Gatekeepers: `node --test engine/test/*.test.ts` (23 pass), `node tools/audit-cards.ts` (clean), `node tools/soak.ts` (AI-vs-AI, no crashes).
+- **Not built yet (the real gaps):** **interactive Foresee/Discover UI** (engine emits the events but the player gets no choice — currently a no-op ⚠️); the **economy** (Talents/packs/Fragments/ownership — "Packs" is a stub, the whole collection is unlocked); **Scroll Study**; the **sacred Cross/Resurrection interlude** (Law 5 — campaign is 4 combat chapters only); **Settings** screen; **iOS/Capacitor** wrapper. See `STATUS.md` and `docs/06-decisions-log.md`.
+- **Working discipline:** after any card or engine change, run the audit + tests; after UI changes, build and screenshot-verify. Never let `Date.now()`/`Math.random()` into the engine or AI (determinism). Edit the dedicated `data/{tokens,leaders,adversaries}.json` files — **not** the superseded sublists inside `cards.seed.json`. **No backend, no network, everything local.**
 
 ---
 

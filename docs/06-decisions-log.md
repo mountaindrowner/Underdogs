@@ -2,11 +2,19 @@
 
 *The reconciliation record. When older docs (GDD, architecture) show earlier thinking, this log + `CLAUDE.md` are what's actually true now. Newest decisions on top.*
 
+> **For "what is built vs. not built right now," see [`../STATUS.md`](../STATUS.md).** This log records *decisions*; STATUS records *state*.
+
 ## Locked decisions (canonical)
 
 | # | Decision | Notes / supersedes |
 |---|---|---|
-| D-22 | **Rules engine scaffolded in `/engine`** — pure TypeScript, zero runtime deps, deterministic (seeded), runs on Node 22 native TS (no build). `applyAction(state, action) → { state, events }` is a pure reducer that emits a typed **GameEvent stream** = the animation contract (UI replays events, never mutates state). Cards are data → effect-verb interpreter. 12 passing tests + a demo. | Delivers CLAUDE.md §11 "first engineering task." Animation pipeline is first-class per §12. See `engine/README.md`. |
+| D-28 | **Fail-safe status doc: [`STATUS.md`](../STATUS.md) at the repo root.** It is the single source of truth for what's built / stubbed / missing, how to verify, and the known footguns. Rule: any commit that changes project state updates STATUS.md in the same commit. | Prevents "we forgot what we built." README + CLAUDE.md §11 point to it. |
+| D-27 | **Card data is enforced by an audit: `tools/audit-cards.ts`.** It walks every definition and fails if the data uses a trigger/verb/target/keyword/condition the engine doesn't implement. Its constant Sets ARE the contract of engine capability. `tools/soak.ts` plays AI-vs-AI across all 36 class matchups as a crash test. | Run both after any card or engine change. Caught 133 silent no-ops on first run (incl. King David's aura, all standing relics, Saul→Paul). |
+| D-26 | **Effect system built out to execute all authored card text.** Auras gained health + granted-keywords + conditions; standing relics get a real zone; new triggers (startOfTurn, endOfTurn, onDeath+replaceDeath, raise, generic listeners, passive); explicit-target aliases with side validation; a graveyard powering Raise/returnFromDiscard; Fulfill conditions incl. automatic Saul→Paul. New verbs documented in CLAUDE.md §8. | Turned the card JSON from ~26% executable to 100% (167 defs, 3 deferred). 23 regression tests. |
+| D-25 | **Front-end shell + game loop built** — Title → Main Menu (on the "coat of many colours" robe) → Story / Free Play / Decks; mulligan → match-start "doors" transition → battle → result. Responsive: desktop fills the screen, mobile-landscape gets a compact layout. Tooltips on every control. | Vite + React 19. Procedural CSS/SVG backdrops (no image files) for menus; AI-painted WebP for card art. |
+| D-24 | **"The Armory" (Decks screen) + "The Sparring Pit" (Free Play setup).** Six deterministic preset decks (one per class), a full collection gallery, and a deck forge enforcing format legality (30 cards / max 2 copies / 1 Legendary / class+neutral). Free Play lets you choose a war-band and an **AI difficulty** (Novice/Faithful/Valiant — a deterministic margin on the 1-ply AI, no RNG). | Deck ownership/economy is NOT modelled yet — the whole collection is available (see STATUS "What's NOT built"). |
+| D-23 | **Audio is in:** 3 crossfaded tavern tracks + ~80 one-shot SFX mapped to engine events, mute + volume, persisted. Assets optimised (art PNG→WebP ~16×; audio re-encoded). | Music/SFX gated behind one mute; armed on first user gesture (autoplay policy). |
+| D-22 | **Rules engine in `/engine`** — pure TypeScript, zero runtime deps, deterministic (seeded), runs on Node 22 native TS (no build). `applyAction(state, action) → { state, events }` is a pure reducer that emits a typed **GameEvent stream** = the animation contract (UI replays events, never mutates state). Cards are data → effect-verb interpreter. | Delivers CLAUDE.md §11 "first engineering task." Animation pipeline is first-class per §12. See `engine/README.md`. |
 | D-21 | **Game name is UNDERDOGS.** Working title "COVENANT" is retired. The tone is comedic-underdog (David vs. Goliath); the card back reads UNDERDOGS with the deadpan tagline "Giants sold separately." **Note:** *Covenant* remains the Patriarch **keyword** and appears in card names (Covenant of Stars, Covenant Renewed) — that is a mechanic, unrelated to the product title; do NOT blanket-rename it. | Resolves open-Q "final game name." Repo was already named Underdogs. |
 | D-20 | **Rarity is a frame-only style layer, never art or power.** The rarity gem color is the primary signal (Common grey / Rare blue / Epic purple / Legendary gold); Common→Legendary add *escalating* frame accents (trim ring, art/banner glow, Legendary name flourish) while the **art window, stats, cost, and banner stay identical in size & position**. Art quality is never gated by rarity. The gold frame signals "collectible chase / build-around," not strength. | Reaffirms D-19 & CLAUDE.md §7 in the frame language. See `docs/05-art-direction.md` §Rarity. Implemented in the card compositor. |
 | D-19 | **Workflow: image API generates the illustration; the card frame is composed in code** (HTML/CSS → PNG) so every card is pixel-consistent and data-driven from the schema. | Frame is not baked into the generated art (keeps text crisp, recolorable, rarity-swappable). |
@@ -29,19 +37,27 @@
 | D-2 | **Tone:** epic on the board, Hearthstone-humor in the margins; "joke about the humans, never the holy." | |
 | D-1 | **The Laws** (Jesus never a card; faithful-only for players; reverent VFX; received-not-won Cross beat). | Inviolable. See `CLAUDE.md` §2. |
 
+## Resolved since the first build pass
+- ~~Q1 Fill the last ~23 cards.~~ **Done — 126 collectible cards, all classes 17–21.**
+- ~~Q2 Leaders + Hero Powers.~~ **Done — 12 leaders with hero powers (`data/leaders.json`).**
+- ~~Q4 Final game name.~~ **UNDERDOGS (D-21).**
+- Engine, effect system, front-end shell, decks/armory, free-play, audio, animation baseline: **built (D-22..D-26).**
+
 ## Open questions (need a human ruling or a build pass)
 
-1. **Fill the last ~23 cards.** Priest, Shepherd, Patriarch are light (see counts in `docs/04-card-database.md`). Needs: more Sheep-synergy commons (Shepherd), heal/Endure bodies (Priest), Covenant/Heir commons (Patriarch), and 2–3 more Legendaries.
-2. **Leaders + Hero Powers:** draft 2 per class (12 total). Suggested seeds — Prophet "Foresee 2"; Warrior "Rally: +1 attack this turn"; Priest "Restore 2"; Shepherd "Summon a 1/1 Sheep"; Patriarch "Summon a 1/1 Heir"; Disciple "Summon a 1/1 Disciple." Tune so none beats a 2-drop.
-3. **Master art style-prompt + bake-off.** `docs/05-art-direction.md` has the master prompt; still need a 3–5 card style-frame test before batch production (illuminated-manuscript-modern vs painted-epic).
-4. ~~**Final game name.**~~ **Resolved (D-21): UNDERDOGS.**
-5. **Bible translation licensing** for the in-app Scroll Study reader (WEB/KJV are free; ESV/CSB need permission). Decide before building the reader.
-6. **First mini-set** = "The Wisdom Books" (Job, Proverbs, Ecclesiastes, Song)? Greenlight or hold.
-7. **Rotation names** (future): Canon / Apocrypha vs plain Standard / Legacy.
+1. **Interactive Foresee / Discover UI.** ⚠️ The engine emits the events but there is no player-facing choice — "Foresee 2" / "Discover" currently do nothing. This guts the Prophet fantasy. Highest-priority mechanical gap (see STATUS).
+2. **Economy model** (CLAUDE.md §10): collection ownership, packs (pity + dupe protection), Talents, Fragments. None built — the Armory shows everything unlocked. Decide the unlock/ownership model before it means anything to win.
+3. **The sacred interlude** (Law 5): the received-not-won Cross/Resurrection beat. Not built. Must be a non-combat encounter type, un-gamified. Needs a design + a human sign-off on presentation.
+4. **Bible translation licensing** for the Scroll Study reader (WEB/KJV free; ESV/CSB need permission). Decide before building the reader.
+5. **Master art style-prompt + bake-off.** Card art exists, but no locked style-frame test on record (`docs/05-art-direction.md` has the master prompt). Revisit if regenerating.
+6. **The 4 deferred adversary mechanics** (audit DEFERRED set): Serpent token, attack-prevention, relic-cost tax, spell immunity. Each is one small engine capability.
+7. **First mini-set** = "The Wisdom Books"? And **rotation names** (Canon/Apocrypha vs Standard/Legacy). Future; greenlight or hold.
+8. **iOS/Capacitor wrapper** — deferred until the web build is content-complete.
 
-## Suggested build order (from `CLAUDE.md` §11)
-1. `/engine` + `/data`: deterministic seeded rules engine driven by `cards.seed.json` + the effect-verb library; port the prototype's rules onto it.
-2. Card-fill pass (open Q1) to reach 120.
-3. Leaders/Hero Powers (open Q2).
-4. Animation pass on the UI (attack arrows, summon/draw tweens, Fulfill burst, Scatter/Redeem spawns) — recommend the **Disciple** class first (Scatter swarm is the flashiest).
-5. Campaign chapter scripting (the gospel arc).
+## Suggested build order (updated — see STATUS "Suggested next moves")
+1. Interactive Foresee/Discover UI (Q1) — closes a real hole, restores the Prophet class.
+2. Economy v1 (Q2) — ownership + packs + Talents, so winning matters.
+3. The sacred interlude (Q3) — the Cross/Resurrection beat as a non-combat encounter.
+4. Settings screen + retire the remaining SOON stubs (Packs, Settings, Path of the Faithful).
+5. iOS/Capacitor wrapper once content-complete.
+6. The 4 deferred adversary mechanics (Q6).
