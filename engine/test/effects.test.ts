@@ -231,6 +231,24 @@ test('While a choice is pending, other actions are refused', () => {
   assert.equal(JSON.stringify(s.players[0].board.map((u) => u.defId)), before, 'board unchanged');
 });
 
+test('AI takes lethal face damage instead of trading', async () => {
+  const { pickAction } = await import('../../ui/src/ai.ts');
+  // AI (player 0 here) has two ready 3-attack Benaiahs; foe at exactly 6 HP.
+  // Correct play: everything to the face, ignore any tempting board math.
+  let s = rig([], ['goliath_of_gath'], ['benaiah', 'benaiah']);
+  s = structuredClone(s);
+  s.players[1].heroHp = 6;
+  for (const u of s.players[0].board) u.ready = true;
+  s.players[1].board = [];                          // face is open
+  const first = pickAction(s, 2);
+  assert.deepEqual(first.type, 'ATTACK');
+  assert.equal((first as { targetUid: number | 'hero' }).targetUid, 'hero', 'goes face');
+  // follow the line to the kill
+  let st = s;
+  for (let i = 0; i < 6 && st.phase !== 'over'; i++) st = act(st, pickAction(st, 2));
+  assert.equal(st.winner, 0, 'lethal is taken');
+});
+
 test('AI difficulty is deterministic per level', async () => {
   // same state, same level -> same action (no Math.random anywhere)
   const { pickAction } = await import('../../ui/src/ai.ts');

@@ -10,7 +10,7 @@
 
 UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 167 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 28 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 29 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
 
 ---
 
@@ -35,7 +35,7 @@ Rule of thumb: **if a fact in a doc is now false, fixing it is part of the chang
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 28, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 29, # fail 0
 node --test engine/test/*.test.ts
 
 # 2. Card-data audit  → expect: "all 167 definitions check out (3 deferred)"
@@ -118,11 +118,12 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - Title → Main Menu → **Story** (4 chapters, progress-gated) / **Free Play** (war-band + AI difficulty) / **Decks** (browse, collection gallery, forge custom decks).
 - A match: mulligan on the battlefield → **match-start "doors" transition** → play cards (tap-or-drag), attack, hero power, End Turn → victory/defeat.
 - **Interactive Foresee** (reveal the top X; tap to bottom, the rest stay on top in order) and **Discover** (reveal N, keep K into hand) via a choice overlay. The human pauses for the choice; the AI auto-resolves inline (determinism preserved).
-- Event-sourced animation: lunge, impact, floating damage, summon, death-fade, Fulfill burst, Endure shimmer, aura stat glow.
+- Event-sourced animation & game feel: **directional lunge** (attacker travels into its actual target, DOM-measured), impact sparks + ring, **damage-scaled table shake** (impact-1/2/3) and sized damage floats, death **dissolve-to-light + rising motes** (Law 4), summon bloom, Endure shield-shatter shards, low-HP hurt vignette, Fulfill burst, aura stat glow, subtle **board parallax** on hover devices. All gated by `prefers-reduced-motion`.
+- **Haptics** (`ui/src/haptics.ts`): `navigator.vibrate` patterns per event (play/hit/death/fulfill/victory). No-op where unsupported (iOS Safari — real iOS haptics arrive with the Capacitor wrapper).
 - **Responsive:** desktop fills the screen with scaled pieces; mobile-landscape has a dedicated compact layout.
 - **Tooltips** on every in-game control (hover on desktop, press-hold on touch).
 - 3 music tracks (crossfaded) + ~80 SFX, mute + volume, persisted.
-- AI opponent: 1-ply evaluation with 3 difficulty levels (deterministic; Novice/Faithful/Valiant).
+- AI opponent: 1-ply evaluation with 3 difficulty levels (deterministic; Novice/Faithful/Valiant) + **lethal awareness** at every level: when the face is open and its board adds up to the kill, it goes face (verified: it closes out a passive player ~turn 10).
 
 ### Persistence (localStorage — the whole save system)
 | Key | Holds |

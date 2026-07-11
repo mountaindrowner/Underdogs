@@ -10,6 +10,8 @@ export interface VUnit {
   auraAtk: number; auraHp: number; auraKw: string[];
   // transient (one beat):
   enter?: boolean; dead?: boolean; lunge?: number; fulfilling?: boolean;
+  /** who this unit is striking this beat (uid or the enemy hero) */
+  lungeAt?: number | 'hero';
   dmg?: number; heal?: number; hit?: boolean; buffed?: boolean; endure?: boolean;
 }
 export interface HeroV { hp: number; maxHp: number; dmg?: number; heal?: number; shake?: boolean; }
@@ -41,7 +43,7 @@ function find(v: View, uid: number): VUnit | undefined {
 /** Clear one-beat transient flags and remove units that finished their death fade. */
 export function clearTransient(v: View): View {
   const scrub = (u: VUnit): VUnit => ({
-    ...u, enter: false, lunge: 0, fulfilling: false, hit: false, buffed: false,
+    ...u, enter: false, lunge: 0, lungeAt: undefined, fulfilling: false, hit: false, buffed: false,
     endure: false, dmg: undefined, heal: undefined,
   });
   return {
@@ -82,7 +84,7 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
       break;
     }
     case 'attackDeclared':
-      upd(e.attacker, (u) => ({ ...u, lunge: u.owner === 0 ? -1 : 1 })); break;
+      upd(e.attacker, (u) => ({ ...u, lunge: u.owner === 0 ? -1 : 1, lungeAt: e.target })); break;
     case 'damage':
       upd(e.targetUid, (u) => ({ ...u, health: u.health - e.amount, dmg: e.amount, hit: true })); break;
     case 'heroDamage':

@@ -21,7 +21,7 @@ Playable end to end: boot → pick a war-band → forge a deck → play a full m
 cd ui && npm install && npm run dev     # play locally (landscape)
 cd ui && npm run build                  # production build → ui/dist
 
-node --test engine/test/*.test.ts       # engine + effect tests (expect 28 pass)
+node --test engine/test/*.test.ts       # engine + effect tests (expect 29 pass)
 node tools/audit-cards.ts               # card data ↔ engine check (expect: all check out)
 node tools/soak.ts 1                     # AI-vs-AI crash test across all matchups
 ```

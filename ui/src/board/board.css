@@ -10,8 +10,12 @@
  * ==========================================================================*/
 .boardScene{position:absolute;inset:0;z-index:0;isolation:isolate;overflow:hidden}
 
-.board-backdrop{position:absolute;inset:0;z-index:0}
-.board-props{position:absolute;inset:0;z-index:1;opacity:.5;filter:saturate(.7) brightness(.85)}
+.board-backdrop{position:absolute;inset:-3%;z-index:0;
+  transform:translate3d(calc(var(--parx,0)*-7px),calc(var(--pary,0)*-5px),0);
+  transition:transform .25s ease-out;will-change:transform}
+.board-props{position:absolute;inset:0;z-index:1;opacity:.5;filter:saturate(.7) brightness(.85);
+  transform:translate3d(calc(var(--parx,0)*11px),calc(var(--pary,0)*7px),0);
+  transition:transform .22s ease-out;will-change:transform}
 .board-scrim{position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(rgba(20,14,8,.55),rgba(20,14,8,.55)),
     radial-gradient(120% 90% at 50% 46%,transparent 38%,rgba(0,0,0,.55) 100%)}
@@ -31,7 +35,9 @@
 /* ---- shared prop: particle mote (fireflies / embers / dust / manna) ----
    Rendered in .board-motes (its own layer) so the animation doesn't force a
    recomposite of the filtered props / blended grain beneath it. */
-.board-motes{position:absolute;inset:0;z-index:1;pointer-events:none}
+.board-motes{position:absolute;inset:0;z-index:1;pointer-events:none;
+  transform:translate3d(calc(var(--parx,0)*16px),calc(var(--pary,0)*10px),0);
+  transition:transform .2s ease-out}
 .mote{position:absolute;border-radius:50%;background:var(--mote,#e8d8b0);opacity:0;
   width:var(--sz,3px);height:var(--sz,3px);will-change:transform,opacity;
   animation:motefloat var(--dur,12s) linear var(--delay,0s) infinite}

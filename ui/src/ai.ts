@@ -102,6 +102,21 @@ function stateHash(s: GameState, me: PlayerId): number {
 export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const me = state.active;
   const pass: Action = { type: 'END_TURN' };
+
+  // Lethal awareness (all levels — even a novice smells blood): if the face is
+  // open and the board's remaining attacks add up to the kill, go face. The
+  // greedy loop re-checks each call, so every attacker follows through.
+  const foePl = state.players[(me ^ 1) as PlayerId];
+  const faceOpen = !foePl.board.some((u) => hasKeyword(u, 'guard'));
+  if (faceOpen) {
+    const swings = state.players[me].board
+      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0);
+    const total = swings.reduce((sum, u) => sum + effAttack(u), 0);
+    if (total >= foePl.heroHp && swings.length) {
+      return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };
+    }
+  }
+
   // baseline: the value of simply ending the turn now
   const passScore = evaluate(applyAction(state, pass).state, me);
 

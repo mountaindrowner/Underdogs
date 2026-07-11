@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useMatch, needsTarget, targetSideOf } from './useMatch.ts';
 import { artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
@@ -12,6 +12,7 @@ import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
 import { music } from './audio.ts';
 import { sfx } from './sfx.ts';
+import { haptics } from './haptics.ts';
 import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
 import { MainMenu } from './title/MainMenu.tsx';
@@ -19,6 +20,7 @@ import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
 import './styles.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CAN_HOVER = typeof matchMedia !== 'undefined' && matchMedia('(hover: hover)').matches;
 
 type SrcHand = { kind: 'hand'; index: number; card: CardDef };
 type Src = SrcHand | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
@@ -46,12 +48,36 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
   const art = artUrl(u.defId);
   const kw = u.keywords.find((k) => KW_LABEL[k]);
   const rarity = registry.get(u.defId)?.rarity ?? 'common';
+  const rootRef = useRef<HTMLDivElement>(null);
   const c = ['minion', `r-${rarity}`, cls];
   if (u.dead) c.push('dead'); if (u.enter) c.push('enter'); if (u.fulfilling) c.push('fulfilling');
   if (u.hit) c.push('hit'); if (u.buffed) c.push('buffed'); if (valid) c.push('validTgt');
-  const style = u.lunge ? { transform: `translateY(${u.lunge * 18}px) scale(1.06)` } : undefined;
+
+  // Directional lunge: measure the real vector to this beat's target and drive
+  // the strike keyframes with it — the attacker travels INTO its victim.
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el || u.lungeAt == null) return;
+    const tgt = u.lungeAt === 'hero'
+      ? document.querySelector(u.owner === 0 ? '.foeCorner .hero' : '.youCorner .hero')
+      : document.querySelector(`[data-uid="${u.lungeAt}"]`);
+    let dx = 0, dy = (u.lunge ?? (u.owner === 0 ? -1 : 1)) * -52;   // fallback: straight ahead
+    if (tgt) {
+      const a = el.getBoundingClientRect(), b = tgt.getBoundingClientRect();
+      dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+      dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+      const len = Math.hypot(dx, dy) || 1;
+      const reach = Math.max(40, len - 34);                          // stop just inside the target
+      dx = (dx / len) * reach; dy = (dy / len) * reach;
+    }
+    el.style.setProperty('--lx', `${dx}px`);
+    el.style.setProperty('--ly', `${dy}px`);
+    el.classList.add('lunging');
+    return () => { el.classList.remove('lunging'); };
+  }, [u.lungeAt, u.uid, u.owner, u.lunge]);
+
   return (
-    <div className={c.join(' ')} style={style} onPointerDown={onDown}
+    <div ref={rootRef} className={c.join(' ')} onPointerDown={onDown}
       onMouseEnter={onEnter} onMouseLeave={onLeave}
       data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
       {(u.keywords.includes('guard') || u.auraKw.includes('guard')) && <div className="ward" />}
@@ -64,9 +90,28 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
       </div>
       <div className={`atk${u.auraAtk > 0 ? ' aurad' : ''}`}>{u.attack + u.auraAtk}</div>
       <div className={`hp${u.auraHp > 0 ? ' aurad' : ''}`}>{u.health + u.auraHp}</div>
-      {u.dmg != null && <div className="float dmg">-{u.dmg}</div>}
+      {u.dmg != null && (
+        <div className={`float dmg${u.dmg >= 6 ? ' huge' : u.dmg >= 3 ? ' big' : ''}`}>-{u.dmg}</div>
+      )}
       {u.heal != null && <div className="float heal">+{u.heal}</div>}
-      {u.endure && <div className="shield" />}{u.fulfilling && <div className="burst" />}
+      {u.hit && (
+        <div className="impactFx" aria-hidden>
+          {Array.from({ length: 6 }).map((_, i) => <span key={i} />)}
+          <i className="impactRing" />
+        </div>
+      )}
+      {u.dead && (
+        <div className="dustRise" aria-hidden>
+          {Array.from({ length: 6 }).map((_, i) => <span key={i} />)}
+        </div>
+      )}
+      {u.endure && (
+        <>
+          <div className="shield" />
+          <div className="shatterFx" aria-hidden>{Array.from({ length: 4 }).map((_, i) => <span key={i} />)}</div>
+        </>
+      )}
+      {u.fulfilling && <div className="burst" />}
     </div>
   );
 }
@@ -233,6 +278,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const ghostRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<SVGLineElement>(null);
   const flareLatch = useRef(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const parRaf = useRef(0);
   const flareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // signature-moment flare: on entering a Fulfill morph or a victory, hold
@@ -321,6 +368,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   function beginGrab(src: Src, e: React.PointerEvent, needsTgt: boolean) {
     e.stopPropagation();
     sfx.play('select');
+    haptics.tap();
     const from = center(e);
     lastX.current = e.clientX;
     ptrRef.current = { x: e.clientX, y: e.clientY };
@@ -333,6 +381,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   // resolve a placement/attack given the source and where it landed
   function resolve(src: Src, drop: Drop) {
     if (holdTimer.current) clearTimeout(holdTimer.current);
+    if (drop.kind !== 'none') haptics.play();
     if (src.kind === 'hand') {
       const card = src.card;
       if (needsTarget(card)) {
@@ -397,6 +446,28 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
 
   const previewCard = (act?.src.kind === 'hand' ? act.src.card : null) ?? hover;
 
+  // impact this beat = the biggest blow that just landed (drives table shake)
+  const impactAmt = Math.max(0,
+    ...view.boards[0].map((u) => u.dmg ?? 0), ...view.boards[1].map((u) => u.dmg ?? 0),
+    view.heroes[0].dmg ?? 0, view.heroes[1].dmg ?? 0);
+  const impactCls = REDUCED ? '' : impactAmt >= 6 ? ' impact-3' : impactAmt >= 3 ? ' impact-2' : impactAmt > 0 ? ' impact-1' : '';
+  const hurt = view.heroes[0].dmg ?? 0;
+
+  // subtle diorama parallax on hover-capable devices (rAF-throttled, vars only)
+  const onParallax = (e: React.PointerEvent) => {
+    if (!CAN_HOVER || REDUCED) return;
+    const x = e.clientX, y = e.clientY;
+    if (parRaf.current) return;
+    parRaf.current = requestAnimationFrame(() => {
+      parRaf.current = 0;
+      const el = tableRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--parx', ((x - r.left) / r.width - 0.5).toFixed(3));
+      el.style.setProperty('--pary', ((y - r.top) / r.height - 0.5).toFixed(3));
+    });
+  };
+
   // ---- gated screens --------------------------------------------------------
   if (intro && meta) {
     return (
@@ -460,7 +531,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         </div>
       </div>
 
-      <div className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}`} data-board={board}>
+      <div ref={tableRef} className={`table${over ? ' ended' : ''}${aiming ? ' aiming' : ''}${impactCls}`}
+        data-board={board} onPointerMove={onParallax}>
         {/* L0–L3 — the board diorama (per-chapter scene, dim and behind cards) */}
         <Board enc={sceneOverride ?? meta?.id} danger={dangerLevel} flare={flare}
           goliath={foe.board.some((u) => u.defId === 'goliath_of_gath')}
@@ -471,6 +543,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         </div>
         {/* ornate stage frame, painted over the edges (no input) */}
         <div className="frame" />
+        {/* red edge-pulse when YOUR hero takes a hit, scaled to the blow */}
+        {hurt > 0 && <div className="hurtFx" style={{ ['--hurt' as string]: Math.min(1, hurt / 8) } as React.CSSProperties} />}
 
         {/* L3 — board objects */}
         <div className={`boardRow enemy${view.heroes[1].shake ? ' shake' : ''}`}>
