@@ -2,7 +2,7 @@
 
 > **Read this before starting any work.** `CLAUDE.md` is the *constitution* (laws + canon that never change). This file is the *state of the union* — what is built, what is half-built, what is not built, and the traps that will bite you. When this file and reality disagree, **fix this file in the same commit.** A stale STATUS is worse than none.
 >
-> Last verified: **2026-07-10** (after interactive Foresee/Discover shipped). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
+> Last verified: **2026-07-11** (after the game-feel arc + a measured balance pass). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
 
 ---
 
@@ -10,7 +10,7 @@
 
 UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 167 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 29 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 32 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
 
 ---
 
@@ -35,7 +35,7 @@ Rule of thumb: **if a fact in a doc is now false, fixing it is part of the chang
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 29, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 32, # fail 0
 node --test engine/test/*.test.ts
 
 # 2. Card-data audit  → expect: "all 167 definitions check out (3 deferred)"
@@ -186,7 +186,7 @@ Measured against `CLAUDE.md` and the design docs:
 ## Suggested next moves (not commitments — for whoever picks this up)
 
 Ranked by "makes the game more complete per its own canon":
-0. **Balance pass (measured; proposals await sign-off).** `docs/08-balance.md` has the data + specific rail-legal tweaks. Headline: a large **first-player advantage** (68% mirror win rate — needs a Coin/Manna-style fix) and a wide **class spread** (Warrior 78.5% … Priest 18.3%). No card breaks the §7 rail — the imbalance is systemic. Nothing applied yet.
+0. **Balance pass — APPLIED (`docs/08-balance.md` Part C).** Shipped a second-player "Coin" (fixed the seat advantage: 61.5%→48.7%), Warrior/Shepherd nerfs, and Priest/Patriarch buffs; class spread narrowed 60→46 pts. **Still open:** Warrior stays high (74% — an AI-pilot artifact, don't chase with the current AI), and Prophet's reach fix is **deferred** because the engine can't target the enemy hero with a played spell. Next balance unlocks: (a) enemy-hero spell/hero-power targeting, (b) a smarter (2-ply) AI, then re-measure.
 1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
 2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
 3. **Settings screen** + the 3 remaining SOON stubs (Packs, Settings, Path of the Faithful).

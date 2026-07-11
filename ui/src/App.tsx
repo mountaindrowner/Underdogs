@@ -6,7 +6,7 @@ import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
 import { FreePlaySetup } from './FreePlay.tsx';
 import { DecksScreen } from './Decks.tsx';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import { effAttack, effCost, hasKeyword, needsExplicitTarget, type CardDef, type Action, type PendingChoice } from '../../engine/src/index.ts';
+import { effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide, type CardDef, type Action, type PendingChoice } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
@@ -433,7 +433,12 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const validUnit = (u: VUnit): boolean => {
     if (!act) return false;
     if (act.src.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
-    if (act.src.kind === 'heropower') return true;
+    if (act.src.kind === 'heropower') {
+      // respect the power's target side (e.g. Aaron's Intercede is ally-only)
+      const op = hpwr?.effects?.find((o) => needsExplicitTarget(o as never));
+      const side = targetSide(op?.target as never);
+      return side === 'any' || (side === 'enemy' ? u.owner === 1 : u.owner === 0);
+    }
     if (act.src.kind === 'hand') {
       if (!act.needsTgt) return false;
       const side = targetSideOf(act.src.card);

@@ -67,8 +67,11 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   // hero power
   const hp = pl.heroPower;
   if (hp && !hp.usedThisTurn && pl.provision >= hp.cost) {
-    if (hp.effects.some(needsExplicitTarget)) {
-      for (const t of [...pl.board, ...enemies]) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
+    const hpOp = hp.effects.find(needsExplicitTarget);
+    if (hpOp) {
+      const side = targetSide(hpOp.target);
+      const hpPool = side === 'enemy' ? enemies : side === 'ally' ? pl.board : [...pl.board, ...enemies];
+      for (const t of hpPool) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
     } else {
       acts.push({ type: 'HERO_POWER' });
     }

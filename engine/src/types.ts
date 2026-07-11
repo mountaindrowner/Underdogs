@@ -244,6 +244,7 @@ export interface RuleConfig {
   handLimit: number;      // 10
   provisionCap: number;   // 10
   startingHand: number;   // 3 (second player +1)
+  secondPlayerBonus: number; // extra Provision to spend on the 2nd player's first turn (the "Coin"); 0 disables
 }
 
 export const DEFAULT_RULES: RuleConfig = {
@@ -252,6 +253,7 @@ export const DEFAULT_RULES: RuleConfig = {
   handLimit: 10,
   provisionCap: 10,
   startingHand: 3,
+  secondPlayerBonus: 1,
 };
 
 /** Player inputs the engine accepts. */

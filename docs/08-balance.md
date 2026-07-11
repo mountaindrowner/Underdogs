@@ -1,13 +1,14 @@
 # 08 — Balance
 
-*How the game measures its own balance, what the numbers currently say, and the
-proposed changes (pending human sign-off — nothing here has been applied to card
-data). Regenerate the numbers any time with the two tools in `/tools`; they read
-data and never mutate it.*
+*How the game measures its own balance, what the numbers say, and the changes made.
+Regenerate the numbers any time with the two tools in `/tools`; they read data and
+never mutate it.*
 
-> **Guardrail:** balance changes to card canon require Mark's sign-off (CLAUDE.md
-> §7 says flag over-budget cards "for human review"). This doc *proposes*; it does
-> not decide. Part A is fact (reproducible sim output). Part B is proposals.
+> **Structure:** Part A = the **baseline** measurement (before). Part B = the
+> proposal record. Part C = **what was applied on 2026-07-11 and the before→after
+> numbers.** Balance changes to card canon are Mark's call (CLAUDE.md §7); the pass
+> in Part C applied the rail-legal proposals and left the flagged/deferred items for
+> him. Re-run `node tools/balance.ts 40 2` to reproduce Part C's "after" column.
 
 ---
 
@@ -35,7 +36,10 @@ nudges and re-measure.
 
 ---
 
-## Part A — What the numbers say (measured)
+## Part A — What the numbers say (baseline, before changes)
+
+> These are the **before** numbers that motivated the changes. The **after**
+> numbers (post-application) and what shipped are in **Part C** at the bottom.
 
 **Run:** 40 seeds/ordered-pair · AI level 2 (Valiant) · 1440 decisive games · **0 crashes.**
 
@@ -87,7 +91,11 @@ Disciple        87.5   22.5   92.5   45.0   87.5   80.0
 
 ---
 
-## Part B — Proposals (PENDING SIGN-OFF — nothing applied)
+## Part B — Proposals
+
+> **Status: most of these were applied this pass (2026-07-11) — see Part C for
+> exactly what shipped and the before→after numbers.** This section is preserved
+> as the original proposal record.
 
 Drafted by four independent balance passes (one per cluster), each reading the
 real card data and the §7 rail. **Nothing here has been written to `data/*.json`.**
@@ -203,3 +211,73 @@ from the core set. Abraham's Multiply left alone (correct dead-draw floor).
 3. Re-run the gatekeepers: `node tools/audit-cards.ts`, `node --test engine/test/*.test.ts`, `node tools/soak.ts`.
 4. Re-run `node tools/balance.ts 40 2` and compare the matrix; iterate on optionals only if a class is still out of the 45–58% band.
 5. Update this doc's Part A numbers and log the change in `docs/06-decisions-log.md`.
+
+---
+
+## Part C — Applied pass & results (2026-07-11)
+
+Applied the seat fix + Warrior/Shepherd nerfs (two iterations) + Priest/Patriarch
+buffs. **Prophet's reach fix was deferred** (needs enemy-hero spell targeting — a
+new engine+UI capability, bundled with the upcoming legendaries work). All changes
+went into `data/cards.seed.json` / `data/leaders.json` / the engine rules; 32
+engine tests pass, audit clean, soak clean, UI builds.
+
+### What shipped
+
+- **Seat "Coin" (Finding 1, Option B):** `RuleConfig.secondPlayerBonus = 1` — the
+  second player gets **+1 Provision to spend on their first turn only** (not banked;
+  evaporates next Dawn). Engine-level, reversible via the flag.
+- **Warrior nerfs (two passes):** Abishai 4/2→3/2 · Joshua & Caleb 4/4→3/4 · Samson
+  5/3→4/3 · Coronation 4→5 cost · **Shepherd David (the 1-drop Giant-Slayer) 1→2
+  cost** · **Sword of Goliath +3/+0→+2/+0** · Left-Handed Ehud 3/1→2/1.
+- **Shepherd trim:** David, the Shepherd 2→3 cost.
+- **Priest heal-to-board redirect:** Aaron's **Intercede** → restore **3 to a
+  friendly unit** (was heal 2 to hero) · Bronze Serpent & Tabernacle now heal/buff a
+  **damaged ally** (was hero) · Tabernacle 5→4 cost · Consecration +0/+3→+1/+2 · Hur
+  +0/+2→+1/+1. (UI fix: hero-power targeting now respects the power's side, so
+  Intercede can only be aimed at allies.)
+- **Patriarch ramp:** Well of the Oath 4→3 · Land of Promise 5→4 · Sarah's Covenant
+  now **unconditional** · Firstborn Heir 1/2→1/3.
+
+### Before → after (40 seeds, 1440 games, level 2)
+
+| Metric | Before | After | Verdict |
+|---|---|---|---|
+| **First-player advantage (all games)** | 61.5% | **48.7%** | ✅ fixed (near-perfect on the robust metric) |
+| First-player advantage (mirror only, noisier) | 68.3% | 44.2% | ✅ fixed; very slightly favours P2 now — tunable |
+| Warrior | 78.5% | **74.0%** | ⚠ still top — see note |
+| Shepherd | 66.5% | 59.6% | ↘ closer |
+| Disciple | 53.8% | 55.4% | ✅ healthy |
+| Patriarch | 38.5% | 43.1% | ↗ better, still low |
+| Prophet | 44.4% | 40.4% | ↘ dropped (deferred reach fix) |
+| Priest | 18.3% | **27.5%** | ↗ +9, biggest gain; still last |
+| **Class spread** | 60 pts | **46.5 pts** | ↘ narrower |
+| Game length (median turns) | 13 | 13 | ✅ unchanged/healthy |
+
+### The honest read on what's left
+
+- **Warrior is resistant to card nerfs (74%).** Seven rail-legal nerfs moved it only
+  4.5 points. The reason is structural: Warrior is the **aggressive-tempo deck the
+  greedy 1-ply AI pilots near-optimally**, while it misplays everyone else — so the
+  sim *overstates* Warrior's real-meta dominance. Nerfing it to ~55% in this sim would
+  require gutting it for human play to fix an AI artifact. **Do not chase it further
+  with the current AI.** The right unlocks are (a) a smarter AI (1→2-ply lookahead) so
+  control classes are piloted competently, and (b) raising the floor classes (which
+  mechanically pulls the top down, since win-rates average to 50%).
+- **Prophet (40.4%) and Priest (27.5%)** are the remaining laggards, and both are
+  **control/attrition** — the exact archetypes the AI can't pilot. Priest's real
+  human win-rate is meaningfully higher than 27.5%. Prophet's proper fix (burn that
+  reaches the enemy hero) is **deferred to the legendaries work** because the engine
+  currently can't target a hero with a played spell (`anyCharacter`'s explicit path
+  only finds units and falls back to *your own* hero — see effects.ts:162). That
+  hero-targeting capability is a prerequisite for both Prophet's reach and many
+  marquee legendaries.
+
+### Suggested next balance steps (not this pass)
+
+1. Add **enemy-hero targeting for played spells / hero powers** (engine + UI + AI) —
+   unblocks Prophet's reach and face-burn legendaries.
+2. **Smarter AI** (2-ply or better trade/tempo eval) — then re-run this sim; expect
+   Warrior to fall and control classes to rise without further card edits.
+3. Re-measure and, only if still needed, a light Warrior hero-power (Rally) look and
+   a further Priest/Patriarch nudge.

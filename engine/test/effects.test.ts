@@ -97,15 +97,62 @@ test('Saul of Tarsus becomes Paul at the start of your next turn (grace, not wor
   assert.equal(s.players[0].board[0].defId, 'paul_apostle', 'Saul → Paul, automatically');
 });
 
-test('The Tabernacle (standing relic): persists and buffs at end of turn', () => {
+test('The Tabernacle (standing relic): persists and buffs a damaged ally at end of turn', () => {
   let s = rig(['the_tabernacle', 'shepherd_boy']);
   s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
   s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
   assert.equal(s.players[0].relics.length, 1, 'relic stands');
+  // Tabernacle now targets a DAMAGED ally (balance change) — wound it first.
+  s = structuredClone(s);
+  s.players[0].board[0].health -= 1;
   const before = s.players[0].board[0].attack + s.players[0].board[0].health;
   s = act(s, { type: 'END_TURN' });
   const after = s.players[0].board[0].attack + s.players[0].board[0].health;
-  assert.equal(after, before + 2, '+1/+1 at dusk');
+  assert.equal(after, before + 2, '+1/+1 at dusk on the damaged ally');
+});
+
+test('Second player gets a Coin: +1 Provision on their first turn only', () => {
+  const deck = () => Array.from({ length: 30 }, () => structuredClone(FILLER));
+  let { state } = createGame({ seed: 7, decks: [deck(), deck()], skipMulligan: true });
+  assert.equal(state.active, 0);
+  assert.equal(state.players[0].provision, 1, 'first player has 1 on turn 1');
+  state = act(state, { type: 'END_TURN' });          // → P1's first turn
+  assert.equal(state.active, 1);
+  assert.equal(state.players[1].provision, 2, 'second player gets +1 Coin on their first turn');
+  assert.equal(state.players[1].provisionMax, 1, 'the Coin is not banked into max');
+  state = act(state, { type: 'END_TURN' });           // → P0 turn 2 (normal)
+  assert.equal(state.players[0].provision, 2);
+  state = act(state, { type: 'END_TURN' });           // → P1 second turn (no more Coin)
+  assert.equal(state.players[1].provision, 2, 'the Coin does not repeat');
+});
+
+test('Sarah: Covenant now buffs unconditionally (no Legendary required)', () => {
+  let s = rig(['sarah']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  const before = s.players[0].board[0].attack + s.players[0].board[0].health; // 1/3 = 4
+  s = act(s, { type: 'END_TURN' });                   // → P1
+  s = act(s, { type: 'END_TURN' });                   // → P0 dawn: Covenant fires
+  const sarah = s.players[0].board.find((u) => u.defId === 'sarah');
+  assert.ok(sarah, 'Sarah still on board');
+  assert.equal(sarah!.attack + sarah!.health, before + 2, 'gained +1/+1 with no Legendary in play');
+});
+
+test('Aaron Intercede: hero power restores 3 to a friendly unit, not the hero', () => {
+  const deck = () => Array.from({ length: 30 }, () => structuredClone(FILLER));
+  let { state } = createGame({
+    seed: 5, decks: [deck(), deck()],
+    leaders: [card('aaron_leader'), undefined] as [CardDef, CardDef | undefined],
+    startUnits: [['benaiah'], []], skipMulligan: true,
+  });
+  state = structuredClone(state);
+  state.players[0].provision = 10; state.players[0].provisionMax = 10;
+  const ally = state.players[0].board[0];
+  ally.health = 1;                                     // wound the 3/3
+  const heroBefore = state.players[0].heroHp;
+  state = act(state, { type: 'HERO_POWER', targetUid: ally.uid });
+  const healed = state.players[0].board.find((u) => u.uid === ally.uid)!;
+  assert.equal(healed.health, healed.maxHealth, 'Intercede healed the unit (capped at max)');
+  assert.equal(state.players[0].heroHp, heroBefore, 'hero HP unchanged — no longer a face heal');
 });
 
 test('David, the Shepherd: when a Sheep dies, deal 2 to a random enemy', () => {

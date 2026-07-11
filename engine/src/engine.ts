@@ -198,6 +198,12 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
   for (const r of pl.relics) r.covenantTicks = (r.covenantTicks ?? 0) + 1;
   pl.provisionMax = Math.min(state.rules.provisionCap, pl.provisionMax + 1);
   pl.provision = pl.provisionMax;
+  // "The Coin": the second player gets extra Provision to SPEND on their first
+  // turn (this turn only), to offset the first player's tempo lead. Not banked
+  // into provisionMax, so it evaporates next Dawn like Hearthstone's Coin.
+  if (p === 1 && state.turn === 2 && state.rules.secondPlayerBonus) {
+    pl.provision = Math.min(state.rules.provisionCap, pl.provision + state.rules.secondPlayerBonus);
+  }
   if (pl.heroPower) pl.heroPower.usedThisTurn = false;
   sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);

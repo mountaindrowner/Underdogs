@@ -107,16 +107,16 @@
       "hero_power": {
         "name": "Intercede",
         "cost": 2,
-        "text": "Restore 2 health to your hero.",
+        "text": "Restore 3 health to a friendly unit.",
         "effects": [
           {
-            "verb": "healHero",
-            "amount": 2,
-            "target": "ownHero"
+            "verb": "healUnit",
+            "amount": 3,
+            "target": "ally"
           }
         ]
       },
-      "text": "Intercede (2): Restore 2 health to your hero.",
+      "text": "Intercede (2): Restore 3 health to a friendly unit.",
       "flavor": "Stood between the living and the dead until the plague stopped. \u2014 Numbers 16.",
       "ref": "aaron_high_priest",
       "art": "A jeweled breastplate catching light, censer raised, incense-blue and white-gold."
