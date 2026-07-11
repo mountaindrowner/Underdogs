@@ -89,8 +89,117 @@ Disciple        87.5   22.5   92.5   45.0   87.5   80.0
 
 ## Part B — Proposals (PENDING SIGN-OFF — nothing applied)
 
-<!-- Filled from the balance-proposal agent pass. Each item: change, rationale,
-     rail check, Law check. Grouped by finding. Await Mark's ruling before any
-     edit to data/*.json. -->
+Drafted by four independent balance passes (one per cluster), each reading the
+real card data and the §7 rail. **Nothing here has been written to `data/*.json`.**
+Every card id, stat, and current value below was verified against the data; every
+core change uses an already-shipped verb/target/keyword (no engine work), **except
+the three items explicitly flagged 🔶 for sign-off.**
 
-_To be filled._
+**Recommended rollout (measure between each step):** fix the seat advantage first
+(it colours every other number), then apply one class package at a time and re-run
+`node tools/balance.ts 40 2`, watching that class's row and the mirror diagonal.
+Under-shoot deliberately — the AI already flatters tempo classes.
+
+🔶 **Needs Mark's sign-off** (new engine capability or off-rail): (1) the `gainProvision`
+verb for the Coin, Finding 1 Option A; (2) `firstborn_heir` 1/2→1/3 (+1 over the
+1-drop rail, justified as stickiness); (3) the optional `control_4_plus` condition
+on `land_of_promise` (not implemented — `control_6_plus`/`control_legendary` are).
+
+---
+
+### Finding 1 — First-player advantage (systemic; the highest-value fix)
+
+Target: pull mirror P0 win% from **68.3% → ~50–53%**. Note: `beginTurn` overwrites
+`provision = provisionMax` every Dawn, so a second-player bonus must be granted as
+**spend-this-turn Provision**, not a persistent max bump.
+
+- **Option B — rules-only "built-in coin" (recommended first; zero new vocabulary).**
+  Add `secondPlayerCoin: boolean` to `DEFAULT_RULES`; in `beginTurn`, when it's P1's
+  first Dawn (`p===1 && turn===2`), `pl.provision += 1` after the refill. One-line,
+  fully reversible, no new verb/keyword/token. Expected: mirror → ~56–60% (partial).
+  Ship it as a zero-risk probe, then promote to A if it under-corrects.
+- **Option A — "The Coin" as a one-time token 🔶 (the proper, flexible fix).** Give P1
+  a non-collectible 0-cost token in the opening hand that grants **+1 Provision this
+  turn only** — the player banks it for the turn they want. This is Hearthstone's
+  proven fix for exactly this gap. Requires a small new verb `gainProvision`
+  (self-contained; not a keyword). Theming: **"Manna"** (Exodus 16 — daily provision
+  that can't be hoarded past the day → maps onto expire-each-turn Provision); flag
+  the sacred-adjacent name for Mark. Expected: mirror → ~52–56%.
+- **Option C — second player draws +2 instead of +1 (blunt knob).** One-line change
+  in `dealOpening`. Fixes card advantage, not the tempo deficit that actually drives
+  seat advantage → only a modest dent (~63–66%). Keep as a fine-tune, not the fix.
+
+All three are reversible behind a `RuleConfig` flag and Law-clean (a resource on
+your own turn — inside strict alternation, no randomness).
+
+---
+
+### Finding 2a — Warrior (nerf to ~55%) & Shepherd (trim to ~58%)
+
+No single Warrior card breaks the rail; the kit stacks **raw attack**, which the
+face-greedy AI (and a human) monetize hardest. Shave attack on the curve-fillers;
+leave the below-floor Rally/Gather hero powers alone.
+
+| Card | Current | → Proposed | Rail |
+|---|---|---|---|
+| `abishai` Abishai | 3c **4/2** Swift | **3/2** Swift | body 6→5 (−1, kills the turn-3 burst) |
+| `joshua_and_caleb` | 4c **4/4** Swift | **3/4** Swift | body 8→7 (removes "hit for 4 on drop") |
+| `samson` | 4c **5/3**, Legacy deal 2 to all | **4/3**, same | 8→7; Legacy-AoE counts ~−2, lands on rail |
+| `coronation` | **4c** +3/+3 & allies +1 atk | **5c**, same (alt: keep 4c, +2/+2) | slows the board-wide attack anthem one turn |
+| `david_the_shepherd` (Shepherd) | **2c** 2/3, Sheep + Redeem ping | **3c**, same | breaks the turn-2 snowball engine; kit intact |
+
+Optionals only if still hot after re-measure: `sword_of_goliath` +3/+0→+2/+0;
+`the_good_fold` drop Guard (keep +1/+1) or 4c→5c. Law-clean (pure number nudges).
+
+---
+
+### Finding 2b — Priest (buff to ~45%, identity-preserving)
+
+Diagnosis: the 18-card pool has **one** removal effect and **zero** reach; five cards
+heal only the hero's face (dead to the AI); Aaron's hero power is the only one with
+zero board impact. Fix = **redirect the same heal/stat budget from face to units and
+into attack** — an unkillable, growing front-liner that grinds face — without adding
+aggro. All use shipped verbs; no engine change.
+
+| Card | Current | → Proposed | Note |
+|---|---|---|---|
+| `aaron_leader` Intercede | heal **2 to your hero** | **restore 3 to a friendly unit** | the key fix: board-relevant floor; wakes Zadok; still weaker than any 2-drop |
+| `consecration` | ally **+0/+3** & Endure | ally **+1/+2** & Endure | same budget (4), one hp→atk; wall becomes threat |
+| `hur_the_upholder` | end-turn damaged ally **+0/+2** | **+1/+1** | sustain that also pressures |
+| `the_bronze_serpent` | start-turn heal **2 to hero** | **2 to a damaged ally** | most AI-dead card → board-sustain engine |
+| `the_tabernacle` | 5c end-turn **random** ally +1/+1 | **4c**, **damaged** ally +1/+1 | online a turn sooner; piles onto the survivor 🔸re-measure snowball |
+
+Reframing Intercede as interceding for the *people* (Numbers 16) is *more* on-theme,
+not less. Zadok/Samuel/Atonement left as-is — they light up automatically once
+unit-healing is routine. The class stays attrition; it just gains agency.
+
+---
+
+### Finding 2c — Patriarch (buff to ~50%) & Prophet (light touch)
+
+Patriarch's early curve is **dead-on-cast** (Covenant/relics do nothing the turn
+played; the tempo AI clears the board before the second tick). Prophet is nearly
+fine but its burn lacks **reach** (can't hit face).
+
+| Card | Current | → Proposed | Note |
+|---|---|---|---|
+| `sarah` | Covenant +1/+1 **if control_legendary** | **remove the condition** (unconditional) | condition ~never fires (excludes herself); makes her the intended snowball |
+| `well_of_the_oath` | **4c** relic, Covenant random ally +1/+1 | **3c** | payoff comes online a turn sooner |
+| `land_of_promise` | **5c** relic, Covenant Heir + go-wide buff | **4c** | same; ramp lands before the sweep |
+| `firstborn_heir` 🔶 | 1c **1/2** vanilla | **1/3** | +1 over 1-drop rail — stickiness for a snowball class (flagged) |
+| `fire_from_heaven` (Prophet) | 4c deal 4 to **a unit** | deal 4 to **anyCharacter** (may hit hero) | gives burn its win-con reach; still below Fireball rate |
+| `elijah_leader` Fire | deal 1 to **a unit** | deal 1 to **anyCharacter** | 1-dmg reach the AI can actually close with; floor intact |
+
+Optional 🔶: `land_of_promise`'s buff gate `control_6_plus` → `control_4_plus`
+(near-unreachable vs a board-clearing AI) — **needs new engine condition**, excluded
+from the core set. Abraham's Multiply left alone (correct dead-draw floor).
+
+---
+
+### After sign-off — how to apply safely
+
+1. Edit only the dedicated data files (`data/cards.seed.json` `cards[]`, `data/leaders.json`) — never the superseded sublists (STATUS.md footgun).
+2. Add/adjust a unit test for any behaviour change (e.g. Sarah's now-unconditional Covenant, Fire reaching face).
+3. Re-run the gatekeepers: `node tools/audit-cards.ts`, `node --test engine/test/*.test.ts`, `node tools/soak.ts`.
+4. Re-run `node tools/balance.ts 40 2` and compare the matrix; iterate on optionals only if a class is still out of the 45–58% band.
+5. Update this doc's Part A numbers and log the change in `docs/06-decisions-log.md`.

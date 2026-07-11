@@ -44,6 +44,10 @@ node tools/audit-cards.ts
 # 3. AI-vs-AI soak (all class matchups, full games)  → expect: "SOAK OK: 36 games … no crashes"
 node tools/soak.ts 1
 
+# 3b. Balance sims (optional — measure, don't gate). See docs/08-balance.md.
+node tools/balance.ts 40 2     # class win-rate matrix + first-player advantage + game length
+node tools/card-balance.ts     # static §7 stat-budget audit of every card
+
 # 4. UI production build  → expect: "✓ built"
 cd ui && npm run build
 
@@ -182,6 +186,7 @@ Measured against `CLAUDE.md` and the design docs:
 ## Suggested next moves (not commitments — for whoever picks this up)
 
 Ranked by "makes the game more complete per its own canon":
+0. **Balance pass (measured; proposals await sign-off).** `docs/08-balance.md` has the data + specific rail-legal tweaks. Headline: a large **first-player advantage** (68% mirror win rate — needs a Coin/Manna-style fix) and a wide **class spread** (Warrior 78.5% … Priest 18.3%). No card breaks the §7 rail — the imbalance is systemic. Nothing applied yet.
 1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
 2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
 3. **Settings screen** + the 3 remaining SOON stubs (Packs, Settings, Path of the Faithful).
