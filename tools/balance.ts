@@ -76,18 +76,25 @@ const SEEDS = Number(process.argv[2] ?? 60);
 const LEVEL = (Number(process.argv[3] ?? 2) as AiLevel);
 const LIMIT = 2000;
 
-/** one game: returns { winner, turns } */
+const crashes: string[] = [];
+
+/** one game: returns { winner, turns }. winner null = hang or crash. */
 function playGame(first: Cls, second: Cls, seed: number): { winner: 0 | 1 | null; turns: number } {
-  let { state } = createGame({
-    seed,
-    decks: [deckOf(first), deckOf(second)],
-    leaders: [leaderOf(first), leaderOf(second)],
-    skipMulligan: true,
-  });
-  let n = 0;
-  while (state.phase !== 'over' && n++ < LIMIT) {
-    const next: GameState = applyAction(state, pickAction(state, LEVEL)).state;
-    state = next;
+  let state: GameState;
+  try {
+    state = createGame({
+      seed,
+      decks: [deckOf(first), deckOf(second)],
+      leaders: [leaderOf(first), leaderOf(second)],
+      skipMulligan: true,
+    }).state;
+    let n = 0;
+    while (state.phase !== 'over' && n++ < LIMIT) {
+      state = applyAction(state, pickAction(state, LEVEL)).state;
+    }
+  } catch (e) {
+    crashes.push(`${first} vs ${second} seed ${seed}: ${(e as Error).message?.split('\n')[0] ?? e}`);
+    return { winner: null, turns: 0 };
   }
   return { winner: state.winner ?? null, turns: state.turn };
 }
@@ -131,6 +138,12 @@ const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 console.log(`\nBALANCE — ${SEEDS} seeds/ordered-pair, AI level ${LEVEL}, ${decisive} decisive games` +
   (hangs ? ` (${hangs} hangs!)` : ''));
+if (crashes.length) {
+  console.log(`\n⚠ ${crashes.length} ENGINE CRASH(es) — real bugs to fix:`);
+  for (const c of crashes.slice(0, 12)) console.log(`   ${c}`);
+  if (crashes.length > 12) console.log(`   … and ${crashes.length - 12} more`);
+  console.log('');
+}
 console.log('Win-rate matrix — row plays FIRST (P0) vs column, cell = row win%\n');
 console.log('   first\\vs   ' + CLASSES.map((c) => cap(c).slice(0, 5).padStart(6)).join(' '));
 for (const a of CLASSES) {
