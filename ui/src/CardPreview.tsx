@@ -31,8 +31,8 @@ export function CardPreview({ card }: { card: CardDef }) {
           <div className="bcName">{card.name}</div>
           <div className="bcType">{line || card.type}</div>
         </div>
-        <div className="bcPanel">
-          <div className="bcText">{card.text || <span className="vanilla">— No card text —</span>}</div>
+        <div className={`bcPanel${!card.text ? ' vanillaPanel' : ''}`}>
+          {card.text && <div className="bcText">{card.text}</div>}
           {flavor && <div className="bcFlavor">{flavor}</div>}
         </div>
         {card.type === 'minion' && <><div className="bcAtk">{card.attack}</div><div className="bcHp">{card.health}</div></>}

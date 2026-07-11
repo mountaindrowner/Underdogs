@@ -380,6 +380,9 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .bcText .vanilla{color:#9a8b66;font-style:italic}
 .bcFlavor{margin-top:auto;padding-top:5px;font-size:9.5px;font-style:italic;color:#bda476;text-align:center;line-height:1.28;
   border-top:1px solid rgba(200,160,90,.18)}
+/* a vanilla card (no rules text) — center its flavor, no divider */
+.bcPanel.vanillaPanel{justify-content:center}
+.bcPanel.vanillaPanel .bcFlavor{margin-top:0;border-top:none;font-size:11px}
 .bcAtk,.bcHp{position:absolute;bottom:6px;width:34px;height:34px;border-radius:50%;z-index:5;
   display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;
   box-shadow:0 0 0 2px #241606,0 2px 5px rgba(0,0,0,.6)}
@@ -453,14 +456,19 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .chapter.done{border-color:#8ef08a}
 .chapter.free{border-color:#3f6fa8}
 
-/* ===================== intro ===================== */
-.intro{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:3vh;width:min(760px,94vw);text-align:center}
-.introArt{width:100%;height:280px;border-radius:16px;background-size:cover;background-position:center 24%;
+/* ===================== intro =====================
+   Everything scales off the viewport so the whole card (art → narrative → tip →
+   Begin button) always fits, on tall desktops and short landscape webviews
+   alike. The art height is capped by vh so it never shoves the button off. */
+.intro{display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.6vh,16px);
+  width:min(760px,94vw);max-height:100%;text-align:center}
+.introArt{width:100%;height:clamp(96px,30vh,280px);border-radius:16px;background-size:cover;background-position:center 24%;
   border:3px solid var(--gold2);box-shadow:0 10px 30px rgba(0,0,0,.6),inset 0 -60px 60px rgba(20,10,4,.7)}
-.intro h1{font-size:34px;color:#ffe6a2;letter-spacing:1px;text-shadow:0 2px 6px #000;margin-top:-46px;z-index:2}
-.intro .narr{font-size:17px;line-height:1.5;color:#e9dcc0}
-.intro .tip{font-size:14px;line-height:1.45;color:#bfe4ff;background:rgba(30,50,80,.35);border:1px solid #29406a;
-  border-radius:10px;padding:10px 14px;max-width:620px}
+.intro h1{font-size:clamp(20px,4.4vh,34px);color:#ffe6a2;letter-spacing:1px;text-shadow:0 2px 6px #000;
+  margin-top:clamp(-46px,-4.6vh,-24px);z-index:2}
+.intro .narr{font-size:clamp(12px,2.1vh,17px);line-height:1.45;color:#e9dcc0}
+.intro .tip{font-size:clamp(11px,1.8vh,14px);line-height:1.4;color:#bfe4ff;background:rgba(30,50,80,.35);border:1px solid #29406a;
+  border-radius:10px;padding:clamp(5px,1.2vh,10px) 14px;max-width:620px}
 
 /* ===================== free play setup (the sparring pit) ===================== */
 .fpBody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
