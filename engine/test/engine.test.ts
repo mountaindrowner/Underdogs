@@ -162,6 +162,7 @@ test('data pipeline: loads real /data and builds a deck', () => {
   const dataDir = join(here, '..', '..', 'data');
   const defs = loadCardData([
     join(dataDir, 'cards.seed.json'),
+    join(dataDir, 'cards.set2.json'),
     join(dataDir, 'tokens.json'),
     join(dataDir, 'adversaries.json'),
     join(dataDir, 'leaders.json'),

@@ -8,9 +8,9 @@
 
 ## 30-second summary
 
-UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 168 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
+UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 213 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 32 engine tests pass · card audit clean (168 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 41 engine tests pass · card audit clean (213 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
 
 ---
 
@@ -38,7 +38,7 @@ Run these from the repo root. If any fails or the counts differ, **something reg
 # 1. Engine unit + effect tests  → expect: # pass 32, # fail 0
 node --test engine/test/*.test.ts
 
-# 2. Card-data audit  → expect: "all 168 definitions check out (3 deferred)"
+# 2. Card-data audit  → expect: "all 213 definitions check out (3 deferred)"
 node tools/audit-cards.ts
 
 # 3. AI-vs-AI soak (all class matchups, full games)  → expect: "SOAK OK: 36 games … no crashes"
@@ -74,7 +74,8 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
   rng.ts           seeded PRNG (determinism)
   index.ts         public API barrel
 /engine/test     engine.test.ts (mechanics) · effects.test.ts (real-card regressions)
-/data            cards.seed.json (126 cards) · leaders.json (12) · tokens.json (7) ·
+/data            cards.seed.json (126 cards) · cards.set2.json (30 legendaries +
+                 15 Fulfilled forms) · leaders.json (12) · tokens.json (8) ·
                  adversaries.json (22) · campaign.json (4 chapters) ·
                  cards.schema.json · keywords.json
 /ui/src          React 19 + Vite app
@@ -115,7 +116,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - **Keyword vocabulary is closed** (guard, swift, endure, giant_slayer, redeem, scatter + marker labels foresee/covenant/raise + executes_damaged). Do not invent new keywords without human sign-off (Law-adjacent; CLAUDE.md §5).
 
 ### Content
-- **126 collectible cards** (schema-valid), **12 leaders** w/ hero powers, **8 tokens** (incl. the Loaf of Bread), **22 adversaries** (all with authored effects now). All art present as WebP.
+- **156 collectible cards** (126 base + 30 Set 2 legendaries; schema-valid) plus **15 Fulfilled forms**, **12 leaders** w/ hero powers, **8 tokens** (incl. the Loaf of Bread), **22 adversaries** (all with authored effects now). Base art present as WebP; **the 45 Set 2 cards have no art yet** — the game shows the letter-fallback tile until it's generated.
 - Every definition passes the audit — its text is actually executed (or is one of 3 tracked deferrals).
 
 ### UI / game shell — a full loop
@@ -186,7 +187,7 @@ Measured against `CLAUDE.md` and the design docs:
 ## Suggested next moves (not commitments — for whoever picks this up)
 
 Ranked by "makes the game more complete per its own canon":
-0b. **Set 2 legendaries — STAGED, not wired (`data/cards.set2.json` + `docs/18-legendary-set-2.md`).** 30 collectible legendaries + 15 Fulfilled forms ("Cloud of Witnesses"), rail- and Law-checked, skewed to lift Priest/Prophet/Patriarch. **NOT loaded** (`ui/src/data.ts`/audit untouched) because ~a dozen cards need new engine capabilities first — the flagged big three: **(1) `deal`→`enemyHero`** (face targeting, Joel — also unblocks Prophet's balance reach + face-burn generally); **(2) `damagedEnemy`** target selector (Jael, trivial mirror of `damagedAlly`); **(3) `costReduce`/`discountHand` filters** (`cardType`/`class`, Bezalel/Shunammite/JtB). Plus smaller ones the JSON uses: `returnFromDiscard count`+`raisedUnits` target (Nehemiah), `discoverFromDeck thenDiscount` (Huldah), `buff filter:{tribe}` (Mary), `auraBuff condition:control_david`+`grantKeyword` on self (Mephibosheth), `cannotAttackAlone` passive (Barak). Then: add each new capability to the engine AND `tools/audit-cards.ts` sets, generate art for 45 cards, load the file, `audit`/`test`/`soak`, and re-run `balance.ts`. **Frame-look explorations for legendaries are stashed in `prototypes/legendary/` (not chosen yet).**
+0b. **Set 2 legendaries — LOADED & verified (`data/cards.set2.json` + `docs/18-legendary-set-2.md`).** 30 collectible legendaries + 15 Fulfilled forms ("Cloud of Witnesses"), rail- and Law-checked, wired into all five loaders (`ui/src/data.ts`, `tools/{audit-cards,balance,soak}.ts`, both engine tests). New engine capabilities added and tested: `deal`→`enemyHero` face burn (Joel), `damagedEnemy` target (Jael), `costReduce` cost-aura + `filter:{cardType/class}` (Bezalel/Habakkuk/Shunammite), `returnFromDiscard count`+`withKeyword` (Nehemiah), `buff filter:{tribe}`+`scope:'other'` (Mary), `outnumbered` aura condition (Gideon fulfilled), `cannotAttackAlone` passive (Barak), and three new Fulfill conditions — `hero_damaged` (Hezekiah/Caleb/Esther/Mordecai), `cast_spells` (Miriam/Habakkuk), `outnumbered_win` (Gideon). Audit/tests/soak green (213 defs, 41 tests, 108-game soak). **Still TODO:** generate art for the 45 new cards (letter-fallback until then); the balance matrix still shows the known AI-pilot skew (Warrior/Shepherd high, Priest low — a greedy-1-ply artifact, not card power; see D-32). **Frame-look explorations for legendaries are stashed in `prototypes/legendary/` (not chosen yet).**
 0. **Balance pass — APPLIED (`docs/08-balance.md` Part C).** Shipped the **Loaf of Bread** (a 0-cost "gain 1 Provision" token the 2nd player starts with — our Coin; `gainProvision` verb; fixed the seat advantage 61.5%→48.3%), Warrior/Shepherd nerfs, and Priest/Patriarch buffs; class spread narrowed 60→46 pts. **Still open:** Warrior stays high (74% — an AI-pilot artifact, don't chase with the current AI), and Prophet's reach fix is **deferred** because the engine can't target the enemy hero with a played spell. Next balance unlocks: (a) enemy-hero spell/hero-power targeting, (b) a smarter (2-ply) AI, then re-measure.
 1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
 2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.

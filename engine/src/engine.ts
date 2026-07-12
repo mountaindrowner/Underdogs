@@ -41,7 +41,7 @@ function makeUnit(state: GameState, def: CardDef, owner: PlayerId): UnitInstance
     keywords: kws, effects: def.effects ? structuredClone(def.effects) : {},
     fulfill: def.fulfill, ready: false, attacksThisTurn: 0,
     endure: kws.includes('endure'), auraAtk: 0, auraHp: 0, auraKw: [], tempAtk: 0,
-    covenantTicks: 0, enteredTurn: state.turn,
+    covenantTicks: 0, enteredTurn: state.turn, spellsAtEntry: state.players[owner].spellsCast ?? 0,
   };
 }
 
@@ -61,9 +61,13 @@ export function hasKeyword(u: UnitInstance, k: Keyword): boolean {
 export function effCost(state: GameState, p: PlayerId, card: CardDef): number {
   const pl = state.players[p];
   let discount = pl.nextCardDiscount ?? 0;
+  const matchesFilter = (f?: { cardType?: string; class?: string; tribe?: string }) =>
+    !f || ((f.cardType == null || card.type === f.cardType) && (f.class == null || card.class === f.class));
   for (const src of [...pl.board, ...pl.relics]) {
     for (const op of src.effects.aura ?? []) {
       if (op.verb === 'discountHand') discount += op.amount ?? 1;
+      // costReduce: a continuous cost aura, optionally filtered to a card type/class
+      if (op.verb === 'costReduce' && matchesFilter(op.filter)) discount += op.amount ?? 1;
     }
   }
   return Math.max(0, (card.cost ?? 0) - discount);
@@ -84,7 +88,7 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
       id, heroHp: rules.heroHp, heroMaxHp: rules.heroHp,
       provision: 0, provisionMax: 0,
       deck: d, hand: [], board: [], relics: [], discard: [], exiled: [],
-      fallen: [], delayed: [], usedOnce: [], nextCardDiscount: 0,
+      fallen: [], delayed: [], usedOnce: [], nextCardDiscount: 0, spellsCast: 0,
       fatigue: 0, heroPower: hp, leaderId: leader?.id,
     };
   };
@@ -300,6 +304,7 @@ function playCard(state: GameState, sink: EventSink, rng: Rng, handIndex: number
     runTrigger(ctx, card.effects?.arrival, r, targetUid);
   } else {
     // spell / equip relic: run its arrival-keyed effects, then discard
+    if (card.type === 'spell') pl.spellsCast = (pl.spellsCast ?? 0) + 1;   // Fulfill: cast_spells
     runTrigger(ctx, card.effects?.arrival, undefined, targetUid);
     pl.discard.push(card);
   }
@@ -330,6 +335,9 @@ function attack(state: GameState, sink: EventSink, rng: Rng, attackerUid: number
   const foe = other(p);
   const attacker = state.players[p].board.find((u) => u.uid === attackerUid);
   if (!attacker || !attacker.ready || attacker.attacksThisTurn >= 1 || effAttack(attacker) <= 0) return;
+  // Barak: can't attack while it's your only unit
+  if (state.players[p].board.length <= 1 &&
+      (attacker.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone')) return;
 
   const enemies = state.players[foe].board;
   const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
@@ -364,6 +372,10 @@ function attack(state: GameState, sink: EventSink, rng: Rng, attackerUid: number
     }
   } else {
     ctx.dealToHero(foe, effAttack(attacker), attacker.uid);
+  }
+  // Fulfill: win a fight while outnumbered (Gideon) — attacker survived, fewer allies
+  if (effHealth(attacker) > 0 && state.players[p].board.length < state.players[foe].board.length) {
+    attacker.wonOutnumbered = true;
   }
   attacker.ready = false;
   attacker.attacksThisTurn += 1;
@@ -515,8 +527,9 @@ function makeCtx(state: GameState, sink: EventSink, rng: Rng, controller: Player
         revive(best.defId);
         return;
       }
-      // lastFallenAlly / 'ally' / default: the most recent fallen minion
-      revive(pl.fallen[pl.fallen.length - 1].defId);
+      // lastFallenAlly / 'fallenAlly' / default: the N most recent fallen minions
+      const n = Math.min(op.count ?? 1, pl.fallen.length);
+      for (const f of pl.fallen.slice(-n).reverse()) revive(f.defId);
     },
     queueDelayedReturn: (p, into, turns) => { state.players[p].delayed.push({ into, remaining: turns }); },
     onceGate: (p, key) => {
@@ -743,6 +756,11 @@ function fulfillMet(state: GameState, u: UnitInstance): boolean {
     case 'survive_damage': return !!u.survivedDamage;
     case 'survive_stronger': return !!u.survivedStronger;          // Jacob wrestles
     case 'survive_damaged_turn': return !!u.survivedDamagedTurn;   // Daniel in the den
+    case 'hero_damaged':                                            // Hezekiah, Caleb, Esther…
+      return state.players[u.owner].heroHp < state.players[u.owner].heroMaxHp;
+    case 'cast_spells':                                            // Miriam, Habakkuk
+      return (state.players[u.owner].spellsCast ?? 0) - (u.spellsAtEntry ?? 0) >= (f.value ?? 2);
+    case 'outnumbered_win': return !!u.wonOutnumbered;             // Gideon
     // Saul→Paul: the one automatic, unearned Fulfill (grace, not works —
     // CLAUDE.md §6). Fires at the start of the owner's next turn, no condition.
     case 'auto_next_turn': return state.turn >= (u.enteredTurn ?? 0) + 2;
@@ -832,6 +850,9 @@ function drawType(state: GameState, sink: EventSink, rng: Rng, p: PlayerId, type
 /** condition strings like control_david / control_ruth: "you control an X" */
 function auraConditionMet(state: GameState, src: UnitInstance, condition?: string): boolean {
   if (!condition) return true;
+  if (condition === 'outnumbered') {                            // Gideon: enemy has more units
+    return state.players[src.owner].board.length < state.players[other(src.owner)].board.length;
+  }
   if (condition.startsWith('control_')) {
     const who = condition.slice('control_'.length);
     return state.players[src.owner].board.some((a) => a.uid !== src.uid && a.defId.includes(who));

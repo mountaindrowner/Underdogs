@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
-  createGame, applyAction, registerDefs, makeRegistry, effAttack, effHealth, hasKeyword,
+  createGame, applyAction, registerDefs, makeRegistry, effAttack, effHealth, hasKeyword, effCost,
   type CardDef, type Action, type GameState,
 } from '../src/index.ts';
 import { loadCardData } from '../src/cards.node.ts';
@@ -13,6 +13,7 @@ import { loadCardData } from '../src/cards.node.ts';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const defs = loadCardData([
   join(root, 'data', 'cards.seed.json'),
+  join(root, 'data', 'cards.set2.json'),
   join(root, 'data', 'tokens.json'),
   join(root, 'data', 'adversaries.json'),
   join(root, 'data', 'leaders.json'),
@@ -296,6 +297,106 @@ test('AI takes lethal face damage instead of trading', async () => {
   let st = s;
   for (let i = 0; i < 6 && st.phase !== 'over'; i++) st = act(st, pickAction(st, 2));
   assert.equal(st.winner, 0, 'lethal is taken');
+});
+
+// ---- Set 2 legendaries: the new engine capabilities -----------------------
+
+test('Joel: Arrival hits the enemy hero and heals your own', () => {
+  let s = rig(['joel_herald']);
+  s = structuredClone(s);
+  s.players[0].heroHp = 25;                              // damaged so the heal shows
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[1].heroHp, 27, 'enemy hero took 3');
+  assert.equal(s.players[0].heroHp, 28, 'own hero restored 3');
+});
+
+test('Jael of the Tent: Arrival destroys a DAMAGED enemy, ignores the healthy', () => {
+  let s = rig(['jael_of_the_tent'], ['goliath_of_gath', 'watchman']);
+  s = structuredClone(s);
+  s.players[1].board[0].health -= 1;                     // wound the giant only
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  const foe = s.players[1].board.map((u) => u.defId);
+  assert.ok(!foe.includes('goliath_of_gath'), 'the wounded giant falls');
+  assert.ok(foe.includes('watchman'), 'the unhurt watchman is spared');
+});
+
+test('Hezekiah: Fulfill fires once your hero has taken damage', () => {
+  let s = rig(['hezekiah_sick_king']);
+  s = structuredClone(s);
+  s.players[0].heroHp = 28;                              // king already ailing
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[0].board[0].defId, 'hezekiah_fifteen_years', 'the 15 years are added');
+});
+
+test('Miriam: Fulfill after you cast two spells', () => {
+  let s = rig(['miriam_riverbank', 'word_of_the_lord', 'word_of_the_lord']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });        // Miriam to the board (Foresee auto-resolves)
+  assert.equal(s.players[0].board[0].defId, 'miriam_riverbank', 'still early form');
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });        // spell 1
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });        // spell 2
+  assert.equal(s.players[0].board[0].defId, 'miriam_prophetess_song', 'the song is sung');
+});
+
+test('Gideon: Fulfill by winning a fight while outnumbered', () => {
+  let s = rig([], ['watchman', 'watchman'], ['gideon_threshing']);
+  s = structuredClone(s);
+  const gideon = s.players[0].board[0];
+  gideon.ready = true;
+  const foe = s.players[1].board[0];
+  s = act(s, { type: 'ATTACK', attackerUid: gideon.uid, targetUid: foe.uid });
+  const g = s.players[0].board[0];
+  assert.equal(g.defId, 'gideon_mighty_valor', 'the 300 are enough');
+});
+
+test('Barak: cannot attack while he is your only unit', () => {
+  let s = rig([], [], ['barak_the_reluctant']);
+  s = structuredClone(s);
+  const barak = s.players[0].board[0];
+  barak.ready = true;
+  const before = s.players[1].heroHp;
+  s = act(s, { type: 'ATTACK', attackerUid: barak.uid, targetUid: 'hero' });
+  assert.equal(s.players[1].heroHp, before, 'the reluctant one holds back alone');
+});
+
+test('Bezalel: your Relics cost (1) less while he stands', () => {
+  let s = rig(['bezalel_spirit_gifted']);
+  const relicBase = reg.get('sword_of_goliath')!.cost ?? 0;
+  assert.equal(effCost(s, 0, reg.get('sword_of_goliath')!), relicBase, 'full price before');
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(effCost(s, 0, reg.get('sword_of_goliath')!), relicBase - 1, 'discounted with Bezalel out');
+});
+
+test('Nehemiah: raises TWO fallen allies and gives them Guard', () => {
+  let s = rig(['nehemiah_rebuilder']);
+  s = structuredClone(s);
+  s.players[0].fallen = [
+    { defId: 'shepherd_boy', turn: 1 },
+    { defId: 'benaiah', turn: 1 },
+  ];
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  const raised = s.players[0].board.filter((u) => u.defId !== 'nehemiah_rebuilder');
+  assert.equal(raised.length, 2, 'two walls rebuilt');
+  assert.ok(raised.every((u) => hasKeyword(u, 'guard')), 'each stands as a Guard');
+});
+
+test('AI never offers a lone Barak\'s no-op attack (would stall the greedy loop)', async () => {
+  const { pickAction } = await import('../../ui/src/ai.ts');
+  let s = rig([], ['watchman'], ['barak_the_reluctant']);
+  s = structuredClone(s);
+  s.active = 0;
+  s.players[0].board[0].ready = true;
+  // With Barak alone, the AI must not return an ATTACK for him — it would be a
+  // no-op the engine refuses, and the greedy re-pick would loop forever.
+  const a = pickAction(s, 2);
+  if (a.type === 'ATTACK') {
+    assert.notEqual((a as { attackerUid: number }).attackerUid, s.players[0].board[0].uid,
+      'lone Barak is not offered as an attacker');
+  }
+  // and applying the chosen action must make progress (turn advances or board changes)
+  const before = JSON.stringify(s.players[0].board);
+  const s2 = act(s, a);
+  assert.ok(s2.active !== 0 || JSON.stringify(s2.players[0].board) !== before || s2.phase === 'over',
+    'the AI makes real progress, never a no-op');
 });
 
 test('AI difficulty is deterministic per level', async () => {

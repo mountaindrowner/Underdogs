@@ -86,11 +86,17 @@ export function targetSide(spec: TargetSpec | undefined): 'enemy' | 'ally' | 'an
 export function resolveTargets(
   ctx: Ctx, spec: TargetSpec | undefined, source: UnitInstance | undefined,
   explicitTargetUid: number | undefined,
+  filter?: { tribe?: string },
 ): Target[] {
   const me = ctx.controller;
   const foe = ctx.opponent(me);
-  const allies = ctx.unitsOf(me);
-  const enemies = ctx.unitsOf(foe);
+  // a tribe filter narrows the candidate pools (Mary: a random Disciple)
+  const tribeOk = (u: UnitInstance) => !filter?.tribe
+    || (filter.tribe === 'disciple' ? isDisciple(u)
+      : filter.tribe === 'sheep' ? isSheep(u)
+      : filter.tribe === 'heir' ? isHeir(u) : true);
+  const allies = ctx.unitsOf(me).filter(tribeOk);
+  const enemies = ctx.unitsOf(foe).filter(tribeOk);
   const pick = (arr: UnitInstance[]): Target[] =>
     arr.length ? [{ kind: 'unit', unit: arr[ctx.rng.int(arr.length)] }] : [];
   const explicit = (pool: UnitInstance[]): Target[] => {
@@ -117,6 +123,8 @@ export function resolveTargets(
       return pick(enemies);
     case 'damagedAlly':
       return pick(allies.filter((u) => u.health < u.maxHealth));
+    case 'damagedEnemy':
+      return pick(enemies.filter((u) => u.health < u.maxHealth));
     case 'ownHero':
       return [{ kind: 'hero', player: me }];
     case 'enemyHero':
@@ -203,10 +211,11 @@ export function applyEffect(
   // covenant onTurn gate (Enoch: only on the source's Nth turn-start)
   if (op.onTurn != null && source && (source.covenantTicks ?? 0) !== op.onTurn) return;
 
-  const targets = resolveTargets(ctx, op.target, source, explicitTargetUid);
+  const targets = resolveTargets(ctx, op.target, source, explicitTargetUid, op.filter);
   for (const t of targets) if (t.kind === 'unit') memo.lastTargetDef = ctx.defOf(t.unit.defId);
+  // scope:'other' — "your OTHER units" (Ephraim, Judah's fulfilled Covenant)
   const eachUnit = (fn: (u: UnitInstance) => void) => {
-    for (const t of targets) if (t.kind === 'unit') fn(t.unit);
+    for (const t of targets) if (t.kind === 'unit' && !(op.scope === 'other' && t.unit.uid === source?.uid)) fn(t.unit);
   };
 
   switch (op.verb) {

@@ -43,7 +43,8 @@ export type Verb =
   | 'returnToHand' | 'shuffleIntoDeck' | 'delayedTransform'
   | 'conditionalDeal' | 'gainForEachSheep' | 'discoverFromDeck'
   | 'onHealBonus' | 'discountHand'
-  | 'gainProvision';    // +N Provision to spend this turn (the Loaf of Bread token)
+  | 'gainProvision'     // +N Provision to spend this turn (the Loaf of Bread token)
+  | 'cannotAttackAlone';// passive: this unit can't attack while it's your only unit (Barak)
 
 /** A targeting selector resolved at effect time. */
 export type TargetSpec =
@@ -53,7 +54,7 @@ export type TargetSpec =
   // explicit-target aliases (the player picks; the side is validated)
   | 'enemy' | 'ally' | 'anyUnit' | 'anyCharacter' | 'anyFriendlyOrHero'
   // computed selectors
-  | 'damagedAlly' | 'mostHealthEnemy' | 'cheapestEnemy' | 'allEnemiesWithoutGuard'
+  | 'damagedAlly' | 'damagedEnemy' | 'mostHealthEnemy' | 'cheapestEnemy' | 'allEnemiesWithoutGuard'
   // tribes
   | 'friendlySheep' | 'friendlyDisciple' | 'friendlyDisciples' | 'friendlyHeirs'
   // graveyard selectors (returnFromDiscard)
@@ -98,6 +99,8 @@ export interface EffectOp {
   trigger?: string;                 // op-level listener filter (friendlySheepDies)
   on?: string;                      // `trigger` trigger: ally_death, self_damaged
   delayToNextTurn?: boolean;        // queue the op for your next dawn (Job)
+  /** cost-aura / random-target filter: cardType (relic/spell), class (prophet…), tribe (disciple…). */
+  filter?: { cardType?: CardType; class?: string; tribe?: string };
 }
 
 export interface FulfillSpec {
@@ -164,6 +167,8 @@ export interface UnitInstance {
   slewGiant?: boolean;
   survivedStronger?: boolean;
   survivedDamagedTurn?: boolean;
+  wonOutnumbered?: boolean;          // won a fight while your side was outnumbered (Gideon)
+  spellsAtEntry?: number;            // controller's spellsCast when this entered (cast_spells)
 }
 
 export type PlayerId = 0 | 1;
@@ -196,6 +201,8 @@ export interface PlayerState {
   usedOnce: string[];
   /** discount on the next card(s) this turn (Terah's Caravan). */
   nextCardDiscount: number;
+  /** spells cast this game (Fulfill: cast_spells — Miriam, Habakkuk). */
+  spellsCast?: number;
   fatigue: number;        // escalating self-damage counter
   heroPower?: HeroPower;
   leaderId?: string;

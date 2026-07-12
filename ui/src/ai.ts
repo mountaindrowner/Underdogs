@@ -77,10 +77,14 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
     }
   }
 
-  // attacks (respect Guard)
+  // attacks (respect Guard). A unit that "can't attack alone" (Barak) is a
+  // no-op swing while it's your only unit — never offer it, or the greedy loop
+  // would re-pick a move the engine refuses and stall.
+  const canSwing = (u: (typeof pl.board)[number]) =>
+    pl.board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone');
   const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
   for (const u of pl.board) {
-    if (!u.ready || u.attacksThisTurn >= 1 || effAttack(u) <= 0) continue;
+    if (!u.ready || u.attacksThisTurn >= 1 || effAttack(u) <= 0 || !canSwing(u)) continue;
     if (guards.length) {
       for (const g of guards) acts.push({ type: 'ATTACK', attackerUid: u.uid, targetUid: g.uid });
     } else {
@@ -126,8 +130,10 @@ export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const foePl = state.players[(me ^ 1) as PlayerId];
   const faceOpen = !foePl.board.some((u) => hasKeyword(u, 'guard'));
   if (faceOpen) {
-    const swings = state.players[me].board
-      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0);
+    const board = state.players[me].board;
+    const swings = board
+      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0
+        && (board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone')));
     const total = swings.reduce((sum, u) => sum + effAttack(u), 0);
     if (total >= foePl.heroHp && swings.length) {
       return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };
