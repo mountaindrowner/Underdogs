@@ -69,6 +69,8 @@ for c in cards:
 end = led()
 print(f"\n=== SET 2 BATCH DONE ===")
 print(f"art generated this run: {end['images']-start['images']} images, "
-      f"${end['usd']-start['usd']:.4f}")
-print(f"ledger total: {end['images']} images, ${end['usd']:.4f} of $10  (${10-end['usd']:.4f} left)")
+      f"est ${end['usd']-start['usd']:.4f}")
+bl = gen_art.budget_left(end)
+print(f"ledger total: {end['images']} images, est ${end['usd']:.4f} all-time"
+      + (f"  (${bl:.4f} left of ${end['budget_usd']:.2f} funded)" if bl is not None else ""))
 if failures: print("FAILURES:", failures)

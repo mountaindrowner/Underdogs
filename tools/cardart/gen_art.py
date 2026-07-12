@@ -51,6 +51,15 @@ def _ledger_load():
 
 def _ledger_save(l): LEDGER.write_text(json.dumps(l, indent=2))
 
+def budget_left(l=None):
+    """Real balance remaining, or None if no real budget is anchored. Equals the
+    funded account balance minus the estimated spend since it was last anchored
+    (see cost_ledger.json 'budget_note'). Free-tier images actually cost $0, so
+    this is a conservative floor on what's really left."""
+    l = l or _ledger_load()
+    if l.get("budget_usd") is None: return None
+    return l["budget_usd"] - (l["usd"] - l.get("budget_anchor_usd", 0.0))
+
 def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3"):
     refs = refs or []
     master = ADVERSARY_MASTER if cls == "adversary" else MASTER
@@ -103,8 +112,10 @@ def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3"):
     l["runs"].append({"id": card_id, "cls": cls, "img_tok": img_tok, "usd": round(cost, 5),
                       "refs": [os.path.basename(r) for r in refs]})
     _ledger_save(l)
+    bl = budget_left(l)
+    tail = f", ${bl:.4f} left of ${l['budget_usd']:.2f}" if bl is not None else ""
     print(f"[ok] {card_id:28s} {img_tok} img-tok  ${cost:.4f}   "
-          f"(run total: {l['images']} imgs, ${l['usd']:.4f})")
+          f"(run total: {l['images']} imgs, est ${l['usd']:.4f}{tail})")
     return out_path
 
 if __name__ == "__main__":
@@ -142,5 +153,6 @@ if __name__ == "__main__":
         generate(refs=[ref_path] if r else None, **c)
 
     l = _ledger_load()
-    print(f"\n=== LEDGER ===  {l['images']} images  ${l['usd']:.4f} spent of $10.00  "
-          f"(${10 - l['usd']:.4f} left)")
+    bl = budget_left(l)
+    print(f"\n=== LEDGER ===  {l['images']} images  est ${l['usd']:.4f} all-time  "
+          + (f"(${bl:.4f} left of ${l['budget_usd']:.2f} funded)" if bl is not None else ""))
