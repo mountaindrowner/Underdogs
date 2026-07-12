@@ -3,8 +3,8 @@
   "budget_anchor_usd": 7.4036,
   "budget_funded_on": "2026-07-12",
   "budget_note": "budget_usd is the REAL account balance (checked 2026-07-12). Remaining = budget_usd - (usd - budget_anchor_usd). The all-time \"usd\" is a worst-case paid-rate estimate (/bin/bash.039/img); free-tier images actually cost $0, so real spend is lower than this figure.",
-  "images": 204,
-  "usd": 7.791918900000009,
+  "images": 211,
+  "usd": 8.21191890000001,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1517,6 +1517,48 @@
       "img_tok": 1290,
       "usd": 0.03883,
       "refs": []
+    },
+    {
+      "id": "board_elah",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_elah",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_eden",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_redsea",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_babylon",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_eden",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
+    },
+    {
+      "id": "board_babylon",
+      "cls": "board",
+      "model": "imagen-4.0-ultra-generate-001",
+      "usd": 0.06
     }
   ]
 }
