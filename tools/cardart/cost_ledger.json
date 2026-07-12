@@ -1,6 +1,6 @@
 {
-  "images": 149,
-  "usd": 5.658596700000007,
+  "images": 194,
+  "usd": 7.403646300000009,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1095,6 +1095,351 @@
     {
       "id": "tok_assyrian_soldier",
       "cls": "adversary",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "gideon_threshing",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "joshua_high_priest",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "joshua_clothed_in_white",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "joshua_high_priest.png"
+      ]
+    },
+    {
+      "id": "jehoiada_kingmaker",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "bezalel_spirit_gifted",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "hezekiah_sick_king",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "hezekiah_fifteen_years",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "hezekiah_sick_king.png"
+      ]
+    },
+    {
+      "id": "nehemiah_rebuilder",
+      "cls": "priest",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "miriam_riverbank",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "miriam_prophetess_song",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "miriam_riverbank.png"
+      ]
+    },
+    {
+      "id": "john_the_baptist",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03876,
+      "refs": []
+    },
+    {
+      "id": "huldah_prophetess",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "habakkuk_watchtower",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "habakkuk_answered",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "habakkuk_watchtower.png"
+      ]
+    },
+    {
+      "id": "joel_herald",
+      "cls": "prophet",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "judah_the_pledge",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "judah_lions_line",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "judah_the_pledge.png"
+      ]
+    },
+    {
+      "id": "leah_the_unloved",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "leah_mother_of_kings",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "leah_the_unloved.png"
+      ]
+    },
+    {
+      "id": "rebekah_at_the_well",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "seth_the_appointed",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "ephraim_manasseh",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "gideon_mighty_valor",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "gideon_threshing.png"
+      ]
+    },
+    {
+      "id": "barak_the_reluctant",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "barak_lightning",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "barak_the_reluctant.png"
+      ]
+    },
+    {
+      "id": "jael_of_the_tent",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "caleb_another_spirit",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "caleb_this_mountain",
+      "cls": "warrior",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "caleb_another_spirit.png"
+      ]
+    },
+    {
+      "id": "jesse_of_bethlehem",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "jesse_father_anointed",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "jesse_of_bethlehem.png"
+      ]
+    },
+    {
+      "id": "mephibosheth",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "nathans_ewe_lamb",
+      "cls": "shepherd",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "mary_of_magdala",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "mary_the_devoted",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "mary_of_magdala.png"
+      ]
+    },
+    {
+      "id": "sons_of_thunder",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "john_mark_deserter",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "mark_useful",
+      "cls": "disciple",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "john_mark_deserter.png"
+      ]
+    },
+    {
+      "id": "esther_in_the_palace",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "queen_esther",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "esther_in_the_palace.png"
+      ]
+    },
+    {
+      "id": "mordecai_kings_gate",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "mordecai_the_great",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "mordecai_kings_gate.png"
+      ]
+    },
+    {
+      "id": "rahab_scarlet_cord",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "rahab_grafted_in",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": [
+        "rahab_scarlet_cord.png"
+      ]
+    },
+    {
+      "id": "shunammite_woman",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "cornelius_centurion",
+      "cls": "neutral",
       "img_tok": 1290,
       "usd": 0.03875,
       "refs": []
