@@ -13,7 +13,7 @@ A digital collectible card game — Hearthstone-quality, skinned for Scripture. 
 
 ## Where the project is (short version)
 
-Playable end to end: boot → pick a war-band → forge a deck → play a full match vs. a heuristic AI to a win/loss, desktop or mobile-landscape. The **rules engine is built, deterministic, tested, and data-driven** — 167 card definitions all execute their text (audited). Campaign has 4 combat chapters. **Not yet built:** economy/packs, Scroll Study, the sacred interlude, Settings, iOS wrapper. Full breakdown in [`STATUS.md`](./STATUS.md).
+Playable end to end: boot → pick a war-band → forge a deck → play a full match vs. a heuristic AI to a win/loss, desktop or mobile-landscape. The **rules engine is built, deterministic, tested, and data-driven** — 168 card definitions all execute their text (audited). Campaign has 4 combat chapters. **Not yet built:** economy/packs, Scroll Study, the sacred interlude, Settings, iOS wrapper. Full breakdown in [`STATUS.md`](./STATUS.md).
 
 ## Run it / check it
 

@@ -23,7 +23,7 @@ const TRIGGERS = new Set(['arrival', 'legacy', 'redeem', 'covenant', 'scatter', 
 const VERBS = new Set(['deal', 'heal', 'healUnit', 'healHero', 'buff', 'setAttack', 'giveKeyword',
   'silence', 'destroy', 'exile', 'summon', 'draw', 'drawType', 'transform', 'foresee', 'discover',
   'returnToHand', 'shuffleIntoDeck', 'delayedTransform', 'conditionalDeal', 'gainForEachSheep',
-  'discoverFromDeck', 'onHealBonus', 'discountHand', 'returnFromDiscard', 'auraBuff']);
+  'discoverFromDeck', 'onHealBonus', 'discountHand', 'returnFromDiscard', 'auraBuff', 'gainProvision']);
 const NOOP_VERBS = new Set(['costReduce']); // declared placeholders
 const TARGETS = new Set(['self', 'allAllies', 'allEnemies', 'allUnits', 'randomAlly', 'randomEnemy',
   'ownHero', 'enemyHero', 'strongestEnemy', 'weakestEnemy', 'target',

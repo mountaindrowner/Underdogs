@@ -42,7 +42,8 @@ export type Verb =
   | 'auraBuff'          // in aura: continuous; in arrival with grantToTarget: grants an aura
   | 'returnToHand' | 'shuffleIntoDeck' | 'delayedTransform'
   | 'conditionalDeal' | 'gainForEachSheep' | 'discoverFromDeck'
-  | 'onHealBonus' | 'discountHand';
+  | 'onHealBonus' | 'discountHand'
+  | 'gainProvision';    // +N Provision to spend this turn (the Loaf of Bread token)
 
 /** A targeting selector resolved at effect time. */
 export type TargetSpec =
@@ -244,7 +245,7 @@ export interface RuleConfig {
   handLimit: number;      // 10
   provisionCap: number;   // 10
   startingHand: number;   // 3 (second player +1)
-  secondPlayerBonus: number; // extra Provision to spend on the 2nd player's first turn (the "Coin"); 0 disables
+  secondPlayerBonus: number; // # of Loaf of Bread tokens the 2nd player starts with (each = +1 Provision for a turn); 0 disables
 }
 
 export const DEFAULT_RULES: RuleConfig = {

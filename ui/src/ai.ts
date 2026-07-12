@@ -106,6 +106,20 @@ export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const me = state.active;
   const pass: Action = { type: 'END_TURN' };
 
+  // Eat a Loaf of Bread when it unlocks a card you couldn't otherwise afford.
+  // (The greedy eval won't play it on its own — it only sheds a hand card — so
+  // this heuristic captures the one case where the extra Provision pays off.)
+  const myHand = state.players[me].hand;
+  const loafIdx = myHand.findIndex((c) => c.id === 'loaf_of_bread');
+  if (loafIdx >= 0) {
+    const prov = state.players[me].provision;
+    const boardFull = state.players[me].board.length >= state.rules.boardLimit;
+    const unlocks = myHand.some((c, i) => i !== loafIdx && c.id !== 'loaf_of_bread'
+      && effCost(state, me, c) > prov && effCost(state, me, c) <= prov + 1
+      && !(c.type === 'minion' && boardFull));
+    if (unlocks) return { type: 'PLAY_CARD', handIndex: loafIdx };
+  }
+
   // Lethal awareness (all levels — even a novice smells blood): if the face is
   // open and the board's remaining attacks add up to the kill, go face. The
   // greedy loop re-checks each call, so every attacker follows through.

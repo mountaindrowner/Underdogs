@@ -108,6 +108,10 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
   // opening hands: first player draws startingHand, second draws +1
   dealOpening(state, sink, rng, 0, rules.startingHand);
   dealOpening(state, sink, rng, 1, rules.startingHand + 1);
+  // The second player also gets Loaves of Bread — 0-cost cards that grant +1
+  // Provision for the turn (our "Coin"), offsetting the first player's tempo.
+  const loaf = DEFS.get('loaf_of_bread');
+  if (loaf) for (let i = 0; i < rules.secondPlayerBonus; i++) state.players[1].hand.push(structuredClone(loaf));
   // pre-placed units (e.g. a boss on the enemy board), summoning-sick turn 1
   if (cfg.startUnits) {
     for (const p of [0, 1] as const) {
@@ -198,12 +202,6 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
   for (const r of pl.relics) r.covenantTicks = (r.covenantTicks ?? 0) + 1;
   pl.provisionMax = Math.min(state.rules.provisionCap, pl.provisionMax + 1);
   pl.provision = pl.provisionMax;
-  // "The Coin": the second player gets extra Provision to SPEND on their first
-  // turn (this turn only), to offset the first player's tempo lead. Not banked
-  // into provisionMax, so it evaporates next Dawn like Hearthstone's Coin.
-  if (p === 1 && state.turn === 2 && state.rules.secondPlayerBonus) {
-    pl.provision = Math.min(state.rules.provisionCap, pl.provision + state.rules.secondPlayerBonus);
-  }
   if (pl.heroPower) pl.heroPower.usedThisTurn = false;
   sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);

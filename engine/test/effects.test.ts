@@ -111,19 +111,21 @@ test('The Tabernacle (standing relic): persists and buffs a damaged ally at end 
   assert.equal(after, before + 2, '+1/+1 at dusk on the damaged ally');
 });
 
-test('Second player gets a Coin: +1 Provision on their first turn only', () => {
+test('Second player gets a Loaf of Bread: eat it for +1 Provision this turn', () => {
   const deck = () => Array.from({ length: 30 }, () => structuredClone(FILLER));
   let { state } = createGame({ seed: 7, decks: [deck(), deck()], skipMulligan: true });
-  assert.equal(state.active, 0);
-  assert.equal(state.players[0].provision, 1, 'first player has 1 on turn 1');
-  state = act(state, { type: 'END_TURN' });          // → P1's first turn
+  assert.equal(state.players[1].hand.filter((c) => c.id === 'loaf_of_bread').length, 1,
+    'second player starts with one Loaf of Bread');
+  assert.equal(state.players[0].hand.some((c) => c.id === 'loaf_of_bread'), false,
+    'first player gets no loaf');
+  state = act(state, { type: 'END_TURN' });            // → P1's first turn
   assert.equal(state.active, 1);
-  assert.equal(state.players[1].provision, 2, 'second player gets +1 Coin on their first turn');
-  assert.equal(state.players[1].provisionMax, 1, 'the Coin is not banked into max');
-  state = act(state, { type: 'END_TURN' });           // → P0 turn 2 (normal)
-  assert.equal(state.players[0].provision, 2);
-  state = act(state, { type: 'END_TURN' });           // → P1 second turn (no more Coin)
-  assert.equal(state.players[1].provision, 2, 'the Coin does not repeat');
+  const before = state.players[1].provision;           // 1 on the first turn
+  const idx = state.players[1].hand.findIndex((c) => c.id === 'loaf_of_bread');
+  state = act(state, { type: 'PLAY_CARD', handIndex: idx });
+  assert.equal(state.players[1].provision, before + 1, 'eating the loaf grants +1 Provision');
+  assert.equal(state.players[1].provisionMax, 1, 'the loaf is not banked into max');
+  assert.equal(state.players[1].hand.some((c) => c.id === 'loaf_of_bread'), false, 'loaf is consumed');
 });
 
 test('Sarah: Covenant now buffs unconditionally (no Legendary required)', () => {

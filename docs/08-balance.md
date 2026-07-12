@@ -224,9 +224,16 @@ engine tests pass, audit clean, soak clean, UI builds.
 
 ### What shipped
 
-- **Seat "Coin" (Finding 1, Option B):** `RuleConfig.secondPlayerBonus = 1` — the
-  second player gets **+1 Provision to spend on their first turn only** (not banked;
-  evaporates next Dawn). Engine-level, reversible via the flag.
+- **Seat fix — the Loaf of Bread (Finding 1):** the second player starts with a
+  **"Loaf of Bread"** token in hand — a 0-cost card, *"Gain 1 Provision this turn"*
+  (new `gainProvision` verb; not banked into max, so it expires next Dawn). This is
+  our thematic Coin (Provision = bread). The AI plays it via a small heuristic (eat
+  the loaf when it unlocks an otherwise-unaffordable card). Count is behind
+  `RuleConfig.secondPlayerBonus`. *Note: in normal play the human is always Player 1
+  (first), so the loaf is currently the **AI's** catch-up — visible when it plays the
+  card. A future coin-toss would let the human draw the loaf too.* Re-measured with
+  the token: first-player advantage **48.3%** overall / **43.8%** mirror — identical
+  to the earlier silent-bump prototype, so the mechanic change cost no balance.
 - **Warrior nerfs (two passes):** Abishai 4/2→3/2 · Joshua & Caleb 4/4→3/4 · Samson
   5/3→4/3 · Coronation 4→5 cost · **Shepherd David (the 1-drop Giant-Slayer) 1→2
   cost** · **Sword of Goliath +3/+0→+2/+0** · Left-Handed Ehud 3/1→2/1.
@@ -243,8 +250,8 @@ engine tests pass, audit clean, soak clean, UI builds.
 
 | Metric | Before | After | Verdict |
 |---|---|---|---|
-| **First-player advantage (all games)** | 61.5% | **48.7%** | ✅ fixed (near-perfect on the robust metric) |
-| First-player advantage (mirror only, noisier) | 68.3% | 44.2% | ✅ fixed; very slightly favours P2 now — tunable |
+| **First-player advantage (all games)** | 61.5% | **48.3%** | ✅ fixed (near-perfect on the robust metric) |
+| First-player advantage (mirror only, noisier) | 68.3% | 43.8% | ✅ fixed; very slightly favours P2 now — tunable |
 | Warrior | 78.5% | **74.0%** | ⚠ still top — see note |
 | Shepherd | 66.5% | 59.6% | ↘ closer |
 | Disciple | 53.8% | 55.4% | ✅ healthy |

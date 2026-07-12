@@ -8,9 +8,9 @@
 
 ## 30-second summary
 
-UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 167 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
+UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 168 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, Settings, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 32 engine tests pass · card audit clean (167 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 32 engine tests pass · card audit clean (168 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
 
 ---
 
@@ -38,7 +38,7 @@ Run these from the repo root. If any fails or the counts differ, **something reg
 # 1. Engine unit + effect tests  → expect: # pass 32, # fail 0
 node --test engine/test/*.test.ts
 
-# 2. Card-data audit  → expect: "all 167 definitions check out (3 deferred)"
+# 2. Card-data audit  → expect: "all 168 definitions check out (3 deferred)"
 node tools/audit-cards.ts
 
 # 3. AI-vs-AI soak (all class matchups, full games)  → expect: "SOAK OK: 36 games … no crashes"
@@ -115,7 +115,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - **Keyword vocabulary is closed** (guard, swift, endure, giant_slayer, redeem, scatter + marker labels foresee/covenant/raise + executes_damaged). Do not invent new keywords without human sign-off (Law-adjacent; CLAUDE.md §5).
 
 ### Content
-- **126 collectible cards** (schema-valid), **12 leaders** w/ hero powers, **7 tokens**, **22 adversaries** (all with authored effects now). All art present as WebP.
+- **126 collectible cards** (schema-valid), **12 leaders** w/ hero powers, **8 tokens** (incl. the Loaf of Bread), **22 adversaries** (all with authored effects now). All art present as WebP.
 - Every definition passes the audit — its text is actually executed (or is one of 3 tracked deferrals).
 
 ### UI / game shell — a full loop
@@ -186,7 +186,7 @@ Measured against `CLAUDE.md` and the design docs:
 ## Suggested next moves (not commitments — for whoever picks this up)
 
 Ranked by "makes the game more complete per its own canon":
-0. **Balance pass — APPLIED (`docs/08-balance.md` Part C).** Shipped a second-player "Coin" (fixed the seat advantage: 61.5%→48.7%), Warrior/Shepherd nerfs, and Priest/Patriarch buffs; class spread narrowed 60→46 pts. **Still open:** Warrior stays high (74% — an AI-pilot artifact, don't chase with the current AI), and Prophet's reach fix is **deferred** because the engine can't target the enemy hero with a played spell. Next balance unlocks: (a) enemy-hero spell/hero-power targeting, (b) a smarter (2-ply) AI, then re-measure.
+0. **Balance pass — APPLIED (`docs/08-balance.md` Part C).** Shipped the **Loaf of Bread** (a 0-cost "gain 1 Provision" token the 2nd player starts with — our Coin; `gainProvision` verb; fixed the seat advantage 61.5%→48.3%), Warrior/Shepherd nerfs, and Priest/Patriarch buffs; class spread narrowed 60→46 pts. **Still open:** Warrior stays high (74% — an AI-pilot artifact, don't chase with the current AI), and Prophet's reach fix is **deferred** because the engine can't target the enemy hero with a played spell. Next balance unlocks: (a) enemy-hero spell/hero-power targeting, (b) a smarter (2-ply) AI, then re-measure.
 1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
 2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
 3. **Settings screen** + the 3 remaining SOON stubs (Packs, Settings, Path of the Faithful).

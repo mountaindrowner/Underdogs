@@ -240,6 +240,14 @@ export function applyEffect(
       }
       break;
     }
+    case 'gainProvision': {
+      // Loaf of Bread: +N Provision to SPEND this turn (not banked into max;
+      // beginTurn resets provision = provisionMax next Dawn, so it expires).
+      const pl = ctx.state.players[ctx.controller];
+      pl.provision = Math.min(ctx.state.rules.provisionCap, pl.provision + (op.amount ?? 1));
+      ctx.sink.emit({ t: 'provision', player: ctx.controller, current: pl.provision, max: pl.provisionMax });
+      break;
+    }
     case 'buff': {
       let atk = op.attack ?? 0;
       let hp = op.health ?? 0;
