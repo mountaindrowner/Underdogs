@@ -60,10 +60,15 @@ def budget_left(l=None):
     if l.get("budget_usd") is None: return None
     return l["budget_usd"] - (l["usd"] - l.get("budget_anchor_usd", 0.0))
 
-def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3"):
+def generate(card_id, seed_line, cls="neutral", refs=None, aspect="4:3", style=None, tail=None):
+    """style overrides the master house-style (e.g. board backdrops use their own);
+    tail overrides the trailing framing note (None => the card-portrait default)."""
     refs = refs or []
-    master = ADVERSARY_MASTER if cls == "adversary" else MASTER
-    prompt = f"{master} {seed_line} {PALETTE.get(cls,'')}. Card-portrait framing, room at the edges."
+    master = style or (ADVERSARY_MASTER if cls == "adversary" else MASTER)
+    palette = "" if style else PALETTE.get(cls, "")
+    tail = tail if tail is not None else "Card-portrait framing, room at the edges."
+    bits = [master, seed_line] + ([palette + "."] if palette else []) + ([tail] if tail else [])
+    prompt = " ".join(bits)
     parts = [{"text": prompt}]
     for rp in refs:
         b = pathlib.Path(rp).read_bytes()

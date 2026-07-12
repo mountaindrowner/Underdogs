@@ -3,8 +3,8 @@
   "budget_anchor_usd": 7.4036,
   "budget_funded_on": "2026-07-12",
   "budget_note": "budget_usd is the REAL account balance (checked 2026-07-12). Remaining = budget_usd - (usd - budget_anchor_usd). The all-time \"usd\" is a worst-case paid-rate estimate (/bin/bash.039/img); free-tier images actually cost $0, so real spend is lower than this figure.",
-  "images": 194,
-  "usd": 7.403646300000009,
+  "images": 204,
+  "usd": 7.791918900000009,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1446,6 +1446,76 @@
       "cls": "neutral",
       "img_tok": 1290,
       "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "board_elah",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03881,
+      "refs": []
+    },
+    {
+      "id": "board_elah",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03882,
+      "refs": []
+    },
+    {
+      "id": "board_elah",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03884,
+      "refs": []
+    },
+    {
+      "id": "board_eden",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": []
+    },
+    {
+      "id": "board_redsea",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": []
+    },
+    {
+      "id": "board_babylon",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": []
+    },
+    {
+      "id": "board_elah",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03884,
+      "refs": []
+    },
+    {
+      "id": "board_eden",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": []
+    },
+    {
+      "id": "board_redsea",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
+      "refs": []
+    },
+    {
+      "id": "board_babylon",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03883,
       "refs": []
     }
   ]

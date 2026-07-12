@@ -9,6 +9,15 @@ const rand = (a: number, b: number) => a + Math.random() * (b - a);
 type CSS = React.CSSProperties;
 const pct = (n: number) => `${n}%`;
 
+// Painted TCG-mat backdrops (board_<id>.webp). When one exists for a board it
+// replaces the procedural scene: the mat carries the whole diorama, so we drop
+// the SVG props and keep only the atmospheric layers. Delete a webp to fall
+// back to that board's gradient + props.
+const MATS: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob('../../assets/boards/*.webp', { eager: true, query: '?url', import: 'default' }))
+    .map(([p, url]) => [p.split('/').pop()!.replace('.webp', '').replace('board_', ''), url as string]),
+);
+
 // ---- shared props ----------------------------------------------------------
 function MoteField({ cfg }: { cfg: MoteCfg }) {
   const motes = useMemo(() => Array.from({ length: cfg.n }, () => {
@@ -236,12 +245,17 @@ export function Board({ enc, danger, flare, goliath, enemyLow }:
     '--danger': danger, '--flare': flare,
     '--danger-tint': t.dangerTint, '--flare-tint': t.flareTint,
   } as CSS;
+  const mat = MATS[id];
   return (
-    <div className={`boardScene board-${id}${goliath ? ' goliath-present' : ''}${enemyLow ? ' walls-lean' : ''}`} style={style}>
-      <div className="board-backdrop" style={{ background: t.backdrop }} />
-      <div className="board-props">
-        <Scene id={id} goliath={goliath} />
-      </div>
+    <div className={`boardScene board-${id}${mat ? ' has-mat' : ''}${goliath ? ' goliath-present' : ''}${enemyLow ? ' walls-lean' : ''}`} style={style}>
+      <div className="board-backdrop" style={mat
+        ? { backgroundImage: `url(${mat})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+        : { background: t.backdrop }} />
+      {!mat && (
+        <div className="board-props">
+          <Scene id={id} goliath={goliath} />
+        </div>
+      )}
       <div className="board-grain" />
       {/* motes live outside the filtered props layer and above the blended grain,
           so their per-frame animation never re-composites those static effects */}

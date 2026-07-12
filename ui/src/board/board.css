@@ -19,6 +19,11 @@
 .board-scrim{position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(rgba(20,14,8,.55),rgba(20,14,8,.55)),
     radial-gradient(120% 90% at 50% 46%,transparent 38%,rgba(0,0,0,.55) 100%)}
+/* painted mats are already dim & composed — lighten the flat darken so the art
+   reads, keep the edge vignette so cards still pop */
+.boardScene.has-mat .board-scrim{
+  background:linear-gradient(rgba(20,14,8,.24),rgba(20,14,8,.24)),
+    radial-gradient(125% 95% at 50% 48%,transparent 52%,rgba(0,0,0,.5) 100%)}
 .board-reactive{position:absolute;inset:0;z-index:3;pointer-events:none}
 .board-reactive .danger{position:absolute;inset:0;opacity:calc(var(--danger,0)*.42);
   transition:opacity 1.8s ease;
