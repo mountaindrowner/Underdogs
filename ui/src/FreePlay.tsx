@@ -14,16 +14,17 @@ export const DIFFICULTIES = [
   { lvl: 0 as const, name: 'Novice', sub: 'The rival pulls his punches.' },
   { lvl: 1 as const, name: 'Faithful', sub: 'A fair fight, most days.' },
   { lvl: 2 as const, name: 'Valiant', sub: 'He read the same scrolls you did.' },
+  { lvl: 3 as const, name: 'Sage', sub: 'Thinks a full turn ahead — and yours.' },
 ];
 
-function loadSel(): { deckId: string; diff: 0 | 1 | 2 } {
+function loadSel(): { deckId: string; diff: 0 | 1 | 2 | 3 } {
   try {
     const s = JSON.parse(localStorage.getItem(SEL_KEY) || '{}');
-    return { deckId: typeof s.deckId === 'string' ? s.deckId : PRESETS[0].id, diff: [0, 1, 2].includes(s.diff) ? s.diff : 1 };
+    return { deckId: typeof s.deckId === 'string' ? s.deckId : PRESETS[0].id, diff: [0, 1, 2, 3].includes(s.diff) ? s.diff : 1 };
   } catch { return { deckId: PRESETS[0].id, diff: 1 }; }
 }
 
-export function freePlayConfig(deck: DeckDef, diff: 0 | 1 | 2): MatchConfig {
+export function freePlayConfig(deck: DeckDef, diff: 0 | 1 | 2 | 3): MatchConfig {
   const rival = PRESETS[(Math.random() * PRESETS.length) | 0];
   return {
     key: `freeplay-${Date.now()}`,
@@ -39,7 +40,7 @@ export function FreePlaySetup({ scene, onBegin, onBack }:
   const decks = useMemo(allDecks, []);
   const init = useMemo(loadSel, []);
   const [deckId, setDeckId] = useState(decks.some((d) => d.id === init.deckId) ? init.deckId : decks[0].id);
-  const [diff, setDiff] = useState<0 | 1 | 2>(init.diff);
+  const [diff, setDiff] = useState<0 | 1 | 2 | 3>(init.diff);
   const deck = decks.find((d) => d.id === deckId) ?? decks[0];
 
   const begin = () => {

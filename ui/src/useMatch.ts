@@ -9,7 +9,7 @@ import {
 } from '../../engine/src/index.ts';
 import { registry } from './data.ts';
 import { initialView, applyEvent, clearTransient, type View } from './view.ts';
-import { pickAction } from './ai.ts';
+import { pickAction, pickActionStrong } from './ai.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
 import type { MatchConfig } from './campaign.ts';
@@ -91,7 +91,8 @@ export function useMatch(cfg: MatchConfig) {
       return () => clearTimeout(t);
     }
     if (engine.phase === 'main' && engine.active === 1) {
-      const t = setTimeout(() => dispatch(pickAction(engine, cfg.difficulty ?? 2)), 420);
+      const t = setTimeout(() => dispatch(
+        cfg.difficulty === 3 ? pickActionStrong(engine) : pickAction(engine, (cfg.difficulty ?? 2) as 0 | 1 | 2)), 420);
       return () => clearTimeout(t);
     }
   }, [engine, busy, dispatch, cfg.difficulty]);

@@ -18,7 +18,7 @@ export interface MatchConfig {
   startUnits?: [string[], string[]];
   heroHp?: [number, number];
   /** AI skill: 0 novice, 1 faithful, 2 valiant (default) */
-  difficulty?: 0 | 1 | 2;
+  difficulty?: 0 | 1 | 2 | 3;   // 3 = Sage (the 2-ply rollout policy, pickActionStrong)
 }
 
 export const encounters: Encounter[] =

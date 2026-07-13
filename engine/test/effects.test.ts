@@ -500,6 +500,28 @@ test('AI never offers the Eleventh-Hour Laborer a no-op attack (no stall)', asyn
     'the AI makes real progress, never a no-op');
 });
 
+test('Strong AI (2-ply rollout): deterministic, legal, and always progresses', async () => {
+  const { pickActionStrong } = await import('../../ui/src/ai.ts');
+  let s = rig(['shepherd_boy', 'fire_from_heaven', 'physician'], ['goliath_of_gath']);
+  s = structuredClone(s); s.active = 0;
+  const a = pickActionStrong(s);
+  const b = pickActionStrong(structuredClone(s));
+  assert.deepEqual(a, b, 'same state -> same action (no RNG)');
+  // applying it makes real progress (turn advances, board/hand changes, or win)
+  const before = JSON.stringify(s.players[0]);
+  const s2 = act(s, a);
+  assert.ok(s2.active !== 0 || JSON.stringify(s2.players[0]) !== before || s2.phase === 'over',
+    'the strong AI never returns a no-op');
+  // and it drives a whole turn to END_TURN without stalling
+  let st = s; let guard = 0;
+  while (st.active === 0 && st.phase !== 'over' && guard++ < 30) {
+    const act3 = pickActionStrong(st);
+    if (act3.type === 'END_TURN') break;
+    st = act(st, act3);
+  }
+  assert.ok(guard < 30, 'the strong turn terminates (no infinite loop)');
+});
+
 test('AI difficulty is deterministic per level', async () => {
   // same state, same level -> same action (no Math.random anywhere)
   const { pickAction } = await import('../../ui/src/ai.ts');

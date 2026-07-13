@@ -164,3 +164,81 @@ export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const pool = scored.filter((x) => x.sc >= scored[0].sc - margin).slice(0, k);
   return pool[stateHash(state, me) % pool.length].a;
 }
+
+// ============================================================================
+// A stronger opponent: rollout policy improvement with a 2-ply horizon.
+//
+// The greedy AI above judges each action by the board it leaves RIGHT NOW — it
+// never sees the opponent's swing-back, so it under-values defense and
+// over-values reckless tempo. This policy fixes that: for each candidate first
+// action it (1) finishes the turn greedily, (2) lets the opponent take their
+// whole greedy turn, and (3) scores the state at the start of its NEXT turn.
+// That's one-step policy improvement over the greedy base — reliably stronger,
+// and it prices in the punish that aggro was getting away with. Deterministic
+// (greedy rollouts use no RNG). Used for balance testing, exposed as level 3.
+// ============================================================================
+
+const other = (p: PlayerId) => (p ^ 1) as PlayerId;
+
+/** Greedily play out `me`'s remaining turn (no END_TURN applied). */
+function finishTurnGreedily(s: GameState, me: PlayerId): GameState {
+  let st = s;
+  for (let i = 0; i < 24 && st.phase !== 'over' && st.active === me && !st.pending; i++) {
+    const a = pickAction(st, 2);
+    if (a.type === 'END_TURN') break;
+    st = applyAction(st, a).state;
+  }
+  return st;
+}
+
+/** From `me`'s end-of-turn state, hand to the foe, let them play greedily to the
+ *  end of THEIR turn, and evaluate the position at the start of me's next turn. */
+function replyValue(sEndOfMyTurn: GameState, me: PlayerId): number {
+  let st = applyAction(sEndOfMyTurn, { type: 'END_TURN' }).state;
+  const foe = other(me);
+  for (let i = 0; i < 40 && st.phase !== 'over' && st.active === foe && !st.pending; i++) {
+    st = applyAction(st, pickAction(st, 2)).state;
+  }
+  return evaluate(st, me);
+}
+
+/** The strong policy: returns ONE action; the controller loops it to END_TURN. */
+export function pickActionStrong(state: GameState): Action {
+  const me = state.active;
+
+  // keep the two cheap, always-correct shortcuts from the greedy policy
+  const myHand = state.players[me].hand;
+  const loafIdx = myHand.findIndex((c) => c.id === 'loaf_of_bread');
+  if (loafIdx >= 0) {
+    const prov = state.players[me].provision;
+    const boardFull = state.players[me].board.length >= state.rules.boardLimit;
+    const unlocks = myHand.some((c, i) => i !== loafIdx && c.id !== 'loaf_of_bread'
+      && effCost(state, me, c) > prov && effCost(state, me, c) <= prov + 1
+      && !(c.type === 'minion' && boardFull));
+    if (unlocks) return { type: 'PLAY_CARD', handIndex: loafIdx };
+  }
+  const foePl = state.players[other(me)];
+  if (!foePl.board.some((u) => hasKeyword(u, 'guard'))) {
+    const swings = state.players[me].board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0);
+    if (swings.length && swings.reduce((n, u) => n + effAttack(u), 0) >= foePl.heroHp) {
+      return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };
+    }
+  }
+
+  // baseline: pass now and take the punish
+  let bestA: Action = { type: 'END_TURN' };
+  let bestV = replyValue(state, me);
+
+  // prune to the most promising first actions by immediate eval, then roll each
+  // out to the 2-ply horizon (finish my turn greedily + full opponent reply).
+  const ranked = legalActions(state, me)
+    .map((a) => ({ a, s: applyAction(state, a).state }))
+    .sort((x, y) => evaluate(y.s, me) - evaluate(x.s, me))
+    .slice(0, 8);
+  for (const { a, s } of ranked) {
+    const end = s.active === me && s.phase !== 'over' && !s.pending ? finishTurnGreedily(s, me) : s;
+    const v = end.phase === 'over' ? evaluate(end, me) : replyValue(end, me);
+    if (v > bestV + 1e-6) { bestV = v; bestA = a; }
+  }
+  return bestA;
+}
