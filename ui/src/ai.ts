@@ -77,11 +77,15 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
     }
   }
 
-  // attacks (respect Guard). A unit that "can't attack alone" (Barak) is a
-  // no-op swing while it's your only unit — never offer it, or the greedy loop
-  // would re-pick a move the engine refuses and stall.
+  // attacks (respect Guard). Never offer a swing the engine will refuse as a
+  // no-op — the greedy loop would re-pick it forever and stall. Two such gates:
+  // Barak (can't attack alone) and the Eleventh-Hour Laborer (needs another play).
+  const passiveHas = (u: (typeof pl.board)[number], verb: string) =>
+    (u.effects.passive ?? []).some((op) => op.verb === verb);
+  const played = pl.cardsPlayedThisTurn ?? 0;
   const canSwing = (u: (typeof pl.board)[number]) =>
-    pl.board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone');
+    (pl.board.length > 1 || !passiveHas(u, 'cannotAttackAlone'))
+    && (played >= 1 || !passiveHas(u, 'requiresOtherPlay'));
   const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
   for (const u of pl.board) {
     if (!u.ready || u.attacksThisTurn >= 1 || effAttack(u) <= 0 || !canSwing(u)) continue;
@@ -131,9 +135,12 @@ export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const faceOpen = !foePl.board.some((u) => hasKeyword(u, 'guard'));
   if (faceOpen) {
     const board = state.players[me].board;
+    const playedT = state.players[me].cardsPlayedThisTurn ?? 0;
+    const noNoop = (u: (typeof board)[number]) =>
+      (board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone'))
+      && (playedT >= 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'requiresOtherPlay'));
     const swings = board
-      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0
-        && (board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone')));
+      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0 && noNoop(u));
     const total = swings.reduce((sum, u) => sum + effAttack(u), 0);
     if (total >= foePl.heroHp && swings.length) {
       return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };

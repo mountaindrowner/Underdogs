@@ -13,7 +13,7 @@ import { pickAction } from '../ui/src/ai.ts';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const load = (f: string) => JSON.parse(readFileSync(join(root, 'data', f), 'utf8'));
 const defs: CardDef[] = collectDefs(
-  load('cards.seed.json'), load('cards.set2.json'), load('tokens.json'), load('adversaries.json'), load('leaders.json'));
+  load('cards.seed.json'), load('cards.set2.json'), load('cards.neutral-expansion.json'), load('tokens.json'), load('adversaries.json'), load('leaders.json'));
 registerDefs(defs);
 const registry = makeRegistry(defs);
 

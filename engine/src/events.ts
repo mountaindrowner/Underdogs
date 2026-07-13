@@ -40,6 +40,7 @@ export type GameEvent =
   /** a unit's continuous aura bonuses changed (David's +1, Good Fold's Guard…) */
   | { t: 'auraUpdate'; uid: number; attack: number; health: number; keywords: Keyword[] }
   | { t: 'relicPlaced'; player: PlayerId; defId: string }        // standing relic set down
+  | { t: 'relicBroken'; player: PlayerId; defId: string }        // standing relic expired (Jar of Oil)
   | { t: 'returnToHand'; player: PlayerId; defId: string }       // Lost Sheep comes home
   | { t: 'shuffleIn'; player: PlayerId; defId: string }          // Jonah, three days later
   | { t: 'gameOver'; winner: PlayerId };

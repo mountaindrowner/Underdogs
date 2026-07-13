@@ -2,12 +2,13 @@
  *  registers token/transform defs with the engine so summon/fulfill resolve. */
 import cardsSeed from '../../data/cards.seed.json';
 import cardsSet2 from '../../data/cards.set2.json';
+import cardsNeutral from '../../data/cards.neutral-expansion.json';
 import tokens from '../../data/tokens.json';
 import adversaries from '../../data/adversaries.json';
 import leaders from '../../data/leaders.json';
 import { collectDefs, makeRegistry, registerDefs, type CardDef } from '../../engine/src/index.ts';
 
-export const defs: CardDef[] = collectDefs(cardsSeed, cardsSet2, tokens, adversaries, leaders);
+export const defs: CardDef[] = collectDefs(cardsSeed, cardsSet2, cardsNeutral, tokens, adversaries, leaders);
 registerDefs(defs);
 export const registry = makeRegistry(defs);
 

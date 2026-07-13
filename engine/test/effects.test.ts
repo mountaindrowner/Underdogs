@@ -14,6 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const defs = loadCardData([
   join(root, 'data', 'cards.seed.json'),
   join(root, 'data', 'cards.set2.json'),
+  join(root, 'data', 'cards.neutral-expansion.json'),
   join(root, 'data', 'tokens.json'),
   join(root, 'data', 'adversaries.json'),
   join(root, 'data', 'leaders.json'),
@@ -379,6 +380,87 @@ test('Nehemiah: raises TWO fallen allies and gives them Guard', () => {
   assert.ok(raised.every((u) => hasKeyword(u, 'guard')), 'each stands as a Guard');
 });
 
+// ---- Neutral expansion: the new engine capabilities -----------------------
+
+test('Gleaner: Arrival draws only when your hand is empty (empty_hand)', () => {
+  // hand = just Gleaner -> playing it empties the hand -> the draw fires
+  let s = rig(['gleaner']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[0].hand.length, 1, 'drew a card off the empty hand');
+  // hand = Gleaner + another -> hand not empty when Gleaner resolves -> no draw
+  let t = rig(['gleaner', 'watchman']);
+  t = act(t, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(t.players[0].hand.length, 1, 'only the leftover card, no bonus draw');
+});
+
+test('The Lone Pilgrim: draws 3 only if the deck has no duplicates (singleton_deck)', () => {
+  let s = rig(['the_lone_pilgrim']);
+  s = structuredClone(s);
+  s.players[0].deck = ['benaiah', 'ruth', 'stephen', 'watchman', 'scribe'].map(card); // all unique
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[0].hand.length, 3, 'singleton deck -> draw 3');
+  // a deck with a duplicate id -> no draw
+  let t = rig(['the_lone_pilgrim']);
+  t = structuredClone(t);
+  t.players[0].deck = ['benaiah', 'benaiah', 'ruth'].map(card);   // benaiah x2
+  t = act(t, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(t.players[0].hand.length, 0, 'duplicates -> no draw');
+});
+
+test('Eleventh-Hour Laborer: cannot attack unless you played another card this turn', () => {
+  let s = rig(['watchman'], [], ['eleventh_hour_laborer']);
+  s = structuredClone(s);
+  s.players[0].board[0].ready = true;
+  s.players[0].cardsPlayedThisTurn = 0;
+  const laborer = s.players[0].board[0];
+  const before = s.players[1].heroHp;
+  s = act(s, { type: 'ATTACK', attackerUid: laborer.uid, targetUid: 'hero' });
+  assert.equal(s.players[1].heroHp, before, 'idle: refuses to swing');
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });                 // play another card
+  s = act(s, { type: 'ATTACK', attackerUid: laborer.uid, targetUid: 'hero' });
+  assert.equal(s.players[1].heroHp, before - effAttack(laborer), 'now it swings');
+});
+
+test('The Great Cloud of Witnesses: buffs other units +1/+1 per other unit (perOtherAlly)', () => {
+  let s = rig(['the_great_cloud'], [], ['watchman', 'watchman']); // 2 other allies (0/2 each)
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  const others = s.players[0].board.filter((u) => u.defId === 'watchman');
+  assert.equal(others.length, 2);
+  for (const u of others) {
+    assert.equal(effAttack(u), 0 + 2, 'each watchman +2 attack (x2 other allies)');
+    assert.equal(effHealth(u), 2 + 2, 'each watchman +2 health');
+  }
+  const cloud = s.players[0].board.find((u) => u.defId === 'the_great_cloud')!;
+  assert.equal(cloud.auraAtk ?? 0, 0, 'the Cloud does not buff itself (scope other)');
+});
+
+test('Kinsman-Redeemer: returns an ally that died THIS turn to hand (diedThisTurn)', () => {
+  let s = rig(['kinsman_redeemer']);
+  s = structuredClone(s);
+  s.players[0].fallen = [
+    { defId: 'ruth', turn: s.turn - 2 },      // an old death — must be ignored
+    { defId: 'benaiah', turn: s.turn },       // died this turn — the one to redeem
+  ];
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  const hand = s.players[0].hand.map((c) => c.id);
+  assert.ok(hand.includes('benaiah'), 'this-turn casualty returns to hand');
+  assert.ok(!hand.includes('ruth'), 'the old death stays fallen');
+});
+
+test('The Jar of Oil: heals 2 at each of your dawns, then breaks after 3 turns (breakAfterTurns)', () => {
+  let s = rig(['widows_jar']);
+  s = structuredClone(s);
+  s.players[0].heroHp = 20;
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });        // set the jar down
+  assert.equal(s.players[0].relics.length, 1, 'jar stands');
+  for (let i = 0; i < 3; i++) {                            // three of my dawns
+    s = act(s, { type: 'END_TURN' });                     // → P1
+    s = act(s, { type: 'END_TURN' });                     // → my dawn: heal 2 (then break on the 3rd)
+  }
+  assert.equal(s.players[0].heroHp, 26, 'healed 2 three times');
+  assert.equal(s.players[0].relics.length, 0, 'the jar has run dry and broken');
+});
+
 test('AI never offers a lone Barak\'s no-op attack (would stall the greedy loop)', async () => {
   const { pickAction } = await import('../../ui/src/ai.ts');
   let s = rig([], ['watchman'], ['barak_the_reluctant']);
@@ -396,6 +478,25 @@ test('AI never offers a lone Barak\'s no-op attack (would stall the greedy loop)
   const before = JSON.stringify(s.players[0].board);
   const s2 = act(s, a);
   assert.ok(s2.active !== 0 || JSON.stringify(s2.players[0].board) !== before || s2.phase === 'over',
+    'the AI makes real progress, never a no-op');
+});
+
+test('AI never offers the Eleventh-Hour Laborer a no-op attack (no stall)', async () => {
+  const { pickAction } = await import('../../ui/src/ai.ts');
+  let s = rig([], ['watchman'], ['eleventh_hour_laborer', 'watchman']); // 2 units (not "alone")
+  s = structuredClone(s);
+  s.active = 0;
+  s.players[0].cardsPlayedThisTurn = 0;                 // hasn't played a card this turn
+  for (const u of s.players[0].board) u.ready = true;
+  const laborer = s.players[0].board.find((u) => u.defId === 'eleventh_hour_laborer')!;
+  const a = pickAction(s, 2);
+  if (a.type === 'ATTACK') {
+    assert.notEqual((a as { attackerUid: number }).attackerUid, laborer.uid,
+      'the idle laborer is not offered as an attacker');
+  }
+  const before = JSON.stringify(s.players[0]);
+  const s2 = act(s, a);
+  assert.ok(s2.active !== 0 || JSON.stringify(s2.players[0]) !== before || s2.phase === 'over',
     'the AI makes real progress, never a no-op');
 });
 

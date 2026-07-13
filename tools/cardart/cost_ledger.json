@@ -3,8 +3,8 @@
   "budget_anchor_usd": 7.4036,
   "budget_funded_on": "2026-07-12",
   "budget_note": "budget_usd is the REAL account balance (checked 2026-07-12). Remaining = budget_usd - (usd - budget_anchor_usd). The all-time \"usd\" is a worst-case paid-rate estimate (/bin/bash.039/img); free-tier images actually cost $0, so real spend is lower than this figure.",
-  "images": 211,
-  "usd": 8.21191890000001,
+  "images": 237,
+  "usd": 9.219472499999993,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1559,6 +1559,188 @@
       "cls": "board",
       "model": "imagen-4.0-ultra-generate-001",
       "usd": 0.06
+    },
+    {
+      "id": "village_elder",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "stonemason",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "caravan_master",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "threshing_hand",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "gleaner",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "night_watch",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "almsgiver",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "potter",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "foreign_convert",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "lamp_bearer",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "master_builder",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "sower",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "steward_of_talents",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "kinsman_redeemer",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "widows_jar",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "zealous_defender",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "generous_host",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "plumb_line",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "eleventh_hour_laborer",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "jar_of_flour",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "the_faithful_remnant",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "cornerstone",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "the_measuring_reed",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "barzillai_the_aged",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "the_lone_pilgrim",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "the_great_cloud",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03875,
+      "refs": []
     }
   ]
 }

@@ -1,0 +1,622 @@
+{
+  "_comment": "NEUTRAL EXPANSION — 26 collectible neutrals. Fills the 6-7 top-end hole, the 4-5 midrange, the epic gap, and adds conditional answers/card-advantage tilted to help control decks. Grounded in HS competitive theory: vanilla sets the curve (few pure vanillas as anchors), most bodies get ONE small reason to want them, health-leaning distributions for defense, 'overstat-with-a-leash' for exciting bigs, conditional removal so nothing is an auto-include (neutral paradox). Schema matches cards.set2-legendaries.json. Human source: docs/20-neutral-expansion.md.",
+  "cards": [
+    {
+      "id": "village_elder",
+      "name": "Village Elder",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 2,
+      "attack": 3,
+      "health": 2,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "",
+      "flavor": "Someone has to sit at the gate and have opinions. — Ruth 4.",
+      "art": "A weathered elder seated at a town gate, staff across his knees, squinting at newcomers."
+    },
+    {
+      "id": "stonemason",
+      "name": "Stonemason",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 4,
+      "attack": 4,
+      "health": 5,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "",
+      "flavor": "The stone the builders rejected still had to be cut by somebody. — Psalm 118.",
+      "art": "A broad artisan chiseling a cornerstone, dust and sun, sleeves rolled."
+    },
+    {
+      "id": "caravan_master",
+      "name": "Caravan Master",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 3,
+      "attack": 3,
+      "health": 4,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "",
+      "flavor": "Knows every well between here and Haran, and precisely how much you'll complain. — Genesis 24.",
+      "art": "A trail-worn guide leading laden camels along a ridge at dusk."
+    },
+    {
+      "id": "threshing_hand",
+      "name": "Threshing Hand",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "",
+      "flavor": "Separates wheat from chaff for a living. Has thoughts about both. — Matthew 3.",
+      "art": "A laborer tossing grain into evening air with a wooden fork, chaff drifting."
+    },
+    {
+      "id": "gleaner",
+      "name": "Gleaner",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: if your hand is empty, draw a card.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "draw",
+            "amount": 1,
+            "condition": "empty_hand"
+          }
+        ]
+      },
+      "flavor": "Takes what falls at the edges. It adds up. — Ruth 2.",
+      "art": "A young woman gathering leftover barley behind the harvesters, apron full."
+    },
+    {
+      "id": "night_watch",
+      "name": "Night Watch",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 3,
+      "attack": 2,
+      "health": 5,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard.",
+      "flavor": "Morning by morning, and still no relief. It's a living. — Isaiah 21.",
+      "art": "A sentry leaning on a spear atop a wall, cloak heavy, torch guttering before dawn."
+    },
+    {
+      "id": "almsgiver",
+      "name": "Almsgiver",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 2,
+      "attack": 1,
+      "health": 4,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: restore 2 to your hero.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "healHero",
+            "amount": 2
+          }
+        ]
+      },
+      "flavor": "Gave quietly, which is the only way it counts. — Matthew 6.",
+      "art": "A robed figure pressing a coin into a beggar's hand at a temple step, unshowy."
+    },
+    {
+      "id": "potter",
+      "name": "The Potter",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: give an ally +0/+2.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "buff",
+            "attack": 0,
+            "health": 2,
+            "target": "ally"
+          }
+        ]
+      },
+      "flavor": "Reworks the marred lump on the wheel and starts again. No lump is wasted. — Jeremiah 18.",
+      "art": "Hands shaping wet clay on a spinning wheel, a shelf of finished jars behind."
+    },
+    {
+      "id": "foreign_convert",
+      "name": "Foreign Convert",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 2,
+      "attack": 2,
+      "health": 2,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: give another ally +1/+0.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 0,
+            "target": "ally",
+            "scope": "other"
+          }
+        ]
+      },
+      "flavor": "'Your people shall be my people.' Showed up, stayed, out-loyaled everyone. — Ruth 1.",
+      "art": "A traveler in foreign dress clasping the arm of a local, both a little surprised."
+    },
+    {
+      "id": "lamp_bearer",
+      "name": "Lamp-Bearer",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 1,
+      "attack": 1,
+      "health": 2,
+      "rarity": "common",
+      "collectible": true,
+      "keywords": [],
+      "text": "",
+      "flavor": "Kept oil in the flask, unlike some. — Matthew 25.",
+      "art": "A figure cupping a small clay lamp against the dark, face warm-lit."
+    },
+    {
+      "id": "master_builder",
+      "name": "Master Builder",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 5,
+      "attack": 4,
+      "health": 6,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard.",
+      "flavor": "Counted the cost before laying the foundation. Radical concept. — Luke 14.",
+      "art": "An architect with a measuring reed surveying a half-built tower, scaffolding rising."
+    },
+    {
+      "id": "sower",
+      "name": "The Sower",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: Foresee 2.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "foresee",
+            "amount": 2
+          }
+        ]
+      },
+      "flavor": "Scatters wide and lets the soil sort it out. — Mark 4.",
+      "art": "A farmer casting seed in a broad arc across turned earth, birds wheeling."
+    },
+    {
+      "id": "steward_of_talents",
+      "name": "The Faithful Servant",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 4,
+      "attack": 3,
+      "health": 4,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: draw a card. Legacy: draw a card.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "draw",
+            "amount": 1
+          }
+        ],
+        "legacy": [
+          {
+            "verb": "draw",
+            "amount": 1
+          }
+        ]
+      },
+      "flavor": "Two talents in, two talents back, plus interest. Did not bury it. — Matthew 25.",
+      "art": "A servant weighing coins into two neat stacks, ledger open, lamplight."
+    },
+    {
+      "id": "kinsman_redeemer",
+      "name": "Kinsman-Redeemer",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 4,
+      "attack": 3,
+      "health": 5,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: return a friendly unit that died this turn to your hand.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "returnFromDiscard",
+            "target": "lastFallenAlly",
+            "toHand": true,
+            "diedThisTurn": true
+          }
+        ]
+      },
+      "flavor": "Did it properly, at the gate, with witnesses and a sandal. — Ruth 4.",
+      "art": "A landowner removing his sandal before elders at a city gate, a woman waiting."
+    },
+    {
+      "id": "widows_jar",
+      "name": "The Jar of Oil",
+      "class": "neutral",
+      "tag": null,
+      "type": "relic",
+      "relicKind": "standing",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [],
+      "text": "At the start of your turn, restore 2 to your hero. After 3 turns, this breaks.",
+      "effects": {
+        "startOfTurn": [
+          {
+            "verb": "healHero",
+            "amount": 2
+          }
+        ],
+        "passive": [
+          {
+            "verb": "breakAfterTurns",
+            "amount": 3
+          }
+        ]
+      },
+      "flavor": "The oil did not run dry until every jar was full. Then it stopped, politely. — 2 Kings 4.",
+      "art": "A humble clay jar pouring an impossibly steady stream of oil into borrowed vessels."
+    },
+    {
+      "id": "zealous_defender",
+      "name": "Zealous Defender",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 5,
+      "attack": 5,
+      "health": 4,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [
+        "swift"
+      ],
+      "text": "Swift.",
+      "flavor": "Drew first and asked questions never. Had to be talked down, twice. — John 18.",
+      "art": "A broad-shouldered follower stepping in front of his teacher, hand on a short sword."
+    },
+    {
+      "id": "generous_host",
+      "name": "Generous Host",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 4,
+      "attack": 2,
+      "health": 5,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard. Arrival: restore 3 to your hero.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "healHero",
+            "amount": 3
+          }
+        ]
+      },
+      "flavor": "Threw the doors open and killed the fatted calf before anyone could object. — Luke 15.",
+      "art": "A beaming householder ushering travelers to a laden table, lamps blazing."
+    },
+    {
+      "id": "plumb_line",
+      "name": "The Plumb Line",
+      "class": "neutral",
+      "tag": null,
+      "type": "spell",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "rarity": "rare",
+      "collectible": true,
+      "keywords": [],
+      "text": "Destroy a damaged enemy unit.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "destroy",
+            "target": "damagedEnemy"
+          }
+        ]
+      },
+      "flavor": "Held against the wall to see what was truly crooked. — Amos 7.",
+      "art": "A weighted cord hanging dead-straight beside a leaning stone wall, judgment implied."
+    },
+    {
+      "id": "eleventh_hour_laborer",
+      "name": "Eleventh-Hour Laborer",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 3,
+      "attack": 5,
+      "health": 4,
+      "rarity": "epic",
+      "collectible": true,
+      "keywords": [],
+      "text": "Can't attack unless you played another card this turn.",
+      "effects": {
+        "passive": [
+          {
+            "verb": "requiresOtherPlay"
+          }
+        ]
+      },
+      "flavor": "Hired at the last hour, paid a full day, and somehow this annoyed everyone. — Matthew 20.",
+      "art": "A latecomer rolling up his sleeves in a vineyard at golden hour, other workers glaring."
+    },
+    {
+      "id": "jar_of_flour",
+      "name": "Jar of Flour & Oil",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 5,
+      "attack": 3,
+      "health": 7,
+      "rarity": "epic",
+      "collectible": true,
+      "keywords": [],
+      "text": "At the end of your turn, if you have no cards in hand, restore 3 to your hero and draw a card.",
+      "effects": {
+        "endOfTurn": [
+          {
+            "verb": "healHero",
+            "amount": 3,
+            "condition": "empty_hand"
+          },
+          {
+            "verb": "draw",
+            "amount": 1,
+            "condition": "empty_hand"
+          }
+        ]
+      },
+      "flavor": "'It will not run out.' A budget that survives faith and famine alike. — 1 Kings 17.",
+      "art": "A small clay jar and oil flask on a bare shelf, softly glowing, never emptying."
+    },
+    {
+      "id": "the_faithful_remnant",
+      "name": "The Faithful Remnant",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 6,
+      "attack": 4,
+      "health": 8,
+      "rarity": "epic",
+      "collectible": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard. Arrival: restore 1 to all your other units.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "healUnit",
+            "amount": 1,
+            "target": "allAllies",
+            "scope": "other"
+          }
+        ]
+      },
+      "flavor": "Seven thousand who had not bowed. Elijah thought he was alone; he wasn't. — 1 Kings 19.",
+      "art": "A tight knot of resolute figures standing back-to-back on a hill, shields raised, dawn behind."
+    },
+    {
+      "id": "cornerstone",
+      "name": "The Cornerstone",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 7,
+      "attack": 5,
+      "health": 9,
+      "rarity": "epic",
+      "collectible": true,
+      "keywords": [
+        "guard"
+      ],
+      "text": "Guard. Your other units have +0/+1.",
+      "effects": {
+        "aura": [
+          {
+            "verb": "auraBuff",
+            "attack": 0,
+            "health": 1,
+            "target": "allAllies",
+            "scope": "other"
+          }
+        ]
+      },
+      "flavor": "Rejected by the builders. The builders were, in hindsight, mistaken. — Psalm 118.",
+      "art": "A massive dressed cornerstone set into a foundation, other stones aligning to it, gold-lit."
+    },
+    {
+      "id": "the_measuring_reed",
+      "name": "The Measuring Reed",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 6,
+      "attack": 6,
+      "health": 6,
+      "rarity": "epic",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: deal 3 to an enemy and draw a card.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "deal",
+            "amount": 3,
+            "target": "enemy"
+          },
+          {
+            "verb": "draw",
+            "amount": 1
+          }
+        ]
+      },
+      "flavor": "Measured the temple, the walls, the waters — everything came out exactly to spec. — Ezekiel 40.",
+      "art": "A luminous surveyor with a golden rod measuring a vast gate, blueprint lines glowing."
+    },
+    {
+      "id": "barzillai_the_aged",
+      "name": "Barzillai the Aged",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 7,
+      "attack": 6,
+      "health": 8,
+      "rarity": "legendary",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: restore 5 to your hero and draw 2 cards.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "healHero",
+            "amount": 5
+          },
+          {
+            "verb": "draw",
+            "amount": 2
+          }
+        ]
+      },
+      "flavor": "Eighty years old, provisioned a whole army in exile, then declined the reward. 'How long have I to live?' Legend. — 2 Samuel 19.",
+      "art": "A white-bearded patriarch loading provisions onto boats for a weary king, generous and unbothered."
+    },
+    {
+      "id": "the_lone_pilgrim",
+      "name": "The Lone Pilgrim",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 5,
+      "attack": 5,
+      "health": 6,
+      "rarity": "legendary",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: if you have no duplicate cards in your deck, draw 3 cards.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "draw",
+            "amount": 3,
+            "condition": "singleton_deck"
+          }
+        ]
+      },
+      "flavor": "Traveled light. Carried exactly one of everything and knew where all of it was. — Hebrews 11.",
+      "art": "A solitary traveler on an endless road at dawn, a single pack, a single staff, unhurried."
+    },
+    {
+      "id": "the_great_cloud",
+      "name": "The Great Cloud of Witnesses",
+      "class": "neutral",
+      "tag": null,
+      "type": "minion",
+      "cost": 7,
+      "attack": 5,
+      "health": 7,
+      "rarity": "legendary",
+      "collectible": true,
+      "keywords": [],
+      "text": "Arrival: give your other units +1/+1 for each other faithful unit you control.",
+      "effects": {
+        "arrival": [
+          {
+            "verb": "buff",
+            "attack": 1,
+            "health": 1,
+            "target": "allAllies",
+            "scope": "other",
+            "perOtherAlly": true
+          }
+        ]
+      },
+      "flavor": "Surrounded, cheering, and slightly impatient for you to run your leg. — Hebrews 12.",
+      "art": "A translucent multitude of faithful figures ringing a stadium of light, leaning in, urging forward."
+    }
+  ]
+}

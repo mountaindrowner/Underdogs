@@ -88,7 +88,7 @@ export function createGame(cfg: GameConfig): { state: GameState; events: GameEve
       id, heroHp: rules.heroHp, heroMaxHp: rules.heroHp,
       provision: 0, provisionMax: 0,
       deck: d, hand: [], board: [], relics: [], discard: [], exiled: [],
-      fallen: [], delayed: [], usedOnce: [], nextCardDiscount: 0, spellsCast: 0,
+      fallen: [], delayed: [], usedOnce: [], nextCardDiscount: 0, spellsCast: 0, cardsPlayedThisTurn: 0,
       fatigue: 0, heroPower: hp, leaderId: leader?.id,
     };
   };
@@ -204,6 +204,7 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
     u.covenantTicks = (u.covenantTicks ?? 0) + 1;
   }
   for (const r of pl.relics) r.covenantTicks = (r.covenantTicks ?? 0) + 1;
+  pl.cardsPlayedThisTurn = 0;                               // reset the per-turn play counter
   pl.provisionMax = Math.min(state.rules.provisionCap, pl.provisionMax + 1);
   pl.provision = pl.provisionMax;
   if (pl.heroPower) pl.heroPower.usedThisTurn = false;
@@ -237,6 +238,16 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
           }
         }
       }
+    }
+  }
+  // standing relics that expire after N of your turns (Jar of Oil): break after they've ticked
+  for (const r of [...pl.relics]) {
+    const brk = (r.effects.passive ?? []).find((op) => op.verb === 'breakAfterTurns');
+    if (brk && (r.covenantTicks ?? 0) >= (brk.amount ?? 3)) {
+      pl.relics.splice(pl.relics.indexOf(r), 1);
+      const def = DEFS.get(r.defId); if (def) pl.discard.push(def);
+      sink.emit({ t: 'relicBroken', player: p, defId: r.defId });
+      recomputeAuras(state, sink);
     }
   }
   draw(state, sink, rng, p, 1);
@@ -283,6 +294,7 @@ function playCard(state: GameState, sink: EventSink, rng: Rng, handIndex: number
   pl.provision -= cost;
   if (pl.nextCardDiscount > 0) pl.nextCardDiscount = 0;     // Terah: the NEXT card only
   pl.hand.splice(handIndex, 1);
+  pl.cardsPlayedThisTurn = (pl.cardsPlayedThisTurn ?? 0) + 1;  // Eleventh-Hour Laborer gate
   sink.emit({ t: 'cardPlayed', player: p, defId: card.id });
   sink.emit({ t: 'provision', player: p, current: pl.provision, max: pl.provisionMax });
   const ctx = makeCtx(state, sink, rng, p);
@@ -338,6 +350,9 @@ function attack(state: GameState, sink: EventSink, rng: Rng, attackerUid: number
   // Barak: can't attack while it's your only unit
   if (state.players[p].board.length <= 1 &&
       (attacker.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone')) return;
+  // Eleventh-Hour Laborer: can't attack unless you played another card this turn
+  if ((state.players[p].cardsPlayedThisTurn ?? 0) < 1 &&
+      (attacker.effects.passive ?? []).some((op) => op.verb === 'requiresOtherPlay')) return;
 
   const enemies = state.players[foe].board;
   const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
@@ -528,8 +543,10 @@ function makeCtx(state: GameState, sink: EventSink, rng: Rng, controller: Player
         return;
       }
       // lastFallenAlly / 'fallenAlly' / default: the N most recent fallen minions
-      const n = Math.min(op.count ?? 1, pl.fallen.length);
-      for (const f of pl.fallen.slice(-n).reverse()) revive(f.defId);
+      // (Kinsman-Redeemer restricts to units that died THIS turn, returned to hand)
+      const pool = op.diedThisTurn ? pl.fallen.filter((f) => f.turn === state.turn) : pl.fallen;
+      const n = Math.min(op.count ?? 1, pool.length);
+      for (const f of pool.slice(-n).reverse()) revive(f.defId);
     },
     queueDelayedReturn: (p, into, turns) => { state.players[p].delayed.push({ into, remaining: turns }); },
     onceGate: (p, key) => {

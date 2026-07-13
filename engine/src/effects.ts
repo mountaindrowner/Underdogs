@@ -199,6 +199,12 @@ function opCondition(ctx: Ctx, op: EffectOp, memo: Memo, source?: UnitInstance):
       return allies.some((a) => a.uid !== source?.uid && ctx.defOf(a.defId)?.rarity === 'legendary');
     case 'control_6_plus':
       return allies.length >= 6;
+    case 'empty_hand':
+      return ctx.state.players[ctx.controller].hand.length === 0;
+    case 'singleton_deck': {            // no duplicate card ids left in your deck (highlander)
+      const deck = ctx.state.players[ctx.controller].deck;
+      return new Set(deck.map((c) => c.id)).size === deck.length;
+    }
     default: return true; // unknown conditions fail open (audit flags them)
   }
 }
@@ -265,6 +271,10 @@ export function applyEffect(
       }
       if (op.perEnemyUnit) {
         const n = ctx.unitsOf(ctx.opponent(ctx.controller)).length;
+        atk *= n; hp *= n;
+      }
+      if (op.perOtherAlly) {            // Great Cloud of Witnesses: scale by your OTHER units
+        const n = ctx.unitsOf(ctx.controller).filter((u) => u.uid !== source?.uid).length;
         atk *= n; hp *= n;
       }
       if (op.thisTurn) eachUnit((u) => ctx.tempBuff(u, atk));   // temp hp not modelled

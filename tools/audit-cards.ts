@@ -14,7 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const load = (f: string) => JSON.parse(readFileSync(join(root, 'data', f), 'utf8'));
 
 const defs: CardDef[] = collectDefs(
-  load('cards.seed.json'), load('cards.set2.json'), load('tokens.json'), load('adversaries.json'), load('leaders.json'));
+  load('cards.seed.json'), load('cards.set2.json'), load('cards.neutral-expansion.json'), load('tokens.json'), load('adversaries.json'), load('leaders.json'));
 const registry = makeRegistry(defs);
 
 // ---- what the engine ACTUALLY supports (keep in sync with engine/src) ------
@@ -24,7 +24,7 @@ const VERBS = new Set(['deal', 'heal', 'healUnit', 'healHero', 'buff', 'setAttac
   'silence', 'destroy', 'exile', 'summon', 'draw', 'drawType', 'transform', 'foresee', 'discover',
   'returnToHand', 'shuffleIntoDeck', 'delayedTransform', 'conditionalDeal', 'gainForEachSheep',
   'discoverFromDeck', 'onHealBonus', 'discountHand', 'returnFromDiscard', 'auraBuff', 'gainProvision',
-  'costReduce', 'cannotAttackAlone']);
+  'costReduce', 'cannotAttackAlone', 'requiresOtherPlay', 'breakAfterTurns']);
 const NOOP_VERBS = new Set<string>([]); // costReduce is now a real cost-aura (effCost)
 const TARGETS = new Set(['self', 'allAllies', 'allEnemies', 'allUnits', 'randomAlly', 'randomEnemy',
   'ownHero', 'enemyHero', 'strongestEnemy', 'weakestEnemy', 'target',
@@ -34,13 +34,15 @@ const TARGETS = new Set(['self', 'allAllies', 'allEnemies', 'allUnits', 'randomA
   'lastFallenAlly', 'strongestFallenAlly', 'alliesDiedThisTurn', 'allHand']);
 const AURA_VERBS = new Set(['buff', 'auraBuff', 'giveKeyword', 'discountHand', 'costReduce']);
 const CONDITIONS = new Set([undefined, 'fewer_units_than_enemy', 'target_is_priest',
-  'ally_died_this_turn', 'ally_died_this_game', 'control_legendary', 'control_6_plus']);
+  'ally_died_this_turn', 'ally_died_this_game', 'control_legendary', 'control_6_plus',
+  'empty_hand', 'singleton_deck']);
 const AURA_CONDITION_OK = (c?: string) => c == null || c === 'outnumbered' || c.startsWith('control_');
 const OP_FIELDS = new Set(['verb', 'amount', 'count', 'value', 'attack', 'health', 'target', 'keyword',
   'token', 'into', 'type', 'tag', 'scope', 'condition', 'grantToTarget', 'grantKeyword',
   'refreshEachTurn', 'perEnemyUnit', 'ifLastCard', 'thisTurn', 'toFull', 'toField', 'withKeyword',
   'oncePerTurn', 'oncePerGame', 'replaceDeath', 'onTurn', 'random', 'cardType', 'keep',
-  'delayTurns', 'drawIfLegendary', 'trigger', 'on', 'delayToNextTurn', 'filter']);
+  'delayTurns', 'drawIfLegendary', 'trigger', 'on', 'delayToNextTurn', 'filter',
+  'perOtherAlly', 'toHand', 'diedThisTurn']);
 const OP_LISTENERS = new Set([undefined, 'friendlySheepDies', 'ally_death', 'self_damaged']);
 const FULFILL = new Set(['control_allies', 'slay_giant', 'survive_damage',
   'survive_stronger', 'survive_damaged_turn', 'auto_next_turn',

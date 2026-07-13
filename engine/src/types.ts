@@ -44,7 +44,9 @@ export type Verb =
   | 'conditionalDeal' | 'gainForEachSheep' | 'discoverFromDeck'
   | 'onHealBonus' | 'discountHand'
   | 'gainProvision'     // +N Provision to spend this turn (the Loaf of Bread token)
-  | 'cannotAttackAlone';// passive: this unit can't attack while it's your only unit (Barak)
+  | 'cannotAttackAlone' // passive: this unit can't attack while it's your only unit (Barak)
+  | 'requiresOtherPlay' // passive: can't attack unless you played another card this turn (Eleventh-Hour Laborer)
+  | 'breakAfterTurns';  // passive on a standing relic: it breaks after N of your turns (Jar of Oil)
 
 /** A targeting selector resolved at effect time. */
 export type TargetSpec =
@@ -101,6 +103,9 @@ export interface EffectOp {
   delayToNextTurn?: boolean;        // queue the op for your next dawn (Job)
   /** cost-aura / random-target filter: cardType (relic/spell), class (prophet…), tribe (disciple…). */
   filter?: { cardType?: CardType; class?: string; tribe?: string };
+  perOtherAlly?: boolean;           // buff: multiply by your OTHER unit count (Great Cloud of Witnesses)
+  toHand?: boolean;                 // returnFromDiscard: to hand (default; explicit for clarity)
+  diedThisTurn?: boolean;           // returnFromDiscard: only a unit that died THIS turn (Kinsman-Redeemer)
 }
 
 export interface FulfillSpec {
@@ -203,6 +208,8 @@ export interface PlayerState {
   nextCardDiscount: number;
   /** spells cast this game (Fulfill: cast_spells — Miriam, Habakkuk). */
   spellsCast?: number;
+  /** cards played this turn (Eleventh-Hour Laborer's attack gate). */
+  cardsPlayedThisTurn?: number;
   fatigue: number;        // escalating self-damage counter
   heroPower?: HeroPower;
   leaderId?: string;
