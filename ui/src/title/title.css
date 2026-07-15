@@ -15,22 +15,34 @@
 @keyframes titleIn{from{opacity:0}to{opacity:1}}
 @keyframes titleOut{to{opacity:0;transform:scale(1.04)}}
 
-/* ---- living painted scenes (image base + keyed transparent overlay sprites) ---- */
-.liveScene{position:absolute;inset:0;overflow:hidden;--px:0;--py:0}
-.liveScene>div{position:absolute;inset:-6%;background-size:cover;background-position:center;will-change:transform}
-.ls-base{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.05);
+/* ---- living painted scenes: stacked parallax planes + camera sway ----
+   Each plane gets a different parallax multiplier (farther back = moves less).
+   A gentle idle "camera" transform on the whole stage breathes over the top,
+   while the planes still slide independently underneath it. */
+.liveScene{position:absolute;inset:-2%;overflow:hidden;--px:0;--py:0;
+  animation:lsCam 17s ease-in-out infinite;will-change:transform}
+@keyframes lsCam{ /* slow handheld drift — the "camera" */
+  0%{transform:translate3d(-4px,-2px,0) scale(1.012) rotate(-.12deg)}
+  33%{transform:translate3d(3px,-4px,0) scale(1.016) rotate(.1deg)}
+  66%{transform:translate3d(4px,3px,0) scale(1.01) rotate(.14deg)}
+  100%{transform:translate3d(-4px,-2px,0) scale(1.012) rotate(-.12deg)}}
+.liveScene>div{position:absolute;inset:-7%;background-size:cover;background-position:center;will-change:transform}
+/* plane 1 (farthest): the painting — moves least */
+.ls-base{transform:translate3d(calc(var(--px)*-9px),calc(var(--py)*-7px),0) scale(1.06);
   animation:lsKen 48s ease-in-out infinite alternate}
-@keyframes lsKen{0%{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.05)}
-  100%{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.13) translateY(-2%)}}
+@keyframes lsKen{0%{transform:translate3d(calc(var(--px)*-9px),calc(var(--py)*-7px),0) scale(1.06)}
+  100%{transform:translate3d(calc(var(--px)*-9px),calc(var(--py)*-7px),0) scale(1.14) translateY(-2%)}}
+/* plane 2-3: drifting light sprites */
 .ls-ovr{mix-blend-mode:screen;pointer-events:none}
-.ls-ovr0{opacity:.85;transform:translate3d(calc(var(--px)*22px),calc(var(--py)*16px),0);
+.ls-ovr0{opacity:.85;transform:translate3d(calc(var(--px)*26px),calc(var(--py)*20px),0);
   animation:lsDrift 32s ease-in-out infinite alternate,lsTwinkle 4.6s ease-in-out infinite}
-.ls-ovr1{opacity:.6;transform:translate3d(calc(var(--px)*13px),calc(var(--py)*10px),0);
+.ls-ovr1{opacity:.6;transform:translate3d(calc(var(--px)*15px),calc(var(--py)*11px),0);
   animation:lsDrift2 44s ease-in-out infinite alternate}
 @keyframes lsDrift{0%{background-position:48% 50%}100%{background-position:53% 46%}}
 @keyframes lsDrift2{0%{background-position:52% 49%}100%{background-position:47% 52%}}
 @keyframes lsTwinkle{0%,100%{opacity:.6}50%{opacity:.95}}
 .ls-rays{inset:-30%!important;mix-blend-mode:screen;opacity:.22;pointer-events:none;
+  transform:translate3d(calc(var(--px)*8px),calc(var(--py)*6px),0);
   background:conic-gradient(from 210deg at 52% 20%,transparent 8deg,rgba(255,238,190,.45) 12deg,transparent 16deg,
     transparent 26deg,rgba(255,240,200,.3) 30deg,transparent 34deg);animation:lsSweep 24s ease-in-out infinite}
 @keyframes lsSweep{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
@@ -38,13 +50,21 @@
   background:radial-gradient(circle,rgba(255,244,214,.4),transparent 62%);mix-blend-mode:screen;pointer-events:none;
   animation:lsBreathe 8s ease-in-out infinite}
 @keyframes lsBreathe{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.78;transform:translate(-50%,-50%) scale(1.07)}}
-.ls-motes{position:absolute;inset:0;pointer-events:none}
+/* particles: a far field and a near field (near = bigger, moves more) */
+.ls-motes{position:absolute;inset:0;pointer-events:none;transform:translate3d(calc(var(--px)*16px),calc(var(--py)*12px),0)}
+.ls-motes.ls-near{transform:translate3d(calc(var(--px)*34px),calc(var(--py)*26px),0)}
 .ls-motes span{position:absolute;border-radius:50%;opacity:0;
   background:radial-gradient(circle,#fff6d0,transparent 70%);animation:lsFloat linear infinite}
+.ls-near span{filter:blur(.5px)}
 @keyframes lsFloat{0%{opacity:0;transform:translateY(0)}12%{opacity:.75}100%{opacity:0;transform:translateY(-120px) translateX(16px)}}
+/* plane 4 (nearest): soft out-of-focus bokeh, in front of everything, moves most */
+.ls-bokeh{mix-blend-mode:screen;opacity:.4;pointer-events:none;filter:blur(1px);
+  transform:translate3d(calc(var(--px)*46px),calc(var(--py)*36px),0) scale(1.12);
+  animation:lsBokeh 30s ease-in-out infinite alternate}
+@keyframes lsBokeh{0%{background-position:47% 50%}100%{background-position:54% 45%}}
 @media (prefers-reduced-motion:reduce){
-  .liveScene *{animation:none!important}
-  .ls-base{transform:scale(1.05)!important}
+  .liveScene,.liveScene *{animation:none!important}
+  .ls-base{transform:scale(1.06)!important}
 }
 
 /* shared scene overlays */

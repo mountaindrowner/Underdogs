@@ -62,6 +62,9 @@ OVERLAYS = {
     "godrays": "a few soft diagonal shafts of warm volumetric light",
     "spray": "a fine mist of pale blue-white water spray and droplets catching light",
     "mist": "soft drifting low fog and mist, wispy and translucent, pale warm-white",
+    "bokeh": "a scattering of large soft heavily-blurred out-of-focus warm-golden glowing "
+             "bokeh circles and light orbs of widely varying size, dreamy depth-of-field, "
+             "the biggest orbs near the edges",
 }
 
 def _imagen(prompt, size="2K"):

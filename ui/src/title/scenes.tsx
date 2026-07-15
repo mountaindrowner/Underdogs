@@ -223,12 +223,12 @@ const SCENE_OVERLAYS: Record<SceneId, string[]> = {
   elah: ['godrays', 'mist'], redsea: ['spray', 'godrays'],
 };
 
-function SceneMotes({ n }: { n: number }) {
+function SceneMotes({ n, cls = 'ls-motes', big = 0 }: { n: number; cls?: string; big?: number }) {
   const motes = useMemo(() => Array.from({ length: n }, () => ({
-    left: Math.random() * 100, top: 34 + Math.random() * 56, sz: 1 + Math.random() * 3,
+    left: Math.random() * 100, top: 34 + Math.random() * 56, sz: 1 + big + Math.random() * (3 + big),
     dur: 7 + Math.random() * 10, delay: -Math.random() * 16,
-  })), [n]);
-  return <div className="ls-motes">{motes.map((m, i) => (
+  })), [n, big]);
+  return <div className={cls}>{motes.map((m, i) => (
     <span key={i} style={{ left: `${m.left}%`, top: `${m.top}%`, width: m.sz, height: m.sz,
       animationDuration: `${m.dur}s`, animationDelay: `${m.delay}s` } as React.CSSProperties} />
   ))}</div>;
@@ -253,7 +253,9 @@ function LivingScene({ id, base }: { id: SceneId; base: string }) {
         <div key={o} className={`ls-ovr ls-ovr${i}`} style={{ backgroundImage: `url(${OVERLAYS[o]})` }} />
       ))}
       <div className="ls-rays" />
-      <SceneMotes n={30} />
+      <SceneMotes n={22} />
+      <SceneMotes n={9} cls="ls-motes ls-near" big={2} />
+      {OVERLAYS.bokeh && <div className="ls-bokeh" style={{ backgroundImage: `url(${OVERLAYS.bokeh})` }} />}
     </div>
   );
 }
