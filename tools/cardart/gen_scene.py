@@ -32,14 +32,15 @@ SCENES = {
               "at golden dawn; low mist over still water, a heron standing, dragonflies and "
               "fireflies, distant palms and hazy pyramids on the horizon, warm shafts of "
               "light slanting through the reeds. Green-gold, tranquil, expectant."),
-    "coat": ("Joseph's coat of many colours laid out and draped over a smooth desert "
-             "boulder at golden hour — the EMPTY garment ALONE as a rich still-life, "
-             "absolutely NO person, NO body, NO figure, NO one wearing it, no head, no "
-             "arms; just the beautiful striped coat spread and folded over the warm "
-             "stone, one embroidered sleeve trailing down. Jewel-toned stripes and "
-             "gold-thread hem catching the low light; distant dunes and a small camel-"
-             "caravan silhouette, drifting dust motes and soft light rays. Warm, "
-             "dreamlike, bittersweet."),
+    "coat": ("EXTREME CLOSE-UP of the fabric of Joseph's coat of many colours, the rich "
+             "cloth filling the ENTIRE frame edge to edge as a full-bleed background "
+             "texture — a luxurious hand-woven textile of bold jewel-toned vertical "
+             "stripes (crimson, sapphire, gold, emerald, violet, saffron), lustrous silk "
+             "sheen, ornate gold-thread embroidery and small inlaid gemstones along the "
+             "seams, deep soft folds and drape catching warm raking light with pooled "
+             "shadow between the folds. NO landscape, NO horizon, NO sky, NO person, NO "
+             "object — ONLY the sumptuous cloth itself, seen up close, soft shallow "
+             "depth-of-field. Warm, opulent, tactile."),
     "elah": ("The Valley of Elah at sunrise from a high vantage: golden hills, a stony "
              "brook winding below, scattered terebinth trees, two distant war-camps facing "
              "off, mist in the low ground, a lone sling-stone glinting in the foreground. "
