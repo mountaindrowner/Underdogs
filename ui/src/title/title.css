@@ -15,6 +15,38 @@
 @keyframes titleIn{from{opacity:0}to{opacity:1}}
 @keyframes titleOut{to{opacity:0;transform:scale(1.04)}}
 
+/* ---- living painted scenes (image base + keyed transparent overlay sprites) ---- */
+.liveScene{position:absolute;inset:0;overflow:hidden;--px:0;--py:0}
+.liveScene>div{position:absolute;inset:-6%;background-size:cover;background-position:center;will-change:transform}
+.ls-base{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.05);
+  animation:lsKen 48s ease-in-out infinite alternate}
+@keyframes lsKen{0%{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.05)}
+  100%{transform:translate3d(calc(var(--px)*-10px),calc(var(--py)*-8px),0) scale(1.13) translateY(-2%)}}
+.ls-ovr{mix-blend-mode:screen;pointer-events:none}
+.ls-ovr0{opacity:.85;transform:translate3d(calc(var(--px)*22px),calc(var(--py)*16px),0);
+  animation:lsDrift 32s ease-in-out infinite alternate,lsTwinkle 4.6s ease-in-out infinite}
+.ls-ovr1{opacity:.6;transform:translate3d(calc(var(--px)*13px),calc(var(--py)*10px),0);
+  animation:lsDrift2 44s ease-in-out infinite alternate}
+@keyframes lsDrift{0%{background-position:48% 50%}100%{background-position:53% 46%}}
+@keyframes lsDrift2{0%{background-position:52% 49%}100%{background-position:47% 52%}}
+@keyframes lsTwinkle{0%,100%{opacity:.6}50%{opacity:.95}}
+.ls-rays{inset:-30%!important;mix-blend-mode:screen;opacity:.22;pointer-events:none;
+  background:conic-gradient(from 210deg at 52% 20%,transparent 8deg,rgba(255,238,190,.45) 12deg,transparent 16deg,
+    transparent 26deg,rgba(255,240,200,.3) 30deg,transparent 34deg);animation:lsSweep 24s ease-in-out infinite}
+@keyframes lsSweep{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.ls-sun{inset:auto!important;left:50%;top:30%;width:26vw;height:26vw;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(255,244,214,.4),transparent 62%);mix-blend-mode:screen;pointer-events:none;
+  animation:lsBreathe 8s ease-in-out infinite}
+@keyframes lsBreathe{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.78;transform:translate(-50%,-50%) scale(1.07)}}
+.ls-motes{position:absolute;inset:0;pointer-events:none}
+.ls-motes span{position:absolute;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,#fff6d0,transparent 70%);animation:lsFloat linear infinite}
+@keyframes lsFloat{0%{opacity:0;transform:translateY(0)}12%{opacity:.75}100%{opacity:0;transform:translateY(-120px) translateX(16px)}}
+@media (prefers-reduced-motion:reduce){
+  .liveScene *{animation:none!important}
+  .ls-base{transform:scale(1.05)!important}
+}
+
 /* shared scene overlays */
 .titleScene{position:absolute;inset:0;z-index:0}
 .titleGrain{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:.05;mix-blend-mode:overlay;

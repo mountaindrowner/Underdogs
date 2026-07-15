@@ -1,7 +1,7 @@
 /** Title background scenes. One is chosen at random on boot and stays put
  *  (no slideshow). All texture is CSS/SVG — no image files. Global grain,
  *  vignette, and dim (in Title.tsx) sit over whichever scene shows. */
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 type CSS = React.CSSProperties;
@@ -208,7 +208,57 @@ export function ShellBg({ scene }: { scene: SceneId }) {
   );
 }
 
-export function Scene({ id }: { id: SceneId }) {
+// ---- living painted scenes (Imagen base + keyed transparent overlays) -------
+// Painted HD backdrops with drifting light sprites layered on top. If a base
+// webp is missing, the scene falls back to its procedural CSS/SVG version.
+const BASES: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob('../../assets/scenes/*.webp', { eager: true, query: '?url', import: 'default' }))
+    .map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url as string]));
+const OVERLAYS: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob('../../assets/scenes/overlays/*.webp', { eager: true, query: '?url', import: 'default' }))
+    .map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url as string]));
+// which drifting sprites each scene wears (by mood)
+const SCENE_OVERLAYS: Record<SceneId, string[]> = {
+  reeds: ['fireflies', 'mist'], coat: ['embers', 'godrays'],
+  elah: ['godrays', 'mist'], redsea: ['spray', 'godrays'],
+};
+
+function SceneMotes({ n }: { n: number }) {
+  const motes = useMemo(() => Array.from({ length: n }, () => ({
+    left: Math.random() * 100, top: 34 + Math.random() * 56, sz: 1 + Math.random() * 3,
+    dur: 7 + Math.random() * 10, delay: -Math.random() * 16,
+  })), [n]);
+  return <div className="ls-motes">{motes.map((m, i) => (
+    <span key={i} style={{ left: `${m.left}%`, top: `${m.top}%`, width: m.sz, height: m.sz,
+      animationDuration: `${m.dur}s`, animationDelay: `${m.delay}s` } as React.CSSProperties} />
+  ))}</div>;
+}
+
+function LivingScene({ id, base }: { id: SceneId; base: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const onMove = (e: PointerEvent) => {
+      el.style.setProperty('--px', ((e.clientX / window.innerWidth) - 0.5).toFixed(3));
+      el.style.setProperty('--py', ((e.clientY / window.innerHeight) - 0.5).toFixed(3));
+    };
+    window.addEventListener('pointermove', onMove);
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+  return (
+    <div className={`liveScene ls-${id}`} ref={ref}>
+      <div className="ls-base" style={{ backgroundImage: `url(${base})` }} />
+      <div className="ls-sun" />
+      {SCENE_OVERLAYS[id].map((o, i) => OVERLAYS[o] && (
+        <div key={o} className={`ls-ovr ls-ovr${i}`} style={{ backgroundImage: `url(${OVERLAYS[o]})` }} />
+      ))}
+      <div className="ls-rays" />
+      <SceneMotes n={30} />
+    </div>
+  );
+}
+
+function ProceduralScene({ id }: { id: SceneId }) {
   switch (id) {
     case 'reeds': return <ReedsScene />;
     case 'elah': return <ElahScene />;
@@ -216,4 +266,9 @@ export function Scene({ id }: { id: SceneId }) {
     case 'coat':
     default: return <CoatScene />;
   }
+}
+
+export function Scene({ id }: { id: SceneId }) {
+  const base = BASES[id];
+  return base ? <LivingScene id={id} base={base} /> : <ProceduralScene id={id} />;
 }

@@ -14,6 +14,12 @@ const RIBBON: [string, number][] = [
 type Act = 'story' | 'freeplay' | 'decks' | 'soon';
 interface Item { key: string; gem: string; sub: string; act: Act; soon?: boolean }
 
+// kicker under the logo — matches the painted scene showing behind the menu
+const SCENE_NAME: Record<SceneId, string> = {
+  coat: 'THE COAT OF MANY COLOURS', reeds: 'THE REEDS OF THE NILE',
+  elah: 'THE VALLEY OF ELAH', redsea: 'THE RED SEA CROSSING',
+};
+
 const ITEMS: Item[] = [
   { key: 'Story', gem: '#c8322a', sub: 'The Long Way Round — Eden to the ends of the earth.', act: 'story' },
   { key: 'Free Play', gem: '#2f8f9a', sub: 'The Sparring Pit — pick a war-band, pick a fight.', act: 'freeplay' },
@@ -40,7 +46,7 @@ export function MainMenu({ scene, onStory, onFreePlay, onDecks }:
       <div className="mmHead">
         <div className="mmLogo">Underdogs</div>
         <div className="ribbon">{RIBBON.map(([c, w], i) => <span key={i} style={{ background: c, flexGrow: w }} />)}</div>
-        <div className="mmChapter">THE VALLEY OF ELAH</div>
+        <div className="mmChapter">{SCENE_NAME[scene]}</div>
       </div>
 
       <div className="mmPanel">

@@ -22,9 +22,10 @@ SCENE_MASTER = (
     "foreground, midground and hazy distance (built for parallax). Warm rim lighting, "
     "soft volumetric light rays, drifting particles, deep cinematic shadow, gold-leaf "
     "accents, confident painterly brushwork, awe and reverence. Historically-plausible "
-    "ancient Near-Eastern setting. No text, no UI, no card frames, no modern objects, "
-    "no visible face of God, no gore. Full-bleed 16:9, edge to edge, with calm negative "
-    "space in the upper-middle for a title.")
+    "ancient Near-Eastern setting. Keep the upper-middle calm and uncluttered (open sky "
+    "or haze). Absolutely NO text, NO letters, NO words, NO title, NO lettering, NO "
+    "watermark anywhere. No UI, no card frames, no modern objects, no visible face of "
+    "God, no gore. Full-bleed 16:9, edge to edge.")
 
 SCENES = {
     "reeds": ("Baby Moses's woven papyrus basket adrift among tall Nile reeds and lotus "
@@ -55,6 +56,7 @@ OVERLAYS = {
     "embers": "a rising drift of orange-gold embers and sparks with soft glow",
     "godrays": "a few soft diagonal shafts of warm volumetric light",
     "spray": "a fine mist of pale blue-white water spray and droplets catching light",
+    "mist": "soft drifting low fog and mist, wispy and translucent, pale warm-white",
 }
 
 def _imagen(prompt, size="2K"):

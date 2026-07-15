@@ -90,7 +90,9 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
   FreePlay.tsx     "The Sparring Pit" setup (war-band + difficulty)
   Decks.tsx        "The Armory" (browse / collection / forge)
   CardPreview.tsx  full-size card reader
-  title/           Title.tsx, MainMenu.tsx, scenes.tsx (procedural CSS/SVG backdrops)
+  title/           Title.tsx, MainMenu.tsx, scenes.tsx (AI-painted "living" menu
+                   scenes: Imagen base + keyed transparent overlay sprites +
+                   parallax; procedural CSS/SVG kept as fallback)
   board/           Board.tsx + boards.ts (in-game diorama, dim, behind cards)
   audio.ts sfx.ts  music crossfader + one-shot SFX
   styles.css       ~everything (single stylesheet)
