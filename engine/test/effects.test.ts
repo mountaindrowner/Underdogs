@@ -196,16 +196,17 @@ test('Jonah: if he would die, he is shuffled into your deck instead', () => {
   assert.equal(s.players[0].deck.length, deckBefore + 1);
 });
 
-test('The Good Fold (standing relic): your Sheep get +1/+1 and Guard', () => {
+test('The Good Fold (standing relic): your Sheep get +1/+0 and Guard', () => {
+  // balance pass: Sheep buff shaved +1/+1 -> +1/+0 (Shepherd tempo trim)
   let s = rig(['the_good_fold'], [], ['tok_sheep', 'shepherd_boy']);
   s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
   const sheep = s.players[0].board.find((u) => u.defId === 'tok_sheep')!;
   const boy = s.players[0].board.find((u) => u.defId === 'shepherd_boy')!;
   assert.equal(sheep.auraAtk, 1);
-  assert.equal(sheep.auraHp, 1);
+  assert.equal(sheep.auraHp, 0);
   assert.ok(hasKeyword(sheep, 'guard'), 'the fold guards the sheep');
   assert.equal(boy.auraAtk, 0, 'shepherd boy is not a sheep');
-  assert.ok(effHealth(sheep) === sheep.health + 1);
+  assert.ok(effHealth(sheep) === sheep.health);
 });
 
 test('Jael\'s Tent Peg: wielder destroys an already-damaged unit it strikes', () => {
