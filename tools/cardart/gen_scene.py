@@ -32,10 +32,14 @@ SCENES = {
               "at golden dawn; low mist over still water, a heron standing, dragonflies and "
               "fireflies, distant palms and hazy pyramids on the horizon, warm shafts of "
               "light slanting through the reeds. Green-gold, tranquil, expectant."),
-    "coat": ("Joseph's coat of many colours draped over a desert rock at dusk, its rich "
-             "jewel-toned stripes and embroidery catching the last gold light, folds "
-             "flowing; drifting dust motes and light rays, distant dunes and a caravan "
-             "silhouette. Warm, dreamlike, bittersweet."),
+    "coat": ("Joseph's coat of many colours laid out and draped over a smooth desert "
+             "boulder at golden hour — the EMPTY garment ALONE as a rich still-life, "
+             "absolutely NO person, NO body, NO figure, NO one wearing it, no head, no "
+             "arms; just the beautiful striped coat spread and folded over the warm "
+             "stone, one embroidered sleeve trailing down. Jewel-toned stripes and "
+             "gold-thread hem catching the low light; distant dunes and a small camel-"
+             "caravan silhouette, drifting dust motes and soft light rays. Warm, "
+             "dreamlike, bittersweet."),
     "elah": ("The Valley of Elah at sunrise from a high vantage: golden hills, a stony "
              "brook winding below, scattered terebinth trees, two distant war-camps facing "
              "off, mist in the low ground, a lone sling-stone glinting in the foreground. "
