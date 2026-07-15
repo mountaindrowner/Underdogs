@@ -3,8 +3,8 @@
   "budget_anchor_usd": 7.4036,
   "budget_funded_on": "2026-07-12",
   "budget_note": "budget_usd is the REAL account balance (checked 2026-07-12). Remaining = budget_usd - (usd - budget_anchor_usd). The all-time \"usd\" is a worst-case paid-rate estimate (/bin/bash.039/img); free-tier images actually cost $0, so real spend is lower than this figure.",
-  "images": 237,
-  "usd": 9.219472499999993,
+  "images": 239,
+  "usd": 9.318196199999994,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1740,6 +1740,18 @@
       "cls": "neutral",
       "img_tok": 1290,
       "usd": 0.03875,
+      "refs": []
+    },
+    {
+      "id": "scene_reeds",
+      "cls": "scene",
+      "usd": 0.06
+    },
+    {
+      "id": "_ovr_fireflies",
+      "cls": "neutral",
+      "img_tok": 1290,
+      "usd": 0.03872,
       "refs": []
     }
   ]
