@@ -65,6 +65,11 @@ OVERLAYS = {
     "bokeh": "a scattering of large soft heavily-blurred out-of-focus warm-golden glowing "
              "bokeh circles and light orbs of widely varying size, dreamy depth-of-field, "
              "the biggest orbs near the edges",
+    "glints": "ONLY dozens of tiny separate four-pointed star glints and small round light "
+              "sparkles of varying size scattered randomly and evenly across the whole frame, "
+              "golden-white, delicate and sharp — NO bird, NO creature, NO figure, NO shape, "
+              "NO object, NO pattern, nothing recognizable, just scattered isolated sparkle "
+              "points spread edge to edge",
 }
 
 def _imagen(prompt, size="2K"):

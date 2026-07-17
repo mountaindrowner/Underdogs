@@ -58,10 +58,25 @@
 .ls-near span{filter:blur(.5px)}
 @keyframes lsFloat{0%{opacity:0;transform:translateY(0)}12%{opacity:.75}100%{opacity:0;transform:translateY(-120px) translateX(16px)}}
 /* plane 4 (nearest): soft out-of-focus bokeh, in front of everything, moves most */
-.ls-bokeh{mix-blend-mode:screen;opacity:.4;pointer-events:none;filter:blur(1px);
+.ls-bokeh{mix-blend-mode:screen;opacity:var(--bokeh-o,.4);pointer-events:none;filter:blur(1px);
   transform:translate3d(calc(var(--px)*46px),calc(var(--py)*36px),0) scale(1.12);
   animation:lsBokeh 30s ease-in-out infinite alternate}
 @keyframes lsBokeh{0%{background-position:47% 50%}100%{background-position:54% 45%}}
+/* ---- per-scene tuning ---- */
+/* coat = fabric close-up: glints sparkle slowly, the godray plane reads as a
+   soft moving sheen across the cloth, and the pan drifts sideways like a hand
+   smoothing the fabric */
+.ls-coat .ls-ovr0{opacity:.8;animation-duration:36s,7s}
+.ls-coat .ls-ovr1{opacity:.22;filter:blur(2px);animation-duration:26s}
+.ls-coat .ls-base{animation-name:lsKenPan}
+@keyframes lsKenPan{0%{transform:translate3d(calc(var(--px)*-9px),calc(var(--py)*-7px),0) scale(1.1) translateX(-1.6%)}
+  100%{transform:translate3d(calc(var(--px)*-9px),calc(var(--py)*-7px),0) scale(1.1) translateX(1.6%)}}
+/* redsea: the spray shimmers faster; rays cooler and fainter */
+.ls-redsea .ls-ovr0{animation-duration:24s,3.4s;opacity:.7}
+.ls-redsea .ls-rays{opacity:.15}
+/* elah: heavier valley mist, gentler rays */
+.ls-elah .ls-ovr1{opacity:.7}
+.ls-elah .ls-rays{opacity:.18}
 @media (prefers-reduced-motion:reduce){
   .liveScene,.liveScene *{animation:none!important}
   .ls-base{transform:scale(1.06)!important}

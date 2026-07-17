@@ -217,10 +217,15 @@ const BASES: Record<string, string> = Object.fromEntries(
 const OVERLAYS: Record<string, string> = Object.fromEntries(
   Object.entries(import.meta.glob('../../assets/scenes/overlays/*.webp', { eager: true, query: '?url', import: 'default' }))
     .map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url as string]));
-// which drifting sprites each scene wears (by mood)
-const SCENE_OVERLAYS: Record<SceneId, string[]> = {
-  reeds: ['fireflies', 'mist'], coat: ['embers', 'godrays'],
-  elah: ['godrays', 'mist'], redsea: ['spray', 'godrays'],
+// per-scene FX mix: which sprites, whether the sun/ray planes show, bokeh
+// strength, and mote counts [far, near]. The coat is a fabric CLOSE-UP — no
+// sun or sky rays; it gets gold-thread glints and a low godray "sheen" instead.
+interface SceneFx { overlays: string[]; sun: boolean; rays: boolean; bokeh: number; motes: [number, number] }
+const SCENE_FX: Record<SceneId, SceneFx> = {
+  reeds:  { overlays: ['fireflies', 'mist'], sun: true,  rays: true,  bokeh: 0.40, motes: [22, 9] },
+  coat:   { overlays: ['glints', 'godrays'], sun: false, rays: false, bokeh: 0.20, motes: [12, 5] },
+  elah:   { overlays: ['godrays', 'mist'],   sun: true,  rays: true,  bokeh: 0.30, motes: [22, 9] },
+  redsea: { overlays: ['spray', 'godrays'],  sun: true,  rays: true,  bokeh: 0.30, motes: [18, 7] },
 };
 
 function SceneMotes({ n, cls = 'ls-motes', big = 0 }: { n: number; cls?: string; big?: number }) {
@@ -245,17 +250,18 @@ function LivingScene({ id, base }: { id: SceneId; base: string }) {
     window.addEventListener('pointermove', onMove);
     return () => window.removeEventListener('pointermove', onMove);
   }, []);
+  const fx = SCENE_FX[id];
   return (
-    <div className={`liveScene ls-${id}`} ref={ref}>
+    <div className={`liveScene ls-${id}`} ref={ref} style={{ ['--bokeh-o' as string]: fx.bokeh } as React.CSSProperties}>
       <div className="ls-base" style={{ backgroundImage: `url(${base})` }} />
-      <div className="ls-sun" />
-      {SCENE_OVERLAYS[id].map((o, i) => OVERLAYS[o] && (
+      {fx.sun && <div className="ls-sun" />}
+      {fx.overlays.map((o, i) => OVERLAYS[o] && (
         <div key={o} className={`ls-ovr ls-ovr${i}`} style={{ backgroundImage: `url(${OVERLAYS[o]})` }} />
       ))}
-      <div className="ls-rays" />
-      <SceneMotes n={22} />
-      <SceneMotes n={9} cls="ls-motes ls-near" big={2} />
-      {OVERLAYS.bokeh && <div className="ls-bokeh" style={{ backgroundImage: `url(${OVERLAYS.bokeh})` }} />}
+      {fx.rays && <div className="ls-rays" />}
+      <SceneMotes n={fx.motes[0]} />
+      <SceneMotes n={fx.motes[1]} cls="ls-motes ls-near" big={2} />
+      {OVERLAYS.bokeh && fx.bokeh > 0 && <div className="ls-bokeh" style={{ backgroundImage: `url(${OVERLAYS.bokeh})` }} />}
     </div>
   );
 }
