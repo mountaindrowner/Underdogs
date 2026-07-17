@@ -61,20 +61,21 @@
 /* phone landscape: brand on the left, the item list on the right — nothing
    clipped, nothing scrolled off the short screen */
 @media (orientation:landscape) and (max-height:520px){
-  .mmHead{top:50%;left:6vw;right:auto;transform:translateY(-58%);align-items:flex-start;gap:7px}
+  .mmHead{top:50%;left:max(6vw,env(safe-area-inset-left,0px));right:auto;transform:translateY(-58%);align-items:flex-start;gap:7px}
   .mmLogo{font-size:34px}
   .mmHead .ribbon{width:150px;height:6px}
   .mmChapter{font-size:9px;letter-spacing:.32em}
-  .mmPanel{left:auto;right:14px;top:50%;transform:translateY(-50%);
-    width:min(430px,56vw);max-height:calc(100dvh - 20px);overflow-y:auto;
-    padding:10px;gap:6px;scrollbar-width:thin}
-  .mmPanel::before{inset:5px}
-  .mmItem{padding:6px 12px;gap:10px}
-  .mmGem{width:18px;height:18px}
-  .mmKey{font-size:13.5px}
-  .mmSub{font-size:10px}
-  .mmChev{font-size:16px}
+  /* all six items fit a 390px-tall phone — no clipping, no scroll needed */
+  .mmPanel{left:auto;right:calc(12px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);
+    width:min(430px,56vw);max-height:calc(100dvh - 16px);overflow-y:auto;
+    padding:8px;gap:5px;scrollbar-width:thin;border-radius:13px}
+  .mmPanel::before{inset:4px;border-radius:9px}
+  .mmItem{padding:5px 11px;gap:9px;min-height:44px}
+  .mmGem{width:17px;height:17px}
+  .mmKey{font-size:13px}
+  .mmSub{font-size:9.5px}
+  .mmChev{font-size:15px}
   .mmSoon{font-size:8px;padding:1px 5px}
-  .mmTopRight{top:8px;right:10px}
+  .mmTopRight{top:calc(6px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px))}
   .mmToast{bottom:12px}
 }
