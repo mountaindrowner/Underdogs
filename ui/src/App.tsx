@@ -10,6 +10,7 @@ import { effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide, type C
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
+import { SettingsScreen } from './Settings.tsx';
 import { music } from './audio.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
@@ -740,7 +741,7 @@ function MatchTransition({ label, sub, onDone }: { label: string; sub?: string; 
 export default function App() {
   const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
-  const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks'>('menu');
+  const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks' | 'settings'>('menu');
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
   const [trans, setTrans] = useState<{ label: string; sub?: string } | null>(null);
   // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
@@ -770,6 +771,10 @@ export default function App() {
   if (screen === 'decks') {
     return <DecksScreen scene={scene} onBack={() => setScreen('menu')} />;
   }
+  if (screen === 'settings') {
+    return <SettingsScreen scene={scene} onBack={() => setScreen('menu')} />;
+  }
   return <MainMenu scene={scene} onStory={() => setScreen('story')}
-    onFreePlay={() => setScreen('freeplay')} onDecks={() => setScreen('decks')} />;
+    onFreePlay={() => setScreen('freeplay')} onDecks={() => setScreen('decks')}
+    onSettings={() => setScreen('settings')} />;
 }

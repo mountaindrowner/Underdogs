@@ -468,8 +468,8 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .mulliganApp .topbar{position:relative;z-index:2}
 .mulligan{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:24px;margin-top:0;padding-bottom:4vh;width:100%}
-.mulligan h2{text-shadow:0 2px 10px rgba(0,0,0,.7)}
-.mulligan h2{font-size:22px;color:#e9d9b0;letter-spacing:1px}
+.mulligan h2{font-family:'Cinzel',var(--serif);font-weight:700;font-size:19px;color:#ffe6a2;
+  letter-spacing:.22em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .mulHand{display:flex;gap:26px}
 .mulCard{position:relative;cursor:pointer;transition:transform .12s}
 .mulCard .handcard.big{width:150px;height:206px;margin:0;filter:none;transform:none}
@@ -502,8 +502,34 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .backBtn:active,.bigbtn:active,.deckTile:active,.diffTile:active,.armTabs button:active,
 .mmItem:active,.chapter:active,.chip:active{transform:scale(.965)}
 /* one shared screen-enter motion: content rises in as a unit */
-.menu,.fpBody,.armBody,.forge,.collGrid,.collChips,.armTabs,.intro{animation:screenIn .32s cubic-bezier(.2,.8,.3,1) both}
+.menu,.fpBody,.armBody,.forge,.collGrid,.collChips,.armTabs,.intro,.mulligan,.setBody{animation:screenIn .32s cubic-bezier(.2,.8,.3,1) both}
 @keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+/* result buttons rise in after the banner */
+.ovBtns{animation:screenIn .45s .22s cubic-bezier(.2,.8,.3,1) both}
+
+/* ===================== settings (tent pegs & knobs) ===================== */
+.setBody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  width:min(620px,94vw)}
+.setPanel{width:100%;display:flex;flex-direction:column;gap:8px;padding:18px;border-radius:16px;
+  background:linear-gradient(160deg,rgba(48,33,20,.88),rgba(24,16,9,.92));
+  border:1px solid rgba(90,60,26,.6);
+  box-shadow:0 26px 70px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,220,150,.12)}
+.setRow{display:flex;align-items:center;gap:14px;min-height:52px;padding:8px 10px;border-radius:10px;
+  background:linear-gradient(180deg,rgba(58,42,24,.5),rgba(30,21,12,.55));border:1px solid rgba(90,60,26,.45)}
+.setText{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.setKey{font-family:'Cinzel',var(--serif);font-weight:700;font-size:14.5px;letter-spacing:.05em;color:#f4e6c4}
+.setSub{font-family:'EBG',Georgia,serif;font-style:italic;font-size:11.5px;color:#b39c72}
+.setChips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.setRow .chip{min-height:34px;padding:5px 14px}
+.setReset{width:auto;height:auto;border-radius:999px;padding:8px 16px;font-family:'Cinzel',var(--serif);
+  font-weight:700;font-size:11px;letter-spacing:.06em;min-height:38px}
+@media (orientation:landscape) and (max-height:520px){
+  .setBody{padding-top:34px;justify-content:flex-start;gap:6px}
+  .setPanel{padding:10px;gap:5px}
+  .setRow{min-height:42px;padding:5px 8px}
+  .setKey{font-size:12.5px}.setSub{font-size:9.5px}
+  .setRow .chip{min-height:30px;padding:3px 10px;font-size:10.5px}
+}
 
 /* ===================== menu / campaign ===================== */
 .menu{display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:4vh;width:min(1180px,97vw)}
@@ -817,11 +843,6 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .gridCard .hcName{font-size:8px;bottom:15px}
 }
 
-@media (orientation:portrait) and (max-width:900px){
-  .table,.hand,.topbar{display:none}
-  .rotate{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;gap:14px;
-    text-align:center;color:#e9d9b0;font-size:18px;letter-spacing:1px}
-}
 
 /* ===================== keyframes ===================== */
 @keyframes summon{0%{opacity:0;transform:translateY(42px) scale(.62) rotate(-3deg)}

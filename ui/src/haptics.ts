@@ -5,9 +5,16 @@
  *  behind this same interface for the iOS app later). */
 import type { GameEvent } from '../../engine/src/index.ts';
 
+const HAP_KEY = 'underdogs.haptics';
+
 class Haptics {
   private supported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
-  enabled = true; // future Settings toggle
+  enabled = (() => { try { return localStorage.getItem(HAP_KEY) !== '0'; } catch { return true; } })();
+
+  setEnabled(v: boolean) {
+    this.enabled = v;
+    try { localStorage.setItem(HAP_KEY, v ? '1' : '0'); } catch { /* ignore */ }
+  }
 
   private buzz(pattern: number | number[]) {
     if (!this.supported || !this.enabled) return;
