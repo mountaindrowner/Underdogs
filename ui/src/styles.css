@@ -491,6 +491,9 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 /* ===================== story menu (chapter map on the scene) ===================== */
 .storyMenu{background:#0e0922}
 .storyWrap{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+/* menu sub-screens don't repeat the wordmark — the screen title is the identity */
+.storyMenu .brand{display:none}
+
 /* unified back chip — same voice as the main-menu items (Cinzel smallcaps pill) */
 .backBtn{font-family:'Cinzel',var(--serif);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
   display:inline-flex;align-items:center;gap:4px;min-height:38px;
@@ -523,7 +526,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .setRow .chip{min-height:34px;padding:5px 14px}
 .setReset{width:auto;height:auto;border-radius:999px;padding:8px 16px;font-family:'Cinzel',var(--serif);
   font-weight:700;font-size:11px;letter-spacing:.06em;min-height:38px}
-@media (orientation:landscape) and (max-height:520px){
+@media (orientation:landscape) and (max-height:620px){
   .setBody{padding-top:34px;justify-content:flex-start;gap:6px}
   .setPanel{padding:10px;gap:5px}
   .setRow{min-height:42px;padding:5px 8px}
@@ -538,8 +541,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .chapter{position:relative;width:230px;height:300px;border-radius:16px;overflow:hidden;cursor:pointer;
   border:3px solid var(--gold2);box-shadow:0 8px 22px rgba(0,0,0,.6);transition:transform .14s;background:#1a1206}
 .chapter:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 0 0 2px var(--gold-br),0 12px 26px rgba(0,0,0,.7)}
-.chArt{position:absolute;inset:0;background-size:cover;background-position:center 20%;
-  -webkit-mask:linear-gradient(180deg,#000 45%,transparent 92%);mask:linear-gradient(180deg,#000 45%,transparent 92%)}
+.chArt{position:absolute;inset:0;background-size:cover;background-position:center 20%}
 .chapter::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(20,10,4,.92))}
 .chNo{position:absolute;top:10px;left:12px;z-index:2;font-size:11px;letter-spacing:2px;color:#ffdf8a;text-transform:uppercase;text-shadow:0 1px 3px #000}
 .chTitle{position:absolute;bottom:44px;left:12px;right:12px;z-index:2;font-size:21px;font-weight:800;color:#fff6df;text-shadow:0 2px 4px #000}
@@ -654,6 +656,24 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   font-size:11px;font-weight:800;color:#2a1806;background:linear-gradient(180deg,#f6da8c,#c89a3a);
   border:1px solid #4d3510;border-radius:999px;padding:1px 8px;box-shadow:0 2px 5px rgba(0,0,0,.5)}
 
+/* collection controls: search + rarity + sort, one bar in the panel voice */
+.collBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;
+  width:min(980px,96vw)}
+.collSearch{flex:1;min-width:150px;max-width:300px;min-height:36px;padding:6px 14px;border-radius:999px;
+  font-family:var(--serif);font-size:13px;color:#f0e4c4;outline:none;
+  background:linear-gradient(180deg,#241811,#1a1109);border:1px solid rgba(90,60,26,.6)}
+.collSearch::placeholder{color:#8d7b58;font-style:italic}
+.collSearch:focus{border-color:var(--gold-br);box-shadow:0 0 10px rgba(255,201,92,.25)}
+.collRarities{display:flex;gap:5px;flex-wrap:wrap}
+.chip.rc-common{border-color:color-mix(in srgb,var(--edge-common) 70%,transparent)}
+.chip.rc-rare{border-color:color-mix(in srgb,var(--edge-rare) 70%,transparent)}
+.chip.rc-epic{border-color:color-mix(in srgb,var(--edge-epic) 70%,transparent)}
+.chip.rc-legendary{border-color:color-mix(in srgb,var(--edge-legendary) 70%,transparent)}
+.collSort{min-height:36px;padding:5px 10px;border-radius:999px;cursor:pointer;
+  font-family:'Cinzel',var(--serif);font-weight:700;font-size:11px;letter-spacing:.05em;color:#cbb283;
+  background:linear-gradient(180deg,#2e2113,#1c130a);border:1px solid rgba(90,60,26,.6)}
+.collCount{font-family:'Cinzel',var(--serif);font-size:11px;color:#b9a06a;letter-spacing:.06em}
+.collEmpty{width:100%;text-align:center;padding:26px 0;font-style:italic;color:#b39c72}
 .collChips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .chip{font-size:11.5px;font-family:var(--serif);color:#cbb283;cursor:pointer;border-radius:999px;padding:4px 12px;
   background:rgba(30,21,12,.8);border:1px solid rgba(90,60,26,.6)}
@@ -786,12 +806,12 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
    The battle got its compact layout long ago; these bring Story / Free Play /
    The Armory to the same standard — one language: floating back chip (44px
    target, safe-area aware), tight Cinzel headers, horizontal snap rails for
-   tile shelves, and nothing clipped on a 390px-tall phone. */
-@media (orientation:landscape) and (max-height:520px){
+   tile shelves, and nothing clipped on a 390px-tall phone. Breakpoint is 620:
+   real iPhones report up to ~600px CSS height in landscape Safari. */
+@media (orientation:landscape) and (max-height:620px){
   :root{--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px)}
   .storyMenu .topbar{padding:6px calc(10px + var(--safe-r)) 2px calc(10px + var(--safe-l))}
   .storyMenu .backBtn{min-height:34px;font-size:10.5px;padding:4px 13px}
-  .storyMenu .brand{display:none}                 /* the screen title carries the identity */
   .storyWrap{gap:4px}
 
   /* story: the chapter map becomes a swipeable, snapping rail */
@@ -838,6 +858,10 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .ddBtns .bigbtn{font-size:12px;padding:7px 12px;min-height:38px}
   .collChips{gap:5px}
   .collChips .chip{min-height:32px;font-size:10.5px;padding:4px 10px}
+  .collBar{gap:6px;width:96vw}
+  .collSearch{min-width:120px;max-width:230px;min-height:32px;font-size:12px;padding:4px 12px}
+  .collRarities .chip{min-height:30px;font-size:10px;padding:3px 9px}
+  .collSort{min-height:32px;font-size:10px;padding:3px 8px}
   .collGrid{padding-bottom:10px}
   .gridCard{width:96px;height:132px}
   .gridCard .hcName{font-size:8px;bottom:15px}
@@ -1072,7 +1096,7 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 /* phone landscape, AFTER the battle block: the collection/forge grid cards
    share .handcard with the battle hand, whose compact phone rules (62x84,
    negative margins) would otherwise crush the Armory grid. Re-assert. */
-@media (orientation:landscape) and (max-height:520px){
+@media (orientation:landscape) and (max-height:620px){
   .armBody{justify-content:flex-start}
   .gridCard{width:96px;height:132px;margin:0}
   .gridCard .hcCost{width:22px;height:22px;font-size:12px}

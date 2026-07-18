@@ -60,7 +60,7 @@
 
 /* phone landscape: brand on the left, the item list on the right — nothing
    clipped, nothing scrolled off the short screen */
-@media (orientation:landscape) and (max-height:520px){
+@media (orientation:landscape) and (max-height:620px){
   .mmHead{top:50%;left:max(6vw,env(safe-area-inset-left,0px));right:auto;transform:translateY(-58%);align-items:flex-start;gap:7px}
   .mmLogo{font-size:34px}
   .mmHead .ribbon{width:150px;height:6px}

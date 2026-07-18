@@ -1,0 +1,14 @@
+{
+  "name": "UNDERDOGS",
+  "short_name": "UNDERDOGS",
+  "description": "Every hero starts unqualified. A single-player Scripture TCG.",
+  "start_url": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0e0922",
+  "theme_color": "#0e0922",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -19,6 +19,9 @@ type Mode =
 
 const byCost = (a: CardDef, b: CardDef) => (a.cost ?? 0) - (b.cost ?? 0) || a.name.localeCompare(b.name);
 
+type CollSort = 'cost' | 'name' | 'rarity' | 'attack' | 'health';
+const RAR_ORD: Record<string, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
+
 function GridCard({ c, count, onClick }: { c: CardDef; count?: number; onClick?: () => void }) {
   const art = artUrl(c.id);
   return (
@@ -90,6 +93,9 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
 
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
   const [collClass, setCollClass] = useState<string>('all');
+  const [collQ, setCollQ] = useState('');
+  const [collRarity, setCollRarity] = useState<string>('all');
+  const [collSort, setCollSort] = useState<CollSort>('cost');
 
   const header = (
     <div className="topbar">
@@ -146,7 +152,18 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
 
   // ============================ COLLECTION ============================
   if (mode.t === 'collection') {
-    const shown = pool.filter((c) => collClass === 'all' || c.class === collClass).sort(byCost);
+    const SORTS: Record<CollSort, (a: CardDef, b: CardDef) => number> = {
+      cost: byCost,
+      name: (a, b) => a.name.localeCompare(b.name),
+      rarity: (a, b) => (RAR_ORD[b.rarity ?? 'common'] - RAR_ORD[a.rarity ?? 'common']) || byCost(a, b),
+      attack: (a, b) => (b.attack ?? -1) - (a.attack ?? -1) || byCost(a, b),
+      health: (a, b) => (b.health ?? -1) - (a.health ?? -1) || byCost(a, b),
+    };
+    const q = collQ.trim().toLowerCase();
+    const shown = pool.filter((c) => (collClass === 'all' || c.class === collClass)
+      && (collRarity === 'all' || (c.rarity ?? 'common') === collRarity)
+      && (!q || c.name.toLowerCase().includes(q) || (c.text ?? '').toLowerCase().includes(q)))
+      .sort(SORTS[collSort]);
     return (
       <div className="app storyMenu armory">
         <ShellBg scene={scene} />
@@ -156,6 +173,25 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
             <button onClick={() => setMode({ t: 'decks', sel: null })}>War-bands</button>
             <button className="on">Collection</button>
           </div>
+          <div className="collBar">
+            <input className="collSearch" type="search" placeholder="Search name or text…"
+              value={collQ} onChange={(e) => setCollQ(e.currentTarget.value)} />
+            <div className="collRarities">
+              {(['all', 'common', 'rare', 'epic', 'legendary'] as const).map((r) => (
+                <button key={r} className={`chip rc-${r}${collRarity === r ? ' on' : ''}`}
+                  onClick={() => setCollRarity(r)}>{r === 'all' ? 'Any' : r[0].toUpperCase() + r.slice(1)}</button>
+              ))}
+            </div>
+            <select className="collSort" value={collSort}
+              onChange={(e) => setCollSort(e.currentTarget.value as CollSort)}>
+              <option value="cost">Sort: Cost</option>
+              <option value="name">Sort: Name</option>
+              <option value="rarity">Sort: Rarity</option>
+              <option value="attack">Sort: Attack</option>
+              <option value="health">Sort: Health</option>
+            </select>
+            <span className="collCount">{shown.length}</span>
+          </div>
           <div className="collChips">
             {['all', ...CLASSES, 'neutral'].map((k) => (
               <button key={k} className={`chip${collClass === k ? ' on' : ''}`} onClick={() => setCollClass(k)}>
@@ -164,6 +200,7 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
             ))}
           </div>
           <div className="collGrid">
+            {shown.length === 0 && <div className="collEmpty">Nothing gleaned — loosen the sieve.</div>}
             {shown.map((c) => <GridCard key={c.id} c={c} onClick={() => setPeek(c)} />)}
           </div>
         </div>
