@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { ShellBg, type SceneId } from './title/scenes.tsx';
 import { MusicToggle } from './MusicToggle.tsx';
 import { CardPreview } from './CardPreview.tsx';
+import { fitName } from './fit.ts';
 import { artUrl, registry } from './data.ts';
 import {
   allDecks, collectiblePool, saveCustomDeck, deleteCustomDeck, deckProblems, maxCopies,
@@ -28,7 +29,7 @@ function GridCard({ c, count, onClick }: { c: CardDef; count?: number; onClick?:
     <div className={`handcard big r-${c.rarity ?? 'common'} gridCard`} onClick={onClick}>
       <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-        <div className="hcName">{c.name}</div>
+        <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
       {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}

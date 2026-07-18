@@ -4,6 +4,7 @@
 import type { CardDef } from '../../engine/src/index.ts';
 import { artUrl } from './data.ts';
 import { glossaryFor } from './glossary.ts';
+import { fitName, fitText } from './fit.ts';
 
 const CLASS_LABEL: Record<string, string> = {
   prophet: 'Prophet', warrior: 'Warrior', priest: 'Priest', shepherd: 'Shepherd',
@@ -14,6 +15,7 @@ export function CardPreview({ card }: { card: CardDef }) {
   const art = artUrl(card.id);
   const rarity = card.rarity ?? 'common';
   const flavor = (card as { flavor?: string }).flavor;
+  const dense = fitText((card.text ?? '') + (flavor ?? ''));   // density from the whole panel
   const gloss = glossaryFor(card);
   const line = [card.tag ? card.tag[0].toUpperCase() + card.tag.slice(1) : null, CLASS_LABEL[card.class]]
     .filter(Boolean).join(' · ');
@@ -28,12 +30,12 @@ export function CardPreview({ card }: { card: CardDef }) {
         <div className="bcCost">{card.cost ?? 0}</div>
         <div className="bcRarity">{rarity}</div>
         <div className="bcNameplate">
-          <div className="bcName">{card.name}</div>
+          <div className={`bcName${fitName(card.name)}`}>{card.name}</div>
           <div className="bcType">{line || card.type}</div>
         </div>
         <div className={`bcPanel${!card.text ? ' vanillaPanel' : ''}`}>
-          {card.text && <div className="bcText">{card.text}</div>}
-          {flavor && <div className="bcFlavor">{flavor}</div>}
+          {card.text && <div className={`bcText${dense}`}>{card.text}</div>}
+          {flavor && <div className={`bcFlavor${dense}`}>{flavor}</div>}
         </div>
         {card.type === 'minion' && <><div className="bcAtk">{card.attack}</div><div className="bcHp">{card.health}</div></>}
         <div className="bcGem" title={rarity} />

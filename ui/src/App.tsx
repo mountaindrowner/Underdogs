@@ -10,7 +10,9 @@ import { effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide, type C
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
+import { fitName } from './fit.ts';
 import { SettingsScreen } from './Settings.tsx';
+import { CardZoo } from './CardZoo.tsx';
 import { music } from './audio.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
@@ -85,7 +87,7 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
       <div className="body">
         <div className="mFace" style={art ? { backgroundImage: `url(${art})` } : undefined}>
           {!art && <div className="artFallback">{u.name[0]}</div>}
-          <div className="nameband">{u.name}</div>
+          <div className={`nameband${fitName(u.name)}`}>{u.name}</div>
           {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
         </div>
       </div>
@@ -127,7 +129,7 @@ function HandCard({ c, playable, selected, fan, onDown, onEnter, onLeave }:
       style={style} onPointerDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-        <div className="hcName">{c.name}</div>
+        <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
       {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
@@ -192,7 +194,7 @@ function ChoiceFace({ c }: { c: CardDef }) {
     <div className={`handcard big r-${c.rarity ?? 'common'}`}>
       <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-        <div className="hcName">{c.name}</div>
+        <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
       {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
@@ -506,7 +508,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
                 <div className={`handcard big r-${c.rarity ?? 'common'}`}>
                   <div className="hcInner"><div className="hcFace">
                     <div className="hcArt" style={artUrl(c.id) ? { backgroundImage: `url(${artUrl(c.id)})` } : undefined} />
-                    <div className="hcName">{c.name}</div>
+                    <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
                   </div></div>
                   <div className="hcCost">{c.cost ?? 0}</div>
                   {c.type === 'minion' && <><div className="hcAtk">{c.attack}</div><div className="hcHp">{c.health}</div></>}
@@ -664,7 +666,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           style={{ left: act.from.x, top: act.from.y, transform: 'translate(-50%,-58%)' }}>
           <div className="hcInner"><div className="hcFace">
             <div className="hcArt" style={artUrl(act.src.card.id) ? { backgroundImage: `url(${artUrl(act.src.card.id)})` } : undefined} />
-            <div className="hcName">{act.src.card.name}</div>
+            <div className={`hcName${fitName(act.src.card.name)}`}>{act.src.card.name}</div>
           </div></div>
           <div className="hcCost">{act.src.card.cost ?? 0}</div>
           {act.src.card.type === 'minion' && <><div className="hcAtk">{act.src.card.attack}</div><div className="hcHp">{act.src.card.health}</div></>}
@@ -755,6 +757,8 @@ export default function App() {
 
   const overlay = trans && <MatchTransition label={trans.label} sub={trans.sub} onDone={() => setTrans(null)} />;
 
+  // dev-only fit-audit gallery (?zoo=1) — not linked from any menu
+  if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('zoo')) return <CardZoo />;
   if (!started) return <Title scene={scene} onBegin={() => setStarted(true)} />;
   if (battle) {
     return <>
