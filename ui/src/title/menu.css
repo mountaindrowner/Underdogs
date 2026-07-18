@@ -79,3 +79,9 @@
   .mmTopRight{top:calc(6px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px))}
   .mmToast{bottom:12px}
 }
+
+/* version tag — quiet, bottom-right, safe-area aware */
+.mmVersion{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  right:calc(14px + env(safe-area-inset-right,0px));z-index:12;pointer-events:none;
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.18em;color:#b9a06a;opacity:.75;
+  text-shadow:0 1px 3px rgba(0,0,0,.7)}

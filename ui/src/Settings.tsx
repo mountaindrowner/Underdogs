@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ShellBg, type SceneId } from './title/scenes.tsx';
 import { MusicToggle } from './MusicToggle.tsx';
 import { haptics } from './haptics.ts';
+import { version } from '../package.json';
 
 const BOARD_KEY = 'underdogs.board';
 const BOARD_OPTS = [
@@ -83,6 +84,7 @@ export function SettingsScreen({ scene, onBack }: { scene: SceneId; onBack: () =
                 {armed ? 'Tap again — no takebacks' : 'Reset everything'}</button>
             </div>
           </div>
+          <div className="setVersion">UNDERDOGS v{version} · single-player · free forever</div>
           {wiped && <div className="mmToast">The slate is clean.</div>}
         </div>
       </div>

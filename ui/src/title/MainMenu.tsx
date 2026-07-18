@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ShellBg, type SceneId } from './scenes.tsx';
 import { MusicToggle } from '../MusicToggle.tsx';
 import './menu.css';
+import { version } from '../../package.json';
 
 const RIBBON: [string, number][] = [
   ['#8a3a2c', 1.3], ['#a9843f', 0.8], ['#5f6b38', 1.1], ['#3c6154', 0.7],
@@ -64,6 +65,7 @@ export function MainMenu({ scene, onStory, onFreePlay, onDecks, onSettings }:
         ))}
       </div>
 
+      <div className="mmVersion">v{version}</div>
       {toast && <div className="mmToast">{toast}</div>}
     </div>
   );

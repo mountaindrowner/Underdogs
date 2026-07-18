@@ -546,6 +546,8 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 .setRow .chip{min-height:34px;padding:5px 14px}
 .setReset{width:auto;height:auto;border-radius:999px;padding:8px 16px;font-family:'Cinzel',var(--serif);
   font-weight:700;font-size:11px;letter-spacing:.06em;min-height:38px}
+.setVersion{text-align:center;font-family:'Cinzel',var(--serif);font-size:10px;letter-spacing:.16em;
+  color:#b9a06a;opacity:.8;margin-top:2px}
 @media (orientation:landscape) and (max-height:620px){
   .setBody{padding-top:34px;justify-content:flex-start;gap:6px}
   .setPanel{padding:10px;gap:5px}

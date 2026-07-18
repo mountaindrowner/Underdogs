@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Scene, type SceneId } from './scenes.tsx';
 import './title.css';
+import { version } from '../../package.json';
 
 // a woven band of the coat's dyed wools (not a spectrum) — uneven panels,
 // muted dye tones, gold seams between. The recurring brand accent.
@@ -46,7 +47,7 @@ export function Title({ scene, onBegin }: { scene: SceneId; onBegin: () => void 
         <div className="tagline">Every hero starts unqualified.</div>
         <div className="tapBegin">TAP TO BEGIN</div>
       </div>
-      <div className="titleFooter">V0.1 · SINGLE-PLAYER · FREE FOREVER</div>
+      <div className="titleFooter">{`V${version} · SINGLE-PLAYER · FREE FOREVER`}</div>
     </div>
   );
 }
