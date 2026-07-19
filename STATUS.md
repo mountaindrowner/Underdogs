@@ -2,15 +2,15 @@
 
 > **Read this before starting any work.** `CLAUDE.md` is the *constitution* (laws + canon that never change). This file is the *state of the union* — what is built, what is half-built, what is not built, and the traps that will bite you. When this file and reality disagree, **fix this file in the same commit.** A stale STATUS is worse than none.
 >
-> Last verified: **2026-07-11** (after the game-feel arc + a measured balance pass). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
+> Last verified: **2026-07-19** (after Economy v1 — ownership, packs + the opening ritual, crafting, Daily Bread). Re-verify by running the commands in [§ How to verify](#how-to-verify) — if the numbers below don't match, update them.
 
 ---
 
 ## 30-second summary
 
-UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 239 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy (packs/Talents), Scroll Study, and iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
+UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 239 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy is real** (docs/21 + D-45): you pick a starter calling, earn Talents by playing, buy packs in the Storehouse (seal-break → fan → rarity-glow flip ritual), shatter dupes into Fragments, craft any card, and the Armory enforces true ownership. **Scroll Study and the iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 48 engine tests pass · card audit clean (239 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 57 engine tests pass · card audit clean (239 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
 
 ---
 
@@ -35,10 +35,10 @@ Rule of thumb: **if a fact in a doc is now false, fixing it is part of the chang
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 32, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 57, # fail 0
 node --test engine/test/*.test.ts
 
-# 2. Card-data audit  → expect: "all 213 definitions check out (3 deferred)"
+# 2. Card-data audit  → expect: "all 239 definitions check out (3 deferred)"
 node tools/audit-cards.ts
 
 # 3. AI-vs-AI soak (all class matchups, full games)  → expect: "SOAK OK: 36 games … no crashes"
@@ -84,11 +84,18 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
   useMatch.ts      match controller (engine ↔ animated view)
   view.ts          event-sourced view-model (UI holds NO engine state)
   ai.ts            opponent heuristic (1-ply eval) + difficulty
-  decks.ts         6 preset decks + custom-deck storage + legality
+  decks.ts         6 preset decks + custom-deck storage + legality (+ wires the
+                   economy's card universe via initEconomyData)
+  economy.ts       Economy core (docs/21): Talents/Fragments, packs + pity +
+                   dupe protection, crafting, Daily Bread, taper. Pure + DI —
+                   NO Vite imports (node-tested from engine/test)
+  Storehouse.tsx   "The Storehouse" — wallet, Daily Bread, pack-opening ritual
   campaign.ts      encounter → MatchConfig; SANDBOX; progress
   data.ts          loads /data JSON, maps defId → art URL
   FreePlay.tsx     "The Sparring Pit" setup (war-band + difficulty)
-  Decks.tsx        "The Armory" (browse / collection / forge)
+  Decks.tsx        "The Armory" (browse / collection+ownership / forge / craft)
+  Settings.tsx     "Tent pegs & knobs" (audio, haptics, board, reset)
+  fit.ts           deterministic card text-fit classes (+ CardZoo.tsx ?zoo=1)
   CardPreview.tsx  full-size card reader
   title/           Title.tsx, MainMenu.tsx, scenes.tsx (AI-painted "living" menu
                    scenes: Imagen base + keyed transparent overlay sprites +
@@ -131,7 +138,16 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - **Responsive:** desktop fills the screen with scaled pieces; mobile-landscape has a dedicated compact layout **for every screen** (D-41): battle compact layout + menu screens with a unified language — shared back chip (≥38px, safe-area aware), press feedback and screen-enter motion everywhere, Story/Free Play/Armory tile shelves as swipeable snap rails, 4-up difficulty grid, list/detail stack in the Armory, `viewport-fit=cover` notch insets.
 - **Tooltips** on every in-game control (hover on desktop, press-hold on touch).
 - 3 music tracks (crossfaded) + ~80 SFX, mute + volume, persisted.
-- AI opponent: 1-ply evaluation with 3 difficulty levels (deterministic; Novice/Faithful/Valiant) + **lethal awareness** at every level: when the face is open and its board adds up to the kill, it goes face (verified: it closes out a passive player ~turn 10).
+- AI opponent: 1-ply evaluation with 3 difficulty levels (deterministic; Novice/Faithful/Valiant) + the 2-ply **"Sage"** rollout policy + **lethal awareness** at every level: when the face is open and its board adds up to the kill, it goes face (verified: it closes out a passive player ~turn 10).
+
+### Economy v1 (docs/21 + D-45) — ownership is real
+- **Two currencies:** 🪙 Talents (earned by playing, spent on packs) and ✦ Fragments (shattered dupes, spent on crafting). Core in `ui/src/economy.ts` — pure, DI-injected card universe, persisted-LCG pack RNG (no `Math.random()`), fully node-tested (8 tests).
+- **On-ramp:** first menu visit → "Choose Your Calling" (a free starter war-band + 200 Talents); finishing chapter 1 → "A Second Calling" gift deck. First 3 packs are **first fruits** (starter-class + neutral only).
+- **The Storehouse** (Packs menu item): wallet, pack tile (100 🪙, 5 cards, ≥1 Rare), **Daily Bread** (3 daily quests, progress bars, one reroll/day), and the **pack-opening ritual** — break the wax seal, cards fan face-down, back-glow telegraphs rarity before the flip (legendary = gold pillar), NEW ribbons, dupes visibly shatter into ✦, reveal-all fast path.
+- **Pity + dupe protection:** first Legendary within 10 packs, then within every 20; packs prefer unowned cards and never exceed max copies (extras auto-shatter).
+- **Crafting:** any card craftable/disenchantable from its Armory peek (C 40/R 100/E 400/L 1600; shatter ≈ ¼).
+- **Match payout** on the result screen: win 10 🪙 / loss 2 🪙, +50 ☀ first win of the day, quest completions listed; after ~10 wins/day a **soft taper** (2 🪙 trickle) — losses always pay.
+- **Lockdown:** unowned cards render dimmed in the collection (with Owned/Missing filter chips), can't be added in the forge (copies capped at owned count), and preset decks flag missing cards; the Free Play presets remain playable **loaners**.
 
 ### Persistence (localStorage — the whole save system)
 | Key | Holds |
@@ -141,12 +157,14 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 | `underdogs.freeplay.sel` | last war-band + difficulty |
 | `underdogs.music.muted` / `.vol` | audio prefs |
 | `underdogs.board` | chosen in-game board finish |
+| `underdogs.haptics` | haptics on/off |
+| `underdogs.economy.v1` | the whole economy save: Talents, Fragments, owned cards, pack pity/seed, quests, daily counters |
 
 ---
 
 ## What's PARTIAL or STUBBED
 
-- **Main-menu SOON stubs:** **Packs** and **Path of the Faithful** show a "coming soon" toast — not built. (**Settings is real now** — D-42.)
+- **Main-menu SOON stub:** **Path of the Faithful** shows a "coming soon" toast — not built. (**Packs is real now** — the Storehouse, D-45. **Settings is real** — D-42.)
 - **In-game board scenes** (`board/`) now use AI-painted **HD TCG-mat backdrops** (`ui/assets/boards/board_<id>.webp`, generated by `tools/cardart/gen_board.py` via **Imagen 4 Ultra at 2K, 2816×1536**): flat top-down playmats with a gilded four-sided border and a horizontal seam dividing the enemy (top) and player (bottom) rows. When a mat webp exists it replaces that board's procedural SVG scene; the atmospheric layers (motes, grain, scrim, reactive tints) stay on top, and deleting the webp falls back to the old gradient + props. The 4 interactive prop easter-eggs (brook stones, harps, furnace, writing-on-the-wall, etc.) are currently suppressed under a mat — re-adding select ones positioned for the mats is a future nicety.
 - **4 deferred adversary abilities** (tracked in `tools/audit-cards.ts` DEFERRED set): Pharaoh's Magician (needs a Serpent token), Pharaoh the Hardened (attack-prevention), Sanballat & Tobiah (relic-cost tax), Leviathan (spell immunity). They play as vanilla bodies until built.
 
@@ -156,13 +174,13 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 
 Measured against `CLAUDE.md` and the design docs:
 
-1. **Economy** (CLAUDE.md §10): Talents currency, packs (5 cards, pity, dupe protection), Fragments crafting, achievements. None exist. "Packs" is a stub. The Armory currently shows the **full collection unlocked** — there is no ownership/unlock model.
+1. ~~Economy~~ **built** (D-45, docs/21 §10): Talents, packs with pity + dupe protection, Fragments crafting, Daily Bread, real ownership. Still missing from the spec's long tail: pack *types* (Set/Blessed), foils, wishlist, weekly trials, win streaks, achievements.
 2. **Scroll Study loop** (§10): read a card's passage + 3 questions → capped daily Talent bonus. Not built.
 3. **The sacred interlude** (Law 5, §11): the non-combat Cross/Resurrection beat. Campaign is 4 **combat** chapters only; the received-not-won interlude does not exist yet. **When built, it must not be gamified (Law 5).**
 4. **iOS / Capacitor wrapper** (§8): none. Web/Vite only. No mobile build, no App Store scaffolding.
 5. ~~Settings screen~~ **built** (D-42): music/sound, haptics toggle (persisted), board-finish default, and a two-tap reset-everything. Not yet in it: a reduced-motion override (OS setting is respected).
-6. **Campaign depth:** only 4 encounters; no boss scripting beyond pre-placed units, no narrative interlude cards, no per-chapter reward.
-7. **Deckbuilding ownership rules:** the forge enforces format legality (30/2-copies/1-legendary/class+neutral) but not *collection ownership* (because there's no collection economy yet).
+6. **Campaign depth:** only 4 encounters; no boss scripting beyond pre-placed units, no narrative interlude cards, no per-chapter reward (the chapter-1 "Second Calling" deck gift is the one exception).
+7. ~~Deckbuilding ownership rules~~ **built** (D-45): the forge now enforces collection ownership on top of format legality.
 8. **Hosting / distribution:** dev-local only. `ui/dist` is force-committed so raw.githack can serve a preview, but there's no real deploy pipeline or CI.
 
 ---
@@ -173,6 +191,7 @@ Measured against `CLAUDE.md` and the design docs:
 - **`data/cards.seed.json` contains SUPERSEDED sublists.** Its top-level `tokens` / `leaders` / `adversary` arrays are **early drafts**. The live data is in the separate `data/tokens.json`, `leaders.json`, `adversaries.json`. `collectDefs()` loads the separate files; the seed's `cards` array is the only live part of that file. (This already bit us once — `mantle_of_elijah` lived only in the seed's token draft and had to be moved into `tokens.json`.) **When adding tokens/leaders/adversaries, edit the dedicated file, not the seed sublists.**
 - **The audit's constant Sets are the contract.** `tools/audit-cards.ts` hard-codes what the engine supports (VERBS, TRIGGERS, TARGETS, CONDITIONS, KEYWORDS, OP_FIELDS…). If you add an engine capability, **add it to the audit too**, or the audit lies. If you add card data using an unsupported field, the audit fails loudly — that's the point.
 - **Class icons are emoji** (`ui/src/decks.ts` CLASS_META) — some glyphs (⚔ / ✚ / ✦) render as thin monochrome text on some platforms; the emoji-presentation variants (🛡️ ✨ ⭐) were chosen for color consistency. Keep that in mind if you re-theme.
+- **`ui/src/economy.ts` must stay import-free of Vite-only modules** (no `data.ts`, no `import.meta.glob`) — it's node-tested from `engine/test/economy.test.ts`. The card universe is dependency-injected: `decks.ts` calls `initEconomyData(...)` at module load in the app; the test injects its own pool. If economy code needs card data, take it through `data()`, never a new import.
 - **Determinism is sacred.** `Date.now()` / `Math.random()` must never enter the engine or the AI (the AI's "randomness" is a hash of game state). Breaking this breaks replays and future PvP possibility (CLAUDE.md §8).
 - **Stray artifact:** `covenant-handover 2.zip` (75 KB) is committed at the repo root — it's the original handoff bundle, now redundant with `/docs`. Safe to delete; left in place pending an explicit OK (it's not mine to remove unilaterally).
 
@@ -193,9 +212,9 @@ Ranked by "makes the game more complete per its own canon":
 0c. **Neutral expansion — LOADED & verified (`data/cards.neutral-expansion.json` + memo `docs/20-neutral-expansion.md`; brief `docs/19-neutral-set-prompt.md`).** 26 new neutrals (10C/8R/5E/3L) filling the top-end hole (5 at cost 6–7), the 4–5 midrange, the epic gap, plus conditional answers/card-advantage tilted to control — takes the neutral pool 21→47. Wired into all five loaders; art generated (WebP). New engine capabilities added and tested: `empty_hand`/`singleton_deck` conditions, `requiresOtherPlay` + `breakAfterTurns` passives (gated in engine *and* AI so neither stalls), `buff perOtherAlly`, `returnFromDiscard toHand`+`diedThisTurn`, `relicBroken` event, `cardsPlayedThisTurn` counter. Green: 239 defs audited, 48 tests, soak clean; `balance.ts` 0 hangs/crashes and game length rose (median 13→15 — the control tilt working). The Warrior AI-pilot skew persists (universal neutrals don't fix a class-pilot issue; see D-32).
 0b. **Set 2 legendaries — LOADED & verified (`data/cards.set2.json` + `docs/18-legendary-set-2.md`).** 30 collectible legendaries + 15 Fulfilled forms ("Cloud of Witnesses"), rail- and Law-checked, wired into all five loaders (`ui/src/data.ts`, `tools/{audit-cards,balance,soak}.ts`, both engine tests). New engine capabilities added and tested: `deal`→`enemyHero` face burn (Joel), `damagedEnemy` target (Jael), `costReduce` cost-aura + `filter:{cardType/class}` (Bezalel/Habakkuk/Shunammite), `returnFromDiscard count`+`withKeyword` (Nehemiah), `buff filter:{tribe}`+`scope:'other'` (Mary), `outnumbered` aura condition (Gideon fulfilled), `cannotAttackAlone` passive (Barak), and three new Fulfill conditions — `hero_damaged` (Hezekiah/Caleb/Esther/Mordecai), `cast_spells` (Miriam/Habakkuk), `outnumbered_win` (Gideon). Audit/tests/soak green (213 defs, 41 tests, 108-game soak); **art generated** for all 45 (`tools/cardart/batch_set2.py`). **Still TODO:** the balance matrix still shows the known AI-pilot skew (Warrior/Shepherd high, Priest low — a greedy-1-ply artifact, not card power; see D-32). **Frame-look explorations for legendaries are stashed in `prototypes/legendary/` (not chosen yet).**
 0. **Balance — measured with a strong pilot (`tools/ai-eval.ts`, D-38; confirmed at 6 seeds/pair).** A 2-ply rollout AI (`pickActionStrong`, in-game as the "Sage" difficulty) beats the greedy AI **88.6%**, and re-measuring class win-rates with it firmed up the real picture. **Strong-both:** Warrior **69** · Shepherd **68** · Priest 56 · Disciple 49 · Patriarch 35 · Prophet **24**. Takeaways: **Warrior is genuinely strong (not the AI artifact D-32 assumed) but milder than a tiny sample suggested; Shepherd is co-strong** — trim the tempo pair a touch. The greedy AI **under-rated control** (Priest 40→56, Disciple 42→49 — both fine with a real pilot). **Prophet (24%) is the clear floor, Patriarch (35%) the other weakling** — both need buffs. **Balance pass v2 applied (D-39):** 9 rail-legal tweaks → strong-both spread **45.8→30.0** (Warrior 63, Shepherd 57, Priest 55, Disciple 47, Patriarch 45, Prophet 33). Two mild outliers left — Warrior (63) a touch high, Prophet (33) still the floor — a candidate for one more light touch. Earlier applied pass: the **Loaf of Bread** seat fix (61.5%→48.3%) + `docs/08-balance.md` Part C.
-1. **Economy v1** — collection ownership + packs + Talents, so the Armory means something and there's a reason to win.
-2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type.
-3. The 2 remaining SOON stubs (Packs, Path of the Faithful).
+1. ~~Economy v1~~ **DONE (D-45)** — ownership, packs + the ritual, crafting, Daily Bread, payouts. The spec's long tail (foils, Set/Blessed packs, wishlist, weeklies) and **Scroll Study** remain.
+2. **The sacred interlude** — the received-not-won Cross/Resurrection beat (Law 5), likely as a special non-combat encounter type. (Milestone plan: this is v0.5; Capacitor is 1.0-rc.)
+3. The remaining SOON stub (Path of the Faithful).
 4. **iOS/Capacitor wrapper** once the web build is content-complete.
 5. The 4 deferred adversary mechanics (each needs one small engine capability).
 

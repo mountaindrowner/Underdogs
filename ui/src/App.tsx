@@ -13,6 +13,8 @@ import { Board } from './board/Board.tsx';
 import { fitName } from './fit.ts';
 import { SettingsScreen } from './Settings.tsx';
 import { CardZoo } from './CardZoo.tsx';
+import { StorehouseScreen } from './Storehouse.tsx';
+import { applyMatch, type MatchPayout } from './economy.ts';
 import { music } from './audio.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
@@ -259,7 +261,7 @@ const BOARD_LABEL: Record<BoardStyle, string> = { relief: 'Carved Stone', timber
 
 // ---- battle ----------------------------------------------------------------
 function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onExit: () => void }) {
-  const { engine, view, busy, canAct, inMulligan, choice, dispatch, newGame } = useMatch(cfg);
+  const { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, newGame } = useMatch(cfg);
   const [act, setAct] = useState<Act | null>(null);
   const [hover, setHover] = useState<CardDef | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
@@ -357,6 +359,15 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const guardActive = foe.board.some((u) => hasKeyword(u, 'guard'));
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
+  const [payout, setPayout] = useState<MatchPayout | null>(null);
+  const paidKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!over || paidKey.current === cfg.key) return;
+    paidKey.current = cfg.key;
+    setPayout(applyMatch({
+      won, finalHp: engine.players[0].heroHp, ...stats.current,
+    }));
+  }, [over, won, cfg.key, engine, stats]);
   if (won && meta) markComplete(meta.id);
   // reactive board signal: your peril (0 at >=33% HP, 1 at 0 HP)
   const hpFrac = view.heroes[0].hp / Math.max(1, view.heroes[0].maxHp);
@@ -639,6 +650,15 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         {over && (
           <div className="overlay" onPointerDown={(e) => e.stopPropagation()}>
             <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>
+            {payout && (
+              <div className="payout">
+                <span className="payTal">+{payout.talents} 🪙</span>
+                {payout.fragments > 0 && <span className="payFrag">+{payout.fragments} ✦</span>}
+                {payout.firstWin && <span className="payNote">☀ First win of the day</span>}
+                {payout.tapered && <span className="payNote dim">the day's wage thins — back tomorrow</span>}
+                {payout.questsDone.map((q) => <span key={q.id} className="payQuest">✓ {q.desc}</span>)}
+              </div>
+            )}
             <div className="ovBtns">
               <button className="bigbtn" onClick={() => newGame()}>{won ? 'Play Again' : 'Retry'}</button>
               <button className="bigbtn quiet" onClick={onExit}>Menu</button>
@@ -743,7 +763,7 @@ function MatchTransition({ label, sub, onDone }: { label: string; sub?: string; 
 export default function App() {
   const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
-  const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks' | 'settings'>('menu');
+  const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks' | 'settings' | 'packs'>('menu');
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
   const [trans, setTrans] = useState<{ label: string; sub?: string } | null>(null);
   // menu theme (fades in on first interaction) <-> gameplay theme, crossfaded
@@ -778,7 +798,10 @@ export default function App() {
   if (screen === 'settings') {
     return <SettingsScreen scene={scene} onBack={() => setScreen('menu')} />;
   }
+  if (screen === 'packs') {
+    return <StorehouseScreen scene={scene} onBack={() => setScreen('menu')} />;
+  }
   return <MainMenu scene={scene} onStory={() => setScreen('story')}
     onFreePlay={() => setScreen('freeplay')} onDecks={() => setScreen('decks')}
-    onSettings={() => setScreen('settings')} />;
+    onSettings={() => setScreen('settings')} onPacks={() => setScreen('packs')} />;
 }

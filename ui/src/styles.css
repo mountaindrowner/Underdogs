@@ -1125,3 +1125,166 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
   .gridCard .hcAtk,.gridCard .hcHp{width:22px;height:22px;font-size:12px}
   .gridCard .hcName{font-size:8px;bottom:15px}
 }
+
+/* ===================== the economy (docs/21) ===================== */
+/* wallet + storehouse layout */
+.shBody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:10px;
+  width:min(980px,96vw);animation:screenIn .32s cubic-bezier(.2,.8,.3,1) both}
+.wallet{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+.wallet>span{font-family:'Cinzel',var(--serif);font-weight:700;font-size:13px;color:#f4e6c4;
+  background:linear-gradient(180deg,#3a2a18,#241811);border:1px solid rgba(90,60,26,.6);
+  border-radius:999px;padding:6px 14px;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.wallet .wFrag{color:#cfe0f4}
+.wallet .wColl{font-size:11px;color:#b9a06a}
+.wallet .wFwotd{color:#ffe6a2;border-color:var(--gold-br);animation:faintpulse 3s ease-in-out infinite}
+.shMain{display:flex;gap:16px;align-items:stretch;justify-content:center;flex-wrap:wrap;width:100%}
+.packShelf{display:flex;flex-direction:column;align-items:center;gap:8px}
+.packTile{width:190px;padding:18px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;border-radius:14px;text-align:center;
+  background:linear-gradient(160deg,rgba(48,33,20,.92),rgba(24,16,9,.95));
+  border:1px solid rgba(200,168,96,.5);box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,220,150,.12);
+  transition:transform .15s ease,box-shadow .15s ease}
+.packTile:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 22px rgba(255,201,92,.25)}
+.packTile:active{transform:scale(.97)}
+.packArt{font-size:44px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+.packName{font-family:'Cinzel',var(--serif);font-weight:700;font-size:14px;color:#ffe6a2}
+.packSub{font-size:11px;font-style:italic;color:#b39c72}
+.packCost{font-family:'Cinzel',var(--serif);font-weight:700;font-size:13px;color:#2a1806;
+  background:linear-gradient(180deg,#f6da8c,#a9791f);border:1px solid #4d3510;border-radius:999px;padding:4px 16px}
+.packCost.broke{filter:grayscale(.8) brightness(.7)}
+.packNote{max-width:220px;text-align:center;font-size:10.5px;font-style:italic;color:#9a8b66}
+/* Daily Bread */
+.breadPanel{width:min(430px,94vw);display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:14px;
+  background:linear-gradient(160deg,rgba(48,33,20,.88),rgba(24,16,9,.92));border:1px solid rgba(90,60,26,.6);
+  box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.breadHead{font-family:'Cinzel',var(--serif);font-weight:700;font-size:13px;letter-spacing:.14em;color:#ffe6a2;
+  text-transform:uppercase;text-align:center}
+.breadRow{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:9px;
+  background:linear-gradient(180deg,rgba(58,42,24,.5),rgba(30,21,12,.55));border:1px solid rgba(90,60,26,.45)}
+.breadRow.done{opacity:.55}
+.breadText{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.breadDesc{font-size:12.5px;color:#f0e4c4}
+.breadBar{height:5px;border-radius:99px;background:rgba(0,0,0,.45);overflow:hidden}
+.breadBar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#a9791f,#f6da8c);
+  transition:width .4s ease}
+.breadMeta{display:flex;align-items:center;gap:6px}
+.breadPay{font-size:11px;font-weight:700;color:#ffdf8a;white-space:nowrap}
+.breadDone{color:#8ef08a;font-weight:800}
+.breadReroll{width:26px;height:26px;border-radius:50%;cursor:pointer;color:#cbb283;font-size:13px;
+  background:linear-gradient(180deg,#2e2113,#1c130a);border:1px solid rgba(90,60,26,.6)}
+.breadReroll:hover{filter:brightness(1.2)}
+
+/* ---- the pack-opening ritual ---- */
+.ritual{position:fixed;inset:0;z-index:140;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;background:rgba(8,5,2,.86);animation:menuFadeIn .3s ease both}
+.sealCase{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;padding:30px 44px;
+  border-radius:18px;background:linear-gradient(160deg,rgba(48,33,20,.95),rgba(24,16,9,.98));
+  border:1px solid rgba(200,168,96,.55);box-shadow:0 26px 70px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,220,150,.12);
+  animation:sealPulse 2.2s ease-in-out infinite}
+@keyframes sealPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03);box-shadow:0 26px 70px rgba(0,0,0,.7),0 0 34px rgba(255,201,92,.3)}}
+.sealScroll{font-size:64px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.7))}
+.sealWax{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:20px;color:#f6d9c0;background:radial-gradient(circle at 36% 30%,#c85a3c,#7a2a1a 70%);
+  box-shadow:0 3px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.25);margin-top:-26px}
+.sealHint{font-family:'Cinzel',var(--serif);font-size:13px;letter-spacing:.2em;color:#e6cf9a;text-transform:uppercase}
+.ritualFan{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.ritCard{width:132px;height:184px;perspective:800px;cursor:pointer;
+  animation:ritDeal .5s calc(var(--i)*.1s) cubic-bezier(.2,.8,.3,1) both}
+@keyframes ritDeal{from{opacity:0;transform:translateY(70px) scale(.5) rotate(7deg)}to{opacity:1;transform:none}}
+.ritInner{position:relative;width:100%;height:100%;transform-style:preserve-3d;
+  transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.ritCard.flipped .ritInner{transform:rotateY(180deg)}
+.ritBack,.ritFace{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;overflow:hidden;
+  border:2px solid var(--gold2);box-shadow:0 10px 26px rgba(0,0,0,.6)}
+.ritBack{background:linear-gradient(150deg,#2a1f3a,#141024 60%),radial-gradient(circle at 50% 40%,#3a2c56,#141024)}
+.ritBack::after{content:'✠';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:34px;color:rgba(240,199,102,.5)}
+/* the back-glow tease — rarity telegraphed BEFORE the flip */
+.ritGlow{position:absolute;inset:0;pointer-events:none}
+.ritCard.r-rare .ritGlow{box-shadow:inset 0 0 26px rgba(63,111,168,.65);animation:glowPulse 1.8s ease-in-out infinite}
+.ritCard.r-epic .ritGlow{box-shadow:inset 0 0 30px rgba(126,70,184,.7);animation:glowPulse 1.5s ease-in-out infinite}
+.ritCard.r-legendary .ritGlow{box-shadow:inset 0 0 36px rgba(255,201,92,.85);animation:glowPulse 1.1s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.55}50%{opacity:1}}
+.ritFace{transform:rotateY(180deg);background:#1a1206;display:flex;flex-direction:column}
+.ritArt{position:absolute;inset:0;background-size:cover;background-position:center 20%}
+.ritFace::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(16,9,4,.9))}
+.ritName{position:absolute;bottom:26px;left:6px;right:6px;z-index:2;text-align:center;font-size:11px;font-weight:700;
+  color:#ffeecb;text-shadow:0 2px 3px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ritName.fit-sm{font-size:10px}.ritName.fit-xs{font-size:9px}
+.ritStats{position:absolute;bottom:5px;left:8px;right:8px;z-index:2;display:flex;justify-content:space-between;
+  font-weight:800;font-size:13px;color:#ffdf8a;text-shadow:0 1px 3px #000}
+.ritNew{position:absolute;top:7px;left:-26px;z-index:3;transform:rotate(-38deg);padding:2px 28px;
+  font-family:'Cinzel',var(--serif);font-size:9px;font-weight:700;letter-spacing:.14em;color:#2a1806;
+  background:linear-gradient(180deg,#f6da8c,#c89a3a);box-shadow:0 2px 5px rgba(0,0,0,.5)}
+.ritDupe{position:absolute;top:8px;right:6px;z-index:3;font-size:11px;font-weight:800;color:#cfe0f4;
+  background:rgba(20,26,40,.85);border:1px solid #3f6fa8;border-radius:999px;padding:2px 8px;
+  animation:shatterIn .5s .35s ease both}
+@keyframes shatterIn{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:scale(1)}}
+/* rarity flip payoffs */
+.ritCard.flipped.r-epic .ritInner{animation:epicTilt .7s .5s ease}
+@keyframes epicTilt{50%{transform:rotateY(180deg) rotateZ(2.5deg) scale(1.05)}100%{transform:rotateY(180deg)}}
+.ritCard.flipped.r-legendary{z-index:5}
+.ritCard.flipped.r-legendary .ritFace{box-shadow:0 0 40px rgba(255,201,92,.8),0 10px 26px rgba(0,0,0,.6)}
+.ritCard.flipped.r-legendary::before{content:'';position:absolute;left:50%;top:-46vh;bottom:-8vh;width:60px;
+  transform:translateX(-50%);pointer-events:none;z-index:-1;
+  background:linear-gradient(180deg,transparent,rgba(255,222,140,.5) 30%,rgba(255,222,140,.15));
+  filter:blur(8px);animation:pillarIn .8s ease both}
+@keyframes pillarIn{from{opacity:0}to{opacity:1}}
+.ritualBtns{display:flex;gap:12px}
+
+/* ---- choose your calling ---- */
+.calling{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,5,2,.7);backdrop-filter:blur(3px);animation:menuFadeIn .35s ease both}
+.callingPanel{width:min(680px,94vw);max-height:92dvh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+  padding:20px;border-radius:16px;scrollbar-width:thin;
+  background:linear-gradient(160deg,rgba(48,33,20,.96),rgba(24,16,9,.97));
+  border:1px solid rgba(200,168,96,.55);box-shadow:0 26px 70px rgba(0,0,0,.7)}
+.callingHead{font-family:'Cinzel',var(--serif);font-weight:700;font-size:20px;letter-spacing:.12em;color:#ffe6a2;
+  text-transform:uppercase;text-align:center}
+.callingSub{font-size:12.5px;font-style:italic;color:#c2ac82;text-align:center}
+.callingGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.callingTile{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;cursor:pointer;
+  border-radius:11px;text-align:center;font-family:inherit;
+  background:linear-gradient(180deg,#3a2a18,#241811);border:1px solid rgba(90,60,26,.6);
+  transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease}
+.callingTile:hover{transform:translateY(-3px);border-color:var(--gem);
+  box-shadow:0 0 16px color-mix(in srgb,var(--gem) 45%,transparent)}
+.callingTile:active{transform:scale(.97)}
+.ctIcon{font-size:24px}
+.ctName{font-family:'Cinzel',var(--serif);font-weight:700;font-size:13px;color:#f4e6c4}
+.ctBlurb{font-size:10px;font-style:italic;color:#b39c72;line-height:1.25}
+
+/* ---- result payout + ownership visuals ---- */
+.payout{display:flex;flex-direction:column;align-items:center;gap:4px;animation:screenIn .4s .15s ease both}
+.payout span{font-family:'Cinzel',var(--serif);font-weight:700;font-size:14px;color:#ffe6a2;text-shadow:0 2px 6px #000}
+.payout .payFrag{color:#cfe0f4}
+.payout .payNote{font-size:11px;letter-spacing:.1em;color:#ffdf8a}
+.payout .payNote.dim{color:#9a8b66;font-style:italic;text-transform:none;letter-spacing:0}
+.payout .payQuest{font-size:11.5px;color:#8ef08a}
+.gridCard.unowned{filter:grayscale(.85) brightness(.6)}
+.gridCard.unowned:hover{filter:grayscale(.5) brightness(.8)}
+.gridCard.gcNew::after{content:'NEW';position:absolute;top:5px;left:-24px;z-index:6;transform:rotate(-38deg);
+  padding:1px 26px;font-size:8px;font-weight:800;letter-spacing:.12em;color:#2a1806;
+  background:linear-gradient(180deg,#f6da8c,#c89a3a);box-shadow:0 2px 4px rgba(0,0,0,.5)}
+.peekWrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.peekForge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.peekForge .bigbtn{font-size:12px;padding:8px 14px}
+.peekForge .bigbtn:disabled{opacity:.45;cursor:default}
+.peekOwn{font-size:11px;color:#b9a06a;font-family:'Cinzel',var(--serif)}
+
+/* phone landscape */
+@media (orientation:landscape) and (max-height:620px){
+  .shBody{padding-top:32px;gap:6px;justify-content:flex-start}
+  .shMain{gap:10px}
+  .packTile{width:160px;padding:12px 10px 9px}
+  .packArt{font-size:34px}
+  .breadPanel{width:min(400px,52vw);padding:8px}
+  .breadDesc{font-size:11px}
+  .ritCard{width:104px;height:146px}
+  .ritName{font-size:9.5px;bottom:22px}
+  .callingGrid{grid-template-columns:repeat(3,1fr)}
+  .callingPanel{padding:12px;gap:6px}
+  .ctIcon{font-size:18px}.ctName{font-size:11px}.ctBlurb{font-size:8.5px}
+  .callingHead{font-size:15px}
+  .payout span{font-size:12px}
+}

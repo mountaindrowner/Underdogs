@@ -12,7 +12,7 @@ const BOARD_OPTS = [
 ] as const;
 /** everything a "fresh slate" should forget */
 const RESET_KEYS = [
-  'underdogs.campaign.done', 'underdogs.decks.custom', 'underdogs.freeplay.sel',
+  'underdogs.campaign.done', 'underdogs.decks.custom', 'underdogs.freeplay.sel', 'underdogs.economy.v1',
   'underdogs.board', 'underdogs.haptics', 'underdogs.music.vol', 'underdogs.music.muted',
 ];
 

@@ -35,6 +35,20 @@ export function useMatch(cfg: MatchConfig) {
   const [view, setView] = useState<View>(() => initialView(hp0, hp1));
   const [busy, setBusy] = useState(false);
   const feed = useRef<GameEvent[]>([]);
+  // economy: running tally of YOUR actions this match (docs/21 quest fuel)
+  const stats = useRef({ spellsCast: 0, fulfills: 0, classCardsPlayed: 0, unitsSummoned: 0 });
+  const youClass = registry.get(cfg.playerLeader ?? '')?.class;
+  const tally = (evs: { t: string }[]) => {
+    for (const e of evs as Array<Record<string, unknown> & { t: string }>) {
+      if (e.t === 'cardPlayed' && e.player === 0) {
+        const def = registry.get(e.defId as string);
+        if (def?.type === 'spell') stats.current.spellsCast += 1;
+        if (youClass && def?.class === youClass) stats.current.classCardsPlayed += 1;
+      }
+      if (e.t === 'summon' && e.owner === 0) stats.current.unitsSummoned += 1;
+      if (e.t === 'fulfill' && e.owner === 0) stats.current.fulfills += 1;
+    }
+  };
   const cursor = useRef(0);
 
   // (re)start when the encounter or seed changes
@@ -49,6 +63,8 @@ export function useMatch(cfg: MatchConfig) {
       interactivePlayer: 0,          // the human pauses for Foresee / Discover
     });
     feed.current = [...g.events];
+    stats.current = { spellsCast: 0, fulfills: 0, classCardsPlayed: 0, unitsSummoned: 0 };
+    tally(g.events);
     cursor.current = 0;
     setView(initialView(hp0, hp1));
     setEngine(g.state);
@@ -77,6 +93,7 @@ export function useMatch(cfg: MatchConfig) {
       if (!prev || prev.phase === 'over') return prev;
       const r = applyAction(prev, a);
       feed.current.push(...r.events);
+      tally(r.events);
       setBusy(true);
       return r.state;
     });
@@ -102,5 +119,5 @@ export function useMatch(cfg: MatchConfig) {
   const canAct = !!engine && !busy && !engine.pending && engine.phase === 'main' && engine.active === 0;
   const inMulligan = !!engine && engine.phase === 'mulligan' && engine.active === 0;
 
-  return { engine, view, busy, canAct, inMulligan, choice, dispatch, newGame: () => setSeed((s) => s + 1) };
+  return { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, newGame: () => setSeed((s) => s + 1) };
 }

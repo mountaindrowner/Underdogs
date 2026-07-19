@@ -6,6 +6,7 @@ import { ShellBg, type SceneId } from './title/scenes.tsx';
 import { MusicToggle } from './MusicToggle.tsx';
 import { CardPreview } from './CardPreview.tsx';
 import { fitName } from './fit.ts';
+import { ownedCount, craft, canCraft, craftCost, disenchant, shatterValue, collectionStats, eco, clearNew } from './economy.ts';
 import { artUrl, registry } from './data.ts';
 import {
   allDecks, collectiblePool, saveCustomDeck, deleteCustomDeck, deckProblems, maxCopies,
@@ -23,10 +24,11 @@ const byCost = (a: CardDef, b: CardDef) => (a.cost ?? 0) - (b.cost ?? 0) || a.na
 type CollSort = 'cost' | 'name' | 'rarity' | 'attack' | 'health';
 const RAR_ORD: Record<string, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
-function GridCard({ c, count, onClick }: { c: CardDef; count?: number; onClick?: () => void }) {
+function GridCard({ c, count, onClick, dim, ribbon }:
+  { c: CardDef; count?: number; onClick?: () => void; dim?: boolean; ribbon?: boolean }) {
   const art = artUrl(c.id);
   return (
-    <div className={`handcard big r-${c.rarity ?? 'common'} gridCard`} onClick={onClick}>
+    <div className={`handcard big r-${c.rarity ?? 'common'} gridCard${dim ? ' unowned' : ''}${ribbon ? ' gcNew' : ''}`} onClick={onClick}>
       <div className="hcInner"><div className="hcFace">
         <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
@@ -84,7 +86,8 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
   const setDraft = (d: DeckDef) => setMode({ t: 'edit', draft: d });
   const countOf = (id: string) => draft ? draft.cards.filter((x) => x === id).length : 0;
   const canAdd = (c: CardDef) => !!draft && draft.cards.length < 30
-    && countOf(c.id) < maxCopies(c) && (c.class === draft.class || c.class === 'neutral');
+    && countOf(c.id) < Math.min(maxCopies(c), ownedCount(c.id))
+    && (c.class === draft.class || c.class === 'neutral');
   const add = (c: CardDef) => { if (draft && canAdd(c)) setDraft({ ...draft, cards: [...draft.cards, c.id].sort() }); };
   const removeOne = (id: string) => {
     if (!draft) return;
@@ -97,6 +100,7 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
   const [collQ, setCollQ] = useState('');
   const [collRarity, setCollRarity] = useState<string>('all');
   const [collSort, setCollSort] = useState<CollSort>('cost');
+  const [collOwn, setCollOwn] = useState<'all' | 'owned' | 'missing'>('all');
 
   const header = (
     <div className="topbar">
@@ -109,7 +113,8 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
 
   // ============================ EDITOR ============================
   if (draft) {
-    const legalPool = pool.filter((c) => c.class === draft.class || c.class === 'neutral').sort(byCost);
+    const legalPool = pool.filter((c) => (c.class === draft.class || c.class === 'neutral')
+      && ownedCount(c.id) > 0).sort(byCost);   // the forge works only with what you own
     const probs = deckProblems(draft);
     const leaders = [...registry.values()].filter((c) => c.type === 'leader' && c.class === draft.class);
     return (
@@ -161,8 +166,10 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
       health: (a, b) => (b.health ?? -1) - (a.health ?? -1) || byCost(a, b),
     };
     const q = collQ.trim().toLowerCase();
+    const stats = collectionStats();
     const shown = pool.filter((c) => (collClass === 'all' || c.class === collClass)
       && (collRarity === 'all' || (c.rarity ?? 'common') === collRarity)
+      && (collOwn === 'all' || (collOwn === 'owned') === (ownedCount(c.id) > 0))
       && (!q || c.name.toLowerCase().includes(q) || (c.text ?? '').toLowerCase().includes(q)))
       .sort(SORTS[collSort]);
     return (
@@ -191,6 +198,12 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
               <option value="attack">Sort: Attack</option>
               <option value="health">Sort: Health</option>
             </select>
+            <div className="collRarities">
+              {(['all', 'owned', 'missing'] as const).map((o) => (
+                <button key={o} className={`chip${collOwn === o ? ' on' : ''}`}
+                  onClick={() => setCollOwn(o)}>{o === 'all' ? 'Every card' : o === 'owned' ? `Owned ${stats.owned}` : `Missing ${stats.total - stats.owned}`}</button>
+              ))}
+            </div>
             <span className="collCount">{shown.length}</span>
           </div>
           <div className="collChips">
@@ -202,10 +215,30 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
           </div>
           <div className="collGrid">
             {shown.length === 0 && <div className="collEmpty">Nothing gleaned — loosen the sieve.</div>}
-            {shown.map((c) => <GridCard key={c.id} c={c} onClick={() => setPeek(c)} />)}
+            {shown.map((c) => (
+              <GridCard key={c.id} c={c} onClick={() => { setPeek(c); clearNew(c.id); }}
+                count={ownedCount(c.id) || undefined} dim={ownedCount(c.id) === 0}
+                ribbon={eco().newIds.includes(c.id)} />
+            ))}
           </div>
         </div>
-        {peek && <div className="peek" onClick={() => setPeek(null)}><CardPreview card={peek} /></div>}
+        {peek && (
+          <div className="peek" onClick={() => setPeek(null)}>
+            <div onClick={(e) => e.stopPropagation()} className="peekWrap">
+              <CardPreview card={peek} />
+              <div className="peekForge">
+                <button className="bigbtn quiet" disabled={!canCraft(peek)}
+                  onClick={() => { if (craft(peek)) setPeek({ ...peek }); }}>
+                  Craft — {craftCost(peek)} ✦</button>
+                {ownedCount(peek.id) > 0 && (
+                  <button className="bigbtn quiet" onClick={() => { if (disenchant(peek)) setPeek({ ...peek }); }}>
+                    Shatter — +{shatterValue(peek)} ✦</button>
+                )}
+                <span className="peekOwn">{ownedCount(peek.id)} owned · ✦ {eco().fragments}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

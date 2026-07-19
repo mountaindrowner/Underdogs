@@ -114,6 +114,11 @@ export function deckProblems(d: { class: string; cards: string[] }): string[] {
     if (!c) { probs.push(`unknown card ${id}`); continue; }
     if (n > maxCopies(c)) probs.push(`${n}x ${c.name} (max ${maxCopies(c)})`);
     if (c.class !== d.class && c.class !== 'neutral') probs.push(`${c.name} is ${c.class}, not ${d.class}/neutral`);
+    if (n > ownedCount(id)) probs.push(`${c.name}: own ${ownedCount(id)}, need ${n} — craft or replace`);
   }
   return probs;
 }
+
+// wire the economy's card universe (economy.ts stays Vite-free for tests)
+import { initEconomyData, ownedCount } from './economy.ts';
+initEconomyData({ pool: collectiblePool(), presets: PRESETS, maxCopies, byId: (id) => registry.get(id) });
