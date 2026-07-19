@@ -18,6 +18,7 @@ const KEYS: Record<string, (e: Entry) => boolean> = {
   play: (e) => e.cat === 'Cards/Play' && !/Turbo/i.test(e.name),
   select: (e) => e.cat === 'Cards/Select' && !/Turbo/i.test(e.name),
   draw: (e) => e.cat === 'Cards/Draw' && !/Big/i.test(e.name),
+  drawBig: (e) => e.cat === 'Cards/Draw' && /Big/i.test(e.name),   // the legendary flip
   shuffle: (e) => /Shuffle/i.test(e.name),
   discard: (e) => e.cat === 'Cards/Discard' && /Discard/i.test(e.name) && !/Turbo/i.test(e.name),
   mulligan: (e) => /Mulligan/i.test(e.name),

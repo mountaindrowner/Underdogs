@@ -5,50 +5,27 @@
 import { useState } from 'react';
 import { ShellBg, type SceneId } from './title/scenes.tsx';
 import { MusicToggle } from './MusicToggle.tsx';
-import { artUrl } from './data.ts';
 import { sfx } from './sfx.ts';
-import { haptics } from './haptics.ts';
-import { fitName } from './fit.ts';
+import { PackRitual } from './PackRitual.tsx';
 import {
   eco, openPack, refreshQuests, rerollQuest, fwotdAvailable, collectionStats,
   PACK_COST, type PackCard,
 } from './economy.ts';
 
-const FLIP_SFX: Record<string, string> = { common: 'select', rare: 'buff', epic: 'notify', legendary: 'notify' };
-
 export function StorehouseScreen({ scene, onBack }: { scene: SceneId; onBack: () => void }) {
   const [, bump] = useState(0);
   const rerender = () => bump((n) => n + 1);
   const [ritual, setRitual] = useState<PackCard[] | null>(null);
-  const [sealed, setSealed] = useState(true);
-  const [flipped, setFlipped] = useState<Set<number>>(new Set());
 
   const s = eco();
   const quests = refreshQuests();
   const stats = collectionStats();
-  const allFlipped = ritual != null && flipped.size >= ritual.length;
 
   const startPack = () => {
     const cards = openPack();
     if (!cards) return;
     sfx.play('draw');
-    setRitual(cards); setSealed(true); setFlipped(new Set());
-  };
-  const breakSeal = () => {
-    sfx.play('mulligan'); haptics.play();
-    setSealed(false);
-  };
-  const flip = (i: number) => {
-    if (sealed || !ritual || flipped.has(i)) return;
-    const rar = ritual[i].card.rarity ?? 'common';
-    sfx.play(FLIP_SFX[rar] ?? 'select');
-    if (rar === 'legendary') haptics.play();
-    setFlipped((f) => new Set([...f, i]));
-  };
-  const revealAll = () => {
-    if (!ritual) return;
-    sfx.play('shuffle');
-    setFlipped(new Set(ritual.map((_, i) => i)));
+    setRitual(cards);
   };
   const closeRitual = () => { setRitual(null); rerender(); };
 
@@ -107,49 +84,8 @@ export function StorehouseScreen({ scene, onBack }: { scene: SceneId; onBack: ()
         </div>
       </div>
 
-      {/* ---- the ritual ---- */}
-      {ritual && (
-        <div className="ritual" onPointerDown={(e) => e.stopPropagation()}>
-          {sealed ? (
-            <div className="sealCase" onClick={breakSeal} role="button">
-              <div className="sealScroll">📜</div>
-              <div className="sealWax">✠</div>
-              <div className="sealHint">Break the seal</div>
-            </div>
-          ) : (
-            <>
-              <div className="ritualFan">
-                {ritual.map((p, i) => {
-                  const rar = p.card.rarity ?? 'common';
-                  const art = artUrl(p.card.id);
-                  const isFlipped = flipped.has(i);
-                  return (
-                    <div key={i} className={`ritCard r-${rar}${isFlipped ? ' flipped' : ''}`}
-                      style={{ ['--i' as string]: i } as React.CSSProperties} onClick={() => flip(i)}>
-                      <div className="ritInner">
-                        <div className="ritBack"><div className="ritGlow" /></div>
-                        <div className="ritFace">
-                          <div className="ritArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
-                          <div className={`ritName${fitName(p.card.name)}`}>{p.card.name}</div>
-                          {p.card.type === 'minion' && (
-                            <div className="ritStats"><span>{p.card.attack}</span><span>{p.card.health}</span></div>
-                          )}
-                          {p.isNew && <div className="ritNew">NEW</div>}
-                          {p.dupe && <div className="ritDupe">+{p.frags} ✦</div>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="ritualBtns">
-                {!allFlipped && <button className="bigbtn quiet" onClick={revealAll}>Reveal all</button>}
-                {allFlipped && <button className="bigbtn" onClick={closeRitual}>Gather them up</button>}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      {/* ---- the ritual (the full cinematic — see PackRitual.tsx) ---- */}
+      {ritual && <PackRitual cards={ritual} onDone={closeRitual} />}
     </div>
   );
 }

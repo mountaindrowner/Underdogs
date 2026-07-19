@@ -333,3 +333,44 @@ export function clearNew(id?: string): void {
   s.newIds = id ? s.newIds.filter((x) => x !== id) : [];
   commit();
 }
+
+// ---- dev kit (the Pack Lab, ?pack=1) ----------------------------------------
+/** Simulated pack for the ritual tester — NEVER touches the save. Ownership
+ *  flags (isNew/dupe) are computed against the real collection but nothing is
+ *  granted, spent, or persisted. `finish` forces the last card's rarity so the
+ *  reveal escalation can be exercised on demand. */
+export type SimFinish = 'random' | 'rare' | 'epic' | 'legendary' | 'commons' | 'dupes';
+let simSeed = 20260719;
+const simRnd = () => { simSeed = (simSeed * 48271) % 2147483647; return simSeed / 2147483647; };
+export function simulatePack(finish: SimFinish = 'random'): PackCard[] {
+  const rollR = (): string => {
+    const r = simRnd() * 100; let acc = 0;
+    for (const [rar, w] of RARITY_ODDS) { acc += w; if (r < acc) return rar; }
+    return 'common';
+  };
+  let rarities: string[] = [];
+  for (let i = 0; i < PACK_SIZE; i++) rarities.push(rollR());
+  if (finish === 'commons') rarities = rarities.map(() => 'common');
+  else {
+    if (!rarities.some((r) => r !== 'common')) rarities[PACK_SIZE - 1] = 'rare';
+    if (finish === 'rare' || finish === 'epic' || finish === 'legendary') {
+      rarities = rarities.map((r) => (r === 'legendary' || r === 'epic' ? 'common' : r));
+      rarities[PACK_SIZE - 1] = finish;
+    }
+  }
+  const s = eco();
+  return rarities.map((rar) => {
+    const pool = data().pool.filter((c) => (c.rarity ?? 'common') === rar);
+    const card = (pool.length ? pool : data().pool)[Math.floor(simRnd() * Math.max(1, pool.length || data().pool.length))];
+    const have = s.owned[card.id] ?? 0;
+    const dupe = finish === 'dupes' || have >= data().maxCopies(card);
+    return { card, isNew: !dupe && have === 0, dupe, frags: dupe ? (SHATTER[rar] ?? 10) : 0 };
+  });
+}
+
+/** Dev-only faucet for the Pack Lab (+ testing the real Storehouse). */
+export function devGrant(talents = 1000, fragments = 0): void {
+  const s = eco();
+  s.talents += talents; s.fragments += fragments;
+  commit();
+}

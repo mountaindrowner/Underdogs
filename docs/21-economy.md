@@ -150,7 +150,11 @@ the Armory/forge. Tests: `engine/test/economy.test.ts`. Decisions locked in inte
   Existing saves start the economy fresh (Choose Your Calling on first menu visit).
 - **Ritual built through stage 4** of §9 (currencies, dupe protection + crafting, Daily
   Bread + First Win, and the pack-opening set-piece). Stage 5 (foils/weeklies/milestones)
-  deferred.
+  deferred. **The set-piece itself is the full §3 cinematic** (D-46, `ui/src/PackRitual.tsx`):
+  ray from heaven → the pack falls and lands → seal-break → quake with light in the cracks →
+  burst → one-by-one reveal ranked worst-to-best, back-glow rarity tease, holographic tilt
+  on rare+, the legendary held-breath moment. Tunable without grinding via the **Pack Lab**
+  (`?pack=1` — simulated packs, forced finishes, replay, dev Talent faucet).
 - **Soft daily taper** instead of a hard cap: wins pay full rate for the first
   ~10 wins/day, then a 2-Talent trickle. Losses always pay a little.
 - **Pity as implemented:** first Legendary within **10** packs, then within every **20**
