@@ -353,6 +353,18 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     return () => cancelAnimationFrame(raf);
   }, [act?.src, act?.dragging]);
 
+  // economy payout — once per match, when the engine reaches 'over'.
+  // MUST live above the !engine early-return (hooks before any conditional return).
+  const [payout, setPayout] = useState<MatchPayout | null>(null);
+  const paidKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!engine || engine.phase !== 'over' || paidKey.current === cfg.key) return;
+    paidKey.current = cfg.key;
+    setPayout(applyMatch({
+      won: engine.winner === 0, finalHp: engine.players[0].heroHp, ...stats.current,
+    }));
+  }, [engine, cfg.key, stats]);
+
   if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
   const you = engine.players[0];
   const foe = engine.players[1];
@@ -360,15 +372,6 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const guardActive = foe.board.some((u) => hasKeyword(u, 'guard'));
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
-  const [payout, setPayout] = useState<MatchPayout | null>(null);
-  const paidKey = useRef<string | null>(null);
-  useEffect(() => {
-    if (!over || paidKey.current === cfg.key) return;
-    paidKey.current = cfg.key;
-    setPayout(applyMatch({
-      won, finalHp: engine.players[0].heroHp, ...stats.current,
-    }));
-  }, [over, won, cfg.key, engine, stats]);
   if (won && meta) markComplete(meta.id);
   // reactive board signal: your peril (0 at >=33% HP, 1 at 0 HP)
   const hpFrac = view.heroes[0].hp / Math.max(1, view.heroes[0].maxHp);
