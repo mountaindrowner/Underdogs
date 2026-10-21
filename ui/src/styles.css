@@ -824,71 +824,13 @@ body{background:#0e0c0a;color:#eadfc4;font-family:var(--serif);overflow:hidden;
 
 /* rotate-to-play prompt in portrait */
 .rotate{display:none}
-/* ===================== phone landscape: the MENU screens =====================
-   The battle got its compact layout long ago; these bring Story / Free Play /
-   The Armory to the same standard — one language: floating back chip (44px
-   target, safe-area aware), tight Cinzel headers, horizontal snap rails for
-   tile shelves, and nothing clipped on a 390px-tall phone. Breakpoint is 620:
-   real iPhones report up to ~600px CSS height in landscape Safari. */
+/* ===================== phone landscape: menu card grids =====================
+   (the menu screens themselves now live in codex/codex.css — docs/22) */
 @media (orientation:landscape) and (max-height:620px){
-  :root{--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px)}
-  .storyMenu .topbar{padding:6px calc(10px + var(--safe-r)) 2px calc(10px + var(--safe-l))}
-  .storyMenu .backBtn{min-height:34px;font-size:10.5px;padding:4px 13px}
-  .storyWrap{gap:4px}
-
-  /* story: the chapter map becomes a swipeable, snapping rail */
-  .menu{margin-top:34px;gap:8px;width:100vw}
-  .menuTitle{font-size:17px;letter-spacing:.24em;text-transform:uppercase}
-  .chapters{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:12px;
-    width:100vw;padding:6px calc(24px + var(--safe-l)) 16px calc(24px + var(--safe-r));
-    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .chapters::-webkit-scrollbar{display:none}
-  .chapter{flex:0 0 auto;width:168px;height:238px;scroll-snap-align:center;border-width:2px}
-  .chTitle{font-size:15px;bottom:36px}
-  .chSub{font-size:11px;bottom:19px}
-  .chNo{font-size:9px}
-
-  /* free play: shelf becomes a snap rail; difficulties a 4-up grid; big CTA */
-  .fpBody{gap:5px;width:100vw;padding-top:32px;justify-content:flex-start}
-  .fpLabel{font-size:10px;letter-spacing:.22em;margin-top:2px}
-  .fpBlurb,.fpNote{display:none}
-  .fpSetup .deckShelf{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:8px;max-width:100vw;
-    padding:4px calc(16px + var(--safe-l)) 8px calc(16px + var(--safe-r));
-    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .fpSetup .deckShelf::-webkit-scrollbar{display:none}
-  .fpSetup .deckTile{flex:0 0 auto;scroll-snap-align:center}
-  .deckTile{width:128px;padding:8px 10px 7px;min-height:52px}
-  .dtIcon{font-size:17px}.dtName{font-size:11px}.dtSub{font-size:9px}
-  .diffRow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:min(700px,94vw)}
-  .diffTile{width:auto;min-height:46px;padding:6px 6px;justify-content:center}
-  .dfName{font-size:12px}.dfSub{font-size:9.5px;line-height:1.15}
-  .fpGo{margin-top:5px;font-size:15px;padding:9px 40px}
-
-  /* the armory: bigger tab targets; the shelf becomes the same top rail as
-     free play, with the deck detail panel below it */
-  .armTabs{margin-top:34px;gap:8px}
-  .armTabs button{min-height:38px;font-size:12px;padding:6px 20px}
-  .armBody{flex-direction:column;align-items:center;width:100vw;
-    padding:2px calc(8px + var(--safe-l)) 6px calc(8px + var(--safe-r));gap:6px}
-  .armory .deckShelf{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;
-    width:100vw;max-width:100vw;gap:8px;padding:4px calc(16px + var(--safe-l)) 8px calc(16px + var(--safe-r));
-    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .armory .deckShelf::-webkit-scrollbar{display:none}
-  .armory .deckTile{flex:0 0 auto;scroll-snap-align:center}
-  .deckDetail{width:min(560px,94vw);flex:1;min-height:0;padding:10px}
-  .ddName{font-size:15px}.ddSub{font-size:10.5px}
-  .ddBtns .bigbtn{font-size:12px;padding:7px 12px;min-height:38px}
-  .collChips{gap:5px}
-  .collChips .chip{min-height:32px;font-size:10.5px;padding:4px 10px}
-  .collBar{gap:6px;width:96vw}
-  .collSearch{min-width:120px;max-width:230px;min-height:32px;font-size:12px;padding:4px 12px}
-  .collRarities .chip{min-height:30px;font-size:10px;padding:3px 9px}
-  .collSort{min-height:32px;font-size:10px;padding:3px 8px}
   .collGrid{padding-bottom:10px}
   .gridCard{width:96px;height:132px}
   .gridCard .hcName{font-size:8px;bottom:15px}
 }
-
 
 /* ===================== keyframes ===================== */
 @keyframes summon{0%{opacity:0;transform:translateY(42px) scale(.62) rotate(-3deg)}

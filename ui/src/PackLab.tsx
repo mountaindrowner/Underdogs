@@ -38,7 +38,7 @@ export function PackLab() {
             </button>
           ))}
           <button className="plBtn faucet" onClick={() => { devGrant(1000); bump((n) => n + 1); }}>
-            <b>+1000 🪙</b><i>real save · {eco().talents} now</i>
+            <b>+1000 Talents</b><i>real save · {eco().talents} now</i>
           </button>
         </div>
       </div>

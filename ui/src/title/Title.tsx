@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Scene, type SceneId } from './scenes.tsx';
 import './title.css';
 import { version } from '../../package.json';
+import { DropCap } from '../codex/Codex.tsx';
 
 // a woven band of the coat's dyed wools (not a spectrum) — uneven panels,
 // muted dye tones, gold seams between. The recurring brand accent.
@@ -42,10 +43,10 @@ export function Title({ scene, onBegin }: { scene: SceneId; onBegin: () => void 
       <Filigree pos="tl" /><Filigree pos="tr" /><Filigree pos="bl" /><Filigree pos="br" />
 
       <div className="titleCenter">
-        <div className="titleLogo">Underdogs</div>
+        <div className="titleLogo"><DropCap letter="U" pigment="#1f3a78" size={110} /><span className="tlRest">NDERDOGS</span></div>
         <div className="ribbon">{RIBBON.map(([c, w], i) => <span key={i} style={{ background: c, flexGrow: w }} />)}</div>
         <div className="tagline">Every hero starts unqualified.</div>
-        <div className="tapBegin">TAP TO BEGIN</div>
+        <div className="tapBegin">Tap to open the book</div>
       </div>
       <div className="titleFooter">{`V${version} · SINGLE-PLAYER · FREE FOREVER`}</div>
     </div>

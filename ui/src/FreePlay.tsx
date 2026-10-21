@@ -2,11 +2,11 @@
  *  deck) and how hard the rival fights, then begin. The rival draws a random
  *  preset deck each match so skirmishes stay fresh. */
 import { useMemo, useState } from 'react';
-import { ShellBg, type SceneId } from './title/scenes.tsx';
-import { MusicToggle } from './MusicToggle.tsx';
-import { allDecks, PRESETS, CLASS_META, type DeckDef } from './decks.ts';
+import type { SceneId } from './title/scenes.tsx';
+import { allDecks, PRESETS, type DeckDef } from './decks.ts';
 import { registry } from './data.ts';
 import type { MatchConfig } from './campaign.ts';
+import { Crest, Folio } from './codex/Codex.tsx';
 
 const SEL_KEY = 'underdogs.freeplay.sel';
 
@@ -49,49 +49,33 @@ export function FreePlaySetup({ scene, onBegin, onBack }:
   };
 
   return (
-    <div className="app storyMenu fpSetup">
-      <ShellBg scene={scene} />
-      <div className="storyWrap">
-        <div className="topbar">
-          <button className="backBtn" onClick={onBack}>‹ Menu</button>
-          <div className="brand">UNDERDOGS <span>· the sparring pit</span></div>
-          <MusicToggle />
-        </div>
-        <div className="fpBody">
-          <h1 className="menuTitle">The Sparring Pit</h1>
-
-          <div className="fpLabel">Choose your war-band</div>
-          <div className="deckShelf">
-            {decks.map((d) => {
-              const m = CLASS_META[d.class];
-              const leader = registry.get(d.leader);
-              return (
-                <button key={d.id} className={`deckTile${d.id === deckId ? ' sel' : ''}`}
-                  style={{ ['--gem' as string]: m?.color ?? '#888' } as React.CSSProperties}
-                  onClick={() => setDeckId(d.id)}>
-                  <span className="dtIcon">{m?.icon ?? '❖'}</span>
-                  <span className="dtName">{d.name}</span>
-                  <span className="dtSub">{leader?.name ?? d.class}{d.custom ? ' · forged' : ''}</span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="fpBlurb">{deck.blurb}</div>
-
-          <div className="fpLabel">The rival</div>
-          <div className="diffRow">
-            {DIFFICULTIES.map((d) => (
-              <button key={d.lvl} className={`diffTile${d.lvl === diff ? ' sel' : ''}`} onClick={() => setDiff(d.lvl)}>
-                <span className="dfName">{d.name}</span>
-                <span className="dfSub">{d.sub}</span>
-              </button>
-            ))}
-          </div>
-          <div className="fpNote">Your rival draws a different war-band each match.</div>
-
-          <button className="bigbtn fpGo" onClick={begin}>Enter the Pit</button>
-        </div>
+    <Folio scene={scene} title="The Sparring Pit" kicker="Pick a war-band, pick a fight." back={onBack} className="fpSetup">
+      <div className="fpLabel">Your war-band</div>
+      <div className="deckShelf">
+        {decks.map((d) => (
+          <button key={d.id} className={`deckTile${d.id === deckId ? ' sel' : ''}`} onClick={() => setDeckId(d.id)}>
+            <Crest cls={d.class} size={40} />
+            <span className="dtText">
+              <span className="dtName">{d.name}</span>
+              <span className="dtSub">{registry.get(d.leader)?.name ?? d.class}{d.custom ? ' · forged' : ''}</span>
+            </span>
+          </button>
+        ))}
       </div>
-    </div>
+      <div className="fpBlurb">{deck.blurb}</div>
+
+      <div className="fpLabel">The rival</div>
+      <div className="diffRow">
+        {DIFFICULTIES.map((d) => (
+          <button key={d.lvl} className={`diffTile${d.lvl === diff ? ' sel' : ''}`} onClick={() => setDiff(d.lvl)}>
+            <span className="dfName">{d.name}<span className="dfPips">{Array.from({ length: d.lvl + 1 }, (_, i) => <i key={i} />)}</span></span>
+            <span className="dfSub">{d.sub}</span>
+          </button>
+        ))}
+      </div>
+      <div className="fpNote">Your rival draws a different war-band each match.</div>
+
+      <button className="bigbtn fpGo" onClick={begin}>Enter the Pit</button>
+    </Folio>
   );
 }

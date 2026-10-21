@@ -23,7 +23,9 @@ import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
 import { MainMenu } from './title/MainMenu.tsx';
 import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
+import { Corners, Folio, Glyph, Rubric, Rule } from './codex/Codex.tsx';
 import './styles.css';
+import './codex/codex.css';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CAN_HOVER = typeof matchMedia !== 'undefined' && matchMedia('(hover: hover)').matches;
@@ -494,14 +496,17 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   // ---- gated screens --------------------------------------------------------
   if (intro && meta) {
     return (
-      <div className="app">
-        <div className="topbar"><div className="brand">UNDERDOGS <span>· {meta.subtitle}</span></div>
-          <button onClick={onExit}>Menu</button></div>
-        <div className="intro">
-          <div className="introArt" style={{ backgroundImage: `url(${artUrl(meta.art)})` }} />
-          <h1>{meta.title}</h1>
+      <div className="app introScreen">
+        <div className="mulBg"><Board enc={sceneOverride ?? meta.id} danger={0} flare={0} goliath={false} /></div>
+        <div className="mulScrim" />
+        <div className="leaf vellum introLeaf">
+          <Corners />
+          <button className="ribbonBack" onClick={onExit}><span>‹ Contents</span></button>
+          <div className="introMini" style={{ backgroundImage: `url(${artUrl(meta.art)})` }} />
+          <Rubric title={meta.title} kicker={meta.subtitle} pigment="#a5301c" />
+          <Rule />
           <p className="narr">{meta.narrative}</p>
-          <p className="tip">{meta.tip}</p>
+          <aside className="tip"><Glyph name="point" size={22} /><span>{meta.tip}</span></aside>
           <button className="bigbtn" onClick={() => setIntro(false)}>Begin the Battle</button>
         </div>
       </div>
@@ -656,11 +661,11 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
             <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>
             {payout && (
               <div className="payout">
-                <span className="payTal">+{payout.talents} 🪙</span>
-                {payout.fragments > 0 && <span className="payFrag">+{payout.fragments} ✦</span>}
-                {payout.firstWin && <span className="payNote">☀ First win of the day</span>}
+                <span className="payTal"><Glyph name="talents" size={20} />+{payout.talents} Talents</span>
+                {payout.fragments > 0 && <span className="payFrag"><Glyph name="fragments" size={18} />+{payout.fragments} Fragments</span>}
+                {payout.firstWin && <span className="payNote">First win of the day</span>}
                 {payout.tapered && <span className="payNote dim">the day's wage thins — back tomorrow</span>}
-                {payout.questsDone.map((q) => <span key={q.id} className="payQuest">✓ {q.desc}</span>)}
+                {payout.questsDone.map((q) => <span key={q.id} className="payQuest"><Glyph name="check" size={16} />{q.desc}</span>)}
               </div>
             )}
             <div className="ovBtns">
@@ -707,42 +712,35 @@ function defOf(id: string): CardDef | null { return registry.get(id) ?? null; }
 function StoryMenu({ scene, onPlay, onBack }:
   { scene: SceneId; onPlay: (cfg: MatchConfig, meta?: Encounter) => void; onBack: () => void }) {
   const done = completed();
+  const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
   return (
-    <div className="app storyMenu">
-      <ShellBg scene={scene} />
-      <div className="storyWrap">
-      <div className="topbar">
-        <button className="backBtn" onClick={onBack}>‹ Menu</button>
-        <div className="brand">UNDERDOGS <span>· story</span></div>
-        <MusicToggle />
-      </div>
-      <div className="menu">
-        <h1 className="menuTitle">The Long Way Round</h1>
-        <div className="chapters">
-          {encounters.map((e, i) => {
-            const locked = i > 0 && !done.has(encounters[i - 1].id);
-            return (
-              <div key={e.id} className={`chapter${done.has(e.id) ? ' done' : ''}${locked ? ' locked' : ''}`}
-                onClick={() => { if (!locked) onPlay(toMatchConfig(e), e); }}>
+    <Folio scene={scene} title="The Long Way Round" kicker="Eden to the ends of the earth — read on, chapter by chapter."
+      back={onBack} wide className="storyScreen">
+      <div className="chapters">
+        {encounters.map((e, i) => {
+          const locked = i > 0 && !done.has(encounters[i - 1].id);
+          return (
+            <div key={e.id} className={`chapter${done.has(e.id) ? ' done' : ''}${locked ? ' locked' : ''}`}
+              onClick={() => { if (!locked) onPlay(toMatchConfig(e), e); }}>
+              <div className="chMini">
                 <div className="chArt" style={{ backgroundImage: `url(${artUrl(e.art)})` }} />
-                <div className="chNo">Chapter {i + 1}</div>
-                <div className="chTitle">{e.title}</div>
-                <div className="chSub">{e.subtitle}</div>
-                {done.has(e.id) && <div className="chDone">✓ Cleared</div>}
-                {locked && <div className="chLock">🔒 Locked</div>}
+                {done.has(e.id) && <div className="chDone" title="Cleared"><Glyph name="check" size={16} /></div>}
+                {locked && <div className="chLock"><Glyph name="lock" size={22} />Sealed</div>}
               </div>
-            );
-          })}
-          <div className="chapter free" onClick={() => onPlay(SANDBOX)}>
-            <div className="chArt" style={{ backgroundImage: `url(${artUrl('david_the_king')})` }} />
-            <div className="chNo">Free Play</div>
-            <div className="chTitle">Skirmish</div>
-            <div className="chSub">A quick sandbox match</div>
-          </div>
+              <div className="chNo">Chapter {ROMAN[i] ?? i + 1}</div>
+              <div className="chTitle">{e.title}</div>
+              <div className="chSub">{e.subtitle}</div>
+            </div>
+          );
+        })}
+        <div className="chapter free" onClick={() => onPlay(SANDBOX)}>
+          <div className="chMini"><div className="chArt" style={{ backgroundImage: `url(${artUrl('david_the_king')})` }} /></div>
+          <div className="chNo">An interlude</div>
+          <div className="chTitle">Skirmish</div>
+          <div className="chSub">A quick sandbox match</div>
         </div>
       </div>
-      </div>
-    </div>
+    </Folio>
   );
 }
 

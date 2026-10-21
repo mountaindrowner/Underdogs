@@ -15,6 +15,7 @@ import { haptics } from './haptics.ts';
 import { music } from './audio.ts';
 import { fitName } from './fit.ts';
 import type { PackCard } from './economy.ts';
+import { Glyph } from './codex/Codex.tsx';
 
 const RANK: Record<string, number> = { common: 0, rare: 1, epic: 2, legendary: 3 };
 const STING: Record<string, string> = { common: 'select', rare: 'buff', epic: 'notify', legendary: 'drawBig' };
@@ -184,7 +185,7 @@ export function PackRitual({ cards, onDone }: { cards: PackCard[]; onDone: () =>
               <button className="bigbtn quiet" onClick={startAuto}>Reveal the rest</button>}
             {allFlipped && (
               <div className="ritSummary">
-                <span>{newCount > 0 ? `${newCount} new` : 'no new cards'}{fragSum > 0 ? ` · +${fragSum} ✦` : ''}</span>
+                <span>{newCount > 0 ? `${newCount} new` : 'no new cards'}{fragSum > 0 ? ` · +${fragSum} Fragments` : ''}</span>
                 <button className="bigbtn" onClick={onDone}>Gather them up</button>
               </div>
             )}
@@ -234,7 +235,7 @@ function RitCard({ p, i, flipped, armed, teasing }:
             <div className="ritStats"><span>{p.card.attack}</span><span>{p.card.health}</span></div>
           )}
           {p.isNew && <div className="ritNew">NEW</div>}
-          {p.dupe && <div className="ritDupe">+{p.frags} ✦</div>}
+          {p.dupe && <div className="ritDupe"><Glyph name="fragments" size={12} />+{p.frags}</div>}
         </div>
       </div>
     </div>

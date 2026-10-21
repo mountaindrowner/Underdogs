@@ -17,13 +17,13 @@ export interface DeckDef {
 
 export const CLASSES = ['prophet', 'warrior', 'priest', 'shepherd', 'patriarch', 'disciple'] as const;
 
-export const CLASS_META: Record<string, { icon: string; color: string; leader: string; name: string; blurb: string }> = {
-  prophet:   { icon: '📜', color: '#7a5fd0', leader: 'elijah_leader',   name: 'Fire and Vision',      blurb: 'Foresee the top, then burn what comes.' },
-  warrior:   { icon: '🛡️',  color: '#c0392b', leader: 'joshua_leader',   name: 'The Giant-Slayers',    blurb: 'Relics, edges, and men too small to lose.' },
-  priest:    { icon: '✨',  color: '#e8d9a0', leader: 'aaron_leader',    name: 'Balm and Bulwark',     blurb: 'Heal, shield, and raise what fell.' },
-  shepherd:  { icon: '🐑', color: '#79b56a', leader: 'david_leader',    name: 'Not One Lost',         blurb: 'Small allies keep coming back.' },
-  patriarch: { icon: '⭐',  color: '#d9a441', leader: 'abraham_leader',  name: 'The Promise Compounds', blurb: 'Covenants tick; the blessing snowballs.' },
-  disciple:  { icon: '🔥', color: '#e07b39', leader: 'peter_leader',    name: 'Sparks to Wildfire',   blurb: 'Every loss scatters new embers.' },
+export const CLASS_META: Record<string, { color: string; leader: string; name: string; blurb: string }> = {
+  prophet:   { color: '#7a5fd0', leader: 'elijah_leader',   name: 'Fire and Vision',      blurb: 'Foresee the top, then burn what comes.' },
+  warrior:   { color: '#c0392b', leader: 'joshua_leader',   name: 'The Giant-Slayers',    blurb: 'Relics, edges, and men too small to lose.' },
+  priest:    { color: '#e8d9a0', leader: 'aaron_leader',    name: 'Balm and Bulwark',     blurb: 'Heal, shield, and raise what fell.' },
+  shepherd:  { color: '#79b56a', leader: 'david_leader',    name: 'Not One Lost',         blurb: 'Small allies keep coming back.' },
+  patriarch: { color: '#d9a441', leader: 'abraham_leader',  name: 'The Promise Compounds', blurb: 'Covenants tick; the blessing snowballs.' },
+  disciple:  { color: '#e07b39', leader: 'peter_leader',    name: 'Sparks to Wildfire',   blurb: 'Every loss scatters new embers.' },
 };
 
 /** all collectible, playable cards (no tokens / adversaries / leaders) */

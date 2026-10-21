@@ -1,10 +1,11 @@
 /** Settings — "Tent pegs & knobs." Sound, feel, the battle-board finish, and
  *  the reset lever. Everything persists locally (no backend, per canon). */
 import { useState } from 'react';
-import { ShellBg, type SceneId } from './title/scenes.tsx';
+import type { SceneId } from './title/scenes.tsx';
 import { MusicToggle } from './MusicToggle.tsx';
 import { haptics } from './haptics.ts';
 import { version } from '../package.json';
+import { Folio } from './codex/Codex.tsx';
 
 const BOARD_KEY = 'underdogs.board';
 const BOARD_OPTS = [
@@ -36,58 +37,51 @@ export function SettingsScreen({ scene, onBack }: { scene: SceneId; onBack: () =
   };
 
   return (
-    <div className="app storyMenu settings">
-      <ShellBg scene={scene} />
-      <div className="storyWrap">
-        <div className="topbar">
-          <button className="backBtn" onClick={onBack}>‹ Menu</button>
-          <div className="brand">UNDERDOGS <span>· tent pegs & knobs</span></div>
+    <Folio scene={scene} title="Settings" kicker="Tent pegs & knobs." back={onBack} className="settings">
+      <div className="setPanel">
+        <div className="setRow">
+          <div className="setText">
+            <div className="setKey">Music &amp; Sound</div>
+            <div className="setSub">One mute governs both; the slider is the music.</div>
+          </div>
           <MusicToggle />
         </div>
-        <div className="setBody">
-          <h1 className="menuTitle">Settings</h1>
-          <div className="setPanel">
-            <div className="setRow">
-              <div className="setText">
-                <div className="setKey">Music &amp; Sound</div>
-                <div className="setSub">One mute governs both; the slider is the music.</div>
-              </div>
-              <MusicToggle />
-            </div>
-            <div className="setRow">
-              <div className="setText">
-                <div className="setKey">Haptics</div>
-                <div className="setSub">Little thumps on hits. Android browsers only, for now.</div>
-              </div>
-              <button className={`chip${hap ? ' on' : ''}`}
-                onClick={() => { const v = !hap; setHap(v); haptics.setEnabled(v); if (v) haptics.play(); }}>
-                {hap ? 'On' : 'Off'}</button>
-            </div>
-            <div className="setRow">
-              <div className="setText">
-                <div className="setKey">Board Finish</div>
-                <div className="setSub">The battle table&rsquo;s trim. Also cycles in-match.</div>
-              </div>
-              <div className="setChips">
-                {BOARD_OPTS.map(([id, name]) => (
-                  <button key={id} className={`chip${board === id ? ' on' : ''}`} onClick={() => pickBoard(id)}>{name}</button>
-                ))}
-              </div>
-            </div>
-            <div className="setRow">
-              <div className="setText">
-                <div className="setKey">Begin Again</div>
-                <div className="setSub">Forget campaign progress, custom war-bands, and these knobs.</div>
-              </div>
-              <button className={`ddDel setReset${armed ? ' sure' : ''}`} onClick={reset}
-                onBlur={() => setArmed(false)}>
-                {armed ? 'Tap again — no takebacks' : 'Reset everything'}</button>
-            </div>
+        <div className="setRow">
+          <div className="setText">
+            <div className="setKey">Haptics</div>
+            <div className="setSub">Little thumps on hits. Android browsers only, for now.</div>
           </div>
-          <div className="setVersion">UNDERDOGS v{version} · single-player · free forever</div>
-          {wiped && <div className="mmToast">The slate is clean.</div>}
+          <button className={`chip${hap ? ' on' : ''}`}
+            onClick={() => { const v = !hap; setHap(v); haptics.setEnabled(v); if (v) haptics.play(); }}>
+            {hap ? 'On' : 'Off'}</button>
+        </div>
+        <div className="setRow">
+          <div className="setText">
+            <div className="setKey">Board Finish</div>
+            <div className="setSub">The battle table&rsquo;s trim. Also cycles in-match.</div>
+          </div>
+          <div className="setChips">
+            {BOARD_OPTS.map(([id, name]) => (
+              <button key={id} className={`chip${board === id ? ' on' : ''}`} onClick={() => pickBoard(id)}>{name}</button>
+            ))}
+          </div>
+        </div>
+        <div className="setRow">
+          <div className="setText">
+            <div className="setKey">Begin Again</div>
+            <div className="setSub">Forget campaign progress, custom war-bands, the collection, and these knobs.</div>
+          </div>
+          <button className={`bigbtn ddDel setReset${armed ? ' sure' : ''}`} onClick={reset}
+            onBlur={() => setArmed(false)}>
+            {armed ? 'Tap again — no takebacks' : 'Reset everything'}</button>
         </div>
       </div>
-    </div>
+      <div className="setVersion">UNDERDOGS v{version} · single-player · free forever</div>
+      <div className="setCredits">
+        Icons by Lorc, Delapouite &amp; contributors from game-icons.net (CC BY 3.0). Type: IM Fell by
+        Igino Marini and Uncial Antiqua by Astigmatic (SIL Open Font License).
+      </div>
+      {wiped && <div className="mmToast">The slate is clean.</div>}
+    </Folio>
   );
 }

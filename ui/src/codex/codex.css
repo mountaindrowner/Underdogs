@@ -1,0 +1,530 @@
+/* ==========================================================================
+   THE CODEX — UNDERDOGS' design language (docs/22-ui-codex.md)
+   The game is a book. Menus are leaves of vellum, written in iron-gall ink,
+   opened by illuminated initials, ruled in gold leaf and coloured with real
+   manuscript pigments. Navigation is a silk ribbon bookmark; selection is a
+   manicule in the margin. Square-cut, never pill-shaped. No glass, no neon.
+   Loaded LAST so it governs every menu surface.
+   ========================================================================== */
+@font-face{font-family:'Fell';font-weight:400;font-display:swap;src:url('../../assets/fonts/imfell-400.woff2') format('woff2')}
+@font-face{font-family:'Fell';font-style:italic;font-weight:400;font-display:swap;src:url('../../assets/fonts/imfell-italic.woff2') format('woff2')}
+@font-face{font-family:'Fell SC';font-weight:400;font-display:swap;src:url('../../assets/fonts/imfell-sc.woff2') format('woff2')}
+@font-face{font-family:'Uncial';font-weight:400;font-display:swap;src:url('../../assets/fonts/uncial.woff2') format('woff2')}
+
+:root{
+  /* writing materials */
+  --vellum:#e8dbbb; --vellum-lt:#f1e7cf; --vellum-dk:#cdb88a; --vellum-edge:#b39b68;
+  --ink:#2a1a0e; --ink-2:#5a4128; --ink-3:#8a7152; --ink-line:rgba(42,26,14,.22);
+  /* pigments */
+  --rubric:#a5301c; --rubric-dk:#7e2213; --lapis:#1f3a78; --azurite:#2c5596;
+  --verdigris:#2d6a4c; --murex:#5b2a6b; --orpiment:#c99a2c;
+  /* gold leaf — hammered, not glossy */
+  --gold-lt:#f3da92; --gold-md:#d2a347; --gold-dk:#8e6420;
+  --gilt:linear-gradient(135deg,#f1d68a 0%,#d4a640 28%,#a97b24 52%,#e3c06a 74%,#9b6e1c 100%);
+  --manicule:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20fill%3D%22black%22%20d%3D%22M18.465%2020.182v192.9c38.45%2080.782%2055.772%20134.822%20150.726%20221.098l.167.15l.16.158c3.06%203.06%205.89%203.828%2010.14%203.455c4.247-.373%209.65-2.494%2014.738-5.912c9.313-6.256%2016.457-17.503%2017.67-22.266l-56.06-56.065l13.214-13.216l62.94%2062.944c1.316%201.316%202.67%201.804%206.508%201.115s9.267-3.1%2014.61-6.78c10.098-6.954%2019.75-18.663%2022.835-26.454l-56.02-56.02l13.216-13.216l63.667%2063.67c19.495-3.225%2035.412-16.64%2041.65-32.52l.756.296l-71.514-71.516l13.214-13.215L447.81%20415.52c7.58%207.58%2014.7%209.95%2021.032%209.853c6.33-.096%2012.216-2.88%2016.62-7.41c8.805-9.06%2012.096-23.49-2.255-37.84L259.97%20156.88l13.214-13.214l33.08%2033.08c46.988-3.724%2084.773-17.932%20102.148-33.6c8.914-8.04%2012.147-15.414%2011.424-22.306c-.644-6.142-5.172-13.675-15.865-21.79c-52.33%2022.22-109.035%2019.23-162.685%202.538c-54.338-16.908-105.852-47.735-148.47-81.406h-74.35z%22%2F%3E%3C%2Fsvg%3E");
+  --f-display:'Fell SC','Palatino Linotype',Georgia,serif;
+  --f-body:'Fell','Palatino Linotype',Georgia,serif;
+  --f-initial:'Uncial','Fell SC',serif;
+  /* vellum grain + foxing, drawn procedurally (no texture files) */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --foxing:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .1 0 0 -.45 0 .2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --corner:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23a97b24' stroke-width='1.4'%3E%3Cpath d='M2 38V11a9 9 0 0 1 9-9h27'/%3E%3Cpath d='M7 38V14a7 7 0 0 1 7-7h24'/%3E%3Cpath d='M14 26c0-7 5-12 12-12' stroke='%23a5301c' stroke-width='1'/%3E%3C/g%3E%3Cpath d='M15 10l5 5-5 5-5-5z' fill='%23a5301c'/%3E%3Ccircle cx='15' cy='29' r='1.6' fill='%23a97b24'/%3E%3Ccircle cx='29' cy='15' r='1.6' fill='%23a97b24'/%3E%3C/svg%3E");
+}
+
+/* ---------- primitives ---------- */
+.glyph{display:inline-block;flex:0 0 auto;vertical-align:middle}
+.crest{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+  color:var(--gold-lt);background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--field) 72%,#fff 10%),var(--field) 64%,color-mix(in srgb,var(--field) 70%,#000));
+  border:3px solid transparent;border-image:var(--gilt) 1;
+  box-shadow:0 0 0 1px var(--gold-dk),inset 0 0 0 1px rgba(0,0,0,.35),0 2px 4px rgba(42,26,14,.35)}
+.crest .glyph{filter:drop-shadow(0 1px 0 rgba(60,35,5,.9))}
+.dropCap{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;line-height:1;
+  font-family:var(--f-initial);color:var(--gold-lt);padding-top:.06em;
+  background:
+    repeating-linear-gradient(45deg,rgba(243,218,146,.10) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(-45deg,rgba(243,218,146,.10) 0 1px,transparent 1px 7px),
+    radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--field) 80%,#fff 8%),var(--field) 70%);
+  border:3px solid transparent;border-image:var(--gilt) 1;
+  box-shadow:0 0 0 1px var(--gold-dk),0 0 0 4px rgba(165,48,28,.0),0 3px 6px rgba(42,26,14,.4);
+  text-shadow:0 1px 0 #6b4a14,0 2px 3px rgba(0,0,0,.45)}
+.rule{display:flex;align-items:center;gap:6px;width:100%;color:var(--gold-dk)}
+.rule>span{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-md) 18%,var(--gold-md) 82%,transparent)}
+.corner{position:absolute;width:34px;height:34px;pointer-events:none;background:var(--corner) center/contain no-repeat;z-index:1}
+.corner.tl{top:12px;left:12px}.corner.tr{top:12px;right:12px;transform:scaleX(-1)}
+.corner.bl{bottom:12px;left:12px;transform:scaleY(-1)}.corner.br{bottom:12px;right:12px;transform:scale(-1,-1)}
+
+/* a vellum surface: grain + foxing + darkened, handled edges */
+.vellum,.leaf,.bookPage,.calling .callingPanel{
+  background-color:var(--vellum);
+  background-image:var(--grain),var(--foxing),
+    radial-gradient(120% 110% at 50% 45%,transparent 55%,rgba(120,85,35,.38) 100%);
+  background-size:240px 240px,600px 600px,100% 100%;color:var(--ink)}
+
+/* ---------- buttons: gilt plaques & inked frames (square-cut, chamfered) ---------- */
+.bigbtn{font-family:var(--f-display);font-weight:400;font-size:19px;letter-spacing:.06em;color:#2e1d07;
+  padding:11px 34px 12px;border:none;border-radius:0;cursor:pointer;position:relative;
+  background:var(--gilt);
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+  box-shadow:inset 0 0 0 1px rgba(255,240,200,.55),inset 0 0 0 3px rgba(110,74,20,.5);
+  text-shadow:0 1px 0 rgba(255,236,180,.6);transition:filter .15s ease,transform .12s ease}
+.bigbtn:hover{filter:brightness(1.09) saturate(1.05)}
+.bigbtn:disabled{filter:grayscale(.75) brightness(.85);cursor:default}
+.bigbtn.quiet{background:rgba(42,26,14,.05);color:var(--ink);text-shadow:none;clip-path:none;
+  box-shadow:inset 0 0 0 1px var(--ink-2),inset 0 0 0 4px rgba(255,248,230,.4),inset 0 0 0 5px rgba(165,48,28,.45)}
+.bigbtn.quiet:hover{background:rgba(42,26,14,.1);filter:none}
+.bigbtn.ddDel,.ddDel{background:var(--rubric);color:var(--vellum-lt);text-shadow:0 1px 0 rgba(0,0,0,.35);
+  box-shadow:inset 0 0 0 1px rgba(255,220,190,.35),inset 0 0 0 3px rgba(60,10,5,.4)}
+.bigbtn.ddDel.sure,.ddDel.sure{background:var(--rubric-dk)}
+
+/* chips → ledger marks: ink when idle, rubric when chosen */
+.chip{font-family:var(--f-display);font-size:13px;letter-spacing:.04em;color:var(--ink-2);cursor:pointer;
+  border-radius:0;padding:4px 11px 5px;background:transparent;border:1px solid var(--ink-line);font-weight:400;
+  transition:color .12s ease,background .12s ease,border-color .12s ease}
+.chip:hover{color:var(--ink);border-color:var(--ink-2)}
+.chip.on{color:var(--vellum-lt);background:var(--rubric);border-color:var(--rubric-dk);font-weight:400;
+  box-shadow:inset 0 0 0 1px rgba(255,220,190,.25)}
+.chip .crest{margin-right:5px;vertical-align:-3px;border-width:2px}
+
+/* music control in the codex voice: a gilt roundel + an inked slider */
+.musicBtn{width:32px;height:32px;border-radius:50%;border:none;font-family:var(--f-display);font-size:16px;color:#2e1d07;
+  background:var(--gilt);box-shadow:inset 0 0 0 1px rgba(255,240,200,.5),0 0 0 1px var(--gold-dk),0 2px 5px rgba(0,0,0,.45)}
+.musicBtn.muted{background:#6d5a3c;color:var(--vellum-dk)}
+.volSlider{accent-color:var(--rubric)}
+
+/* ==========================================================================
+   THE LEAF — every menu sub-screen is one page of the codex (Folio)
+   ========================================================================== */
+.codexScreen{background:#0e0a06;justify-content:center;align-items:center}
+.leaf{position:relative;z-index:10;display:flex;flex-direction:column;gap:6px;
+  width:min(1040px,95vw);height:calc(100dvh - 36px);max-height:860px;
+  padding:26px 46px 22px;border-radius:2px;animation:leafIn .42s cubic-bezier(.2,.8,.3,1) both;
+  box-shadow:1px 1px 0 #d6c49c,2px 2px 0 #b9a174,3px 3px 0 #d6c49c,4px 4px 0 #a88f61,
+    0 26px 70px rgba(0,0,0,.72),0 0 0 1px rgba(60,40,15,.5)}
+.leaf.wide{width:min(1240px,96vw)}
+/* manuscript ruling: an outer gold rule and an inner rubric hairline */
+.leaf::before{content:'';position:absolute;inset:14px;pointer-events:none;border:1.5px solid rgba(169,123,36,.75)}
+.leaf::after{content:'';position:absolute;inset:19px;pointer-events:none;border:1px solid rgba(165,48,28,.35)}
+@keyframes leafIn{from{opacity:0;transform:translateY(18px) rotateX(4deg)}to{opacity:1;transform:none}}
+.leafBody{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 4px 8px;scrollbar-width:thin;
+  scrollbar-color:var(--vellum-edge) transparent}
+.leafMusic{position:absolute;top:24px;right:34px;z-index:4}
+
+/* the way back: a silk ribbon bookmark hanging over the top edge */
+.ribbonBack{position:absolute;top:-8px;left:30px;z-index:5;cursor:pointer;border:none;padding:0;background:none;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.45));transition:transform .18s ease}
+.ribbonBack span{display:block;padding:14px 16px 20px;min-width:96px;font-family:var(--f-display);font-size:14px;
+  letter-spacing:.06em;color:#f6e6c6;text-shadow:0 1px 0 rgba(0,0,0,.4);
+  background:linear-gradient(90deg,#7e2213,#a5301c 30%,#b8402a 50%,#a5301c 70%,#7e2213);
+  clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%)}
+.ribbonBack:hover{transform:translateY(4px)}
+.ribbonBack:active{transform:translateY(7px)}
+
+/* the opening: illuminated initial + title in Fell small caps */
+.rubricHead{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;padding-top:4px}
+.rubricTitle{display:flex;align-items:flex-end;gap:6px;font-family:var(--f-display);font-weight:400;
+  font-size:40px;line-height:.9;letter-spacing:.02em;color:var(--ink)}
+.rubricTitle>span:last-child{padding-bottom:4px}
+.rubricKicker{font-family:var(--f-body);font-style:italic;font-size:15px;color:var(--rubric)}
+.leaf>.rule{position:relative;z-index:2;max-width:520px;align-self:center}
+
+/* small labels inside a leaf */
+.fpLabel,.leaf .ddName{font-family:var(--f-display);font-size:15px;letter-spacing:.14em;color:var(--rubric);
+  text-transform:none;margin-top:6px;text-shadow:none}
+.fpBlurb,.fpNote,.leaf .ddSub{font-family:var(--f-body);font-style:italic;color:var(--ink-2);text-shadow:none;font-size:14px}
+.fpNote{font-size:13px;color:var(--ink-3)}
+
+/* ---------- entries: war-bands, rivals, callings ---------- */
+.deckShelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:8px;width:100%;max-width:900px}
+.deckTile,.diffTile,.callingTile{position:relative;display:flex;flex-direction:row;align-items:center;gap:11px;text-align:left;width:auto;height:auto;min-height:0;flex:none;
+  padding:8px 12px 8px 9px;cursor:pointer;font-family:var(--f-body);border-radius:0;
+  background:rgba(255,248,230,.28);border:1px solid var(--ink-line);box-shadow:none;transform:none;
+  transition:background .14s ease,border-color .14s ease}
+.deckTile:hover,.diffTile:hover,.callingTile:hover{background:rgba(255,248,230,.55);border-color:var(--ink-2);transform:none;box-shadow:none}
+.deckTile.sel,.diffTile.sel{background:rgba(212,166,64,.16);border-color:var(--gold-dk);
+  box-shadow:inset 0 0 0 1px rgba(212,166,64,.6)}
+/* the manicule points at what you chose */
+.deckTile.sel::before,.diffTile.sel::before{content:'';position:absolute;left:-26px;top:50%;width:22px;height:22px;
+  transform:translateY(-50%) rotate(-45deg);background:var(--rubric);
+  -webkit-mask:var(--manicule) center/contain no-repeat;mask:var(--manicule) center/contain no-repeat}
+.dtText{display:flex;flex-direction:column;gap:1px;min-width:0}
+.dtName,.dfName,.ctName{font-family:var(--f-display);font-weight:400;font-size:17px;line-height:1.1;color:var(--ink);letter-spacing:.01em}
+.dtSub,.dfSub,.ctBlurb{font-family:var(--f-body);font-style:italic;font-size:12.5px;color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ctBlurb{white-space:normal}
+.deckTile.forgeTile{border-style:dashed;border-color:var(--ink-3)}
+.fpSetup .deckShelf{grid-template-columns:repeat(3,1fr)}
+.fpSetup .deckTile{flex-direction:column;text-align:center;gap:6px;padding:10px 12px}
+.fpSetup .dtText{align-items:center}
+.forgeTile .crest{--field:#3a2d1f}
+.diffRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:900px}
+.diffTile{flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px}
+.dfName{display:flex;align-items:center;gap:7px}
+.dfPips{display:inline-flex;gap:4px;margin-left:2px}
+.dfPips i{display:block;width:6px;height:6px;background:var(--rubric);transform:rotate(45deg)}
+
+/* ==========================================================================
+   THE MAIN MENU — the codex lies open: frontispiece left, Contents right
+   ========================================================================== */
+.codexMenu .shellDim{background:rgba(8,5,2,.38)}
+.codexMenu .mmTopRight{top:16px;right:18px}
+.book{position:absolute;left:50%;top:50%;z-index:12;transform:translate(-50%,-50%);
+  width:min(1000px,86vw);height:min(566px,80dvh);display:grid;grid-template-columns:1fr 1fr;
+  animation:bookIn .6s cubic-bezier(.2,.8,.3,1) both}
+@keyframes bookIn{from{opacity:0;transform:translate(-50%,-46%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%)}}
+/* the boards: tooled leather showing around the leaves */
+.bookBoard{position:absolute;inset:-16px -18px;border-radius:6px;z-index:-1;
+  background:radial-gradient(120% 100% at 50% 40%,#5a2a1c,#3a170e 70%,#260d07);
+  box-shadow:0 34px 90px rgba(0,0,0,.75),inset 0 0 0 2px #1d0904,inset 0 0 0 5px #6b3a22,inset 0 0 0 6px rgba(201,154,58,.55)}
+.bookBoard::after{content:'';position:absolute;left:50%;top:-6px;bottom:-6px;width:26px;transform:translateX(-50%);
+  background:linear-gradient(90deg,#2a0f08,#4a2214 40%,#4a2214 60%,#2a0f08);border-radius:3px}
+.bookPage{position:relative;overflow:hidden;padding:34px 40px 30px}
+.bookPage.left{box-shadow:inset -28px 0 34px -18px rgba(70,45,15,.55),-1px 1px 0 #d6c49c,-2px 2px 0 #b9a174,-3px 3px 0 #d6c49c,-4px 4px 0 #a88f61}
+.bookPage.right{box-shadow:inset 28px 0 34px -18px rgba(70,45,15,.55),1px 1px 0 #d6c49c,2px 2px 0 #b9a174,3px 3px 0 #d6c49c,4px 4px 0 #a88f61}
+.bookPage::before{content:'';position:absolute;inset:14px;pointer-events:none;border:1.5px solid rgba(169,123,36,.7)}
+.bookPage::after{content:'';position:absolute;inset:19px;pointer-events:none;border:1px solid rgba(165,48,28,.3)}
+.pageInner{position:relative;z-index:2;height:100%;display:flex;flex-direction:column}
+
+/* frontispiece */
+.frontis{align-items:center;justify-content:center;gap:12px;text-align:center}
+.wordmark{display:flex;align-items:flex-end;gap:4px}
+.wordmark .dropCap{box-shadow:0 0 0 1px var(--gold-dk),0 4px 10px rgba(42,26,14,.45)}
+.wmRest{font-family:var(--f-display);font-size:clamp(34px,4.6vw,56px);line-height:.82;letter-spacing:.04em;color:var(--ink)}
+.tribes{display:flex;width:78%;height:6px;box-shadow:0 0 0 1px rgba(42,26,14,.35)}
+.tribes span{flex-grow:var(--w)}
+.sceneKicker{font-family:var(--f-display);font-size:14px;letter-spacing:.32em;color:var(--rubric)}
+.frontis .rule{width:70%}
+.epigraph{font-family:var(--f-body);font-style:italic;font-size:clamp(17px,1.9vw,23px);line-height:1.3;color:var(--ink)}
+.epigraph::first-letter{color:var(--rubric)}
+.marginalia{display:flex;align-items:center;gap:7px;font-family:var(--f-body);font-style:italic;font-size:14px;color:var(--rubric);
+  transform:rotate(-2.5deg)}
+.marginalia .glyph{transform:rotate(-45deg);color:var(--rubric)}
+.folioNo{position:absolute;bottom:0;left:0;right:0;font-family:var(--f-display);font-size:11px;letter-spacing:.24em;color:var(--ink-3)}
+
+/* Contents */
+.contentsHead{display:flex;align-items:center;gap:12px;font-family:var(--f-display);font-size:24px;letter-spacing:.18em;
+  color:var(--rubric);margin-bottom:6px}
+.contentsHead .rule{flex:1}
+.toc{list-style:none;display:flex;flex-direction:column;flex:1;justify-content:space-between;padding:0;margin:0}
+.tocItem{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:7px 4px 7px 2px;cursor:pointer;
+  border:none;background:none;text-align:left;font-family:inherit;color:var(--ink);transition:padding .18s ease}
+.tocNum{width:34px;flex:0 0 auto;font-family:var(--f-display);font-size:17px;color:var(--rubric);text-align:right}
+.tocItem .glyph{color:var(--ink-2);transition:color .18s ease}
+.tocText{display:flex;flex-direction:column;flex:1;min-width:0}
+.tocKey{display:flex;align-items:baseline;gap:8px;font-family:var(--f-display);font-size:23px;line-height:1.05;color:var(--ink);
+  transition:color .18s ease}
+.tocKey::after{content:'';flex:1;border-bottom:2px dotted rgba(42,26,14,.35);transform:translateY(-4px)}
+.tocSub{font-family:var(--f-body);font-style:italic;font-size:13.5px;color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tocMark{flex:0 0 auto;width:22px;color:var(--gold-dk);transition:color .18s ease,transform .18s ease}
+/* hover: a ribbon falls to the line, the glyph is gilded, the name inked in rubric */
+.tocItem::after{content:'';position:absolute;right:-30px;top:-10px;bottom:4px;width:12px;opacity:0;
+  background:linear-gradient(90deg,#7e2213,#b8402a 50%,#7e2213);clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 6px),0 100%);
+  transform:translateY(-14px);transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.3,1)}
+.tocItem:not(.soon):hover::after,.tocItem:not(.soon):focus-visible::after{opacity:1;transform:none}
+.tocItem:not(.soon):hover{padding-left:8px}
+.tocItem:not(.soon):hover .tocKey{color:var(--rubric)}
+.tocItem:not(.soon):hover .glyph{color:var(--gold-md)}
+.tocItem:not(.soon):hover .tocMark{color:var(--rubric);transform:translateX(3px)}
+.tocItem:active:not(.soon){transform:translateY(1px)}
+.tocItem.soon{cursor:default;opacity:.5}
+.tocItem.soon .tocKey::after{border-bottom-style:none}
+.tocSoon{font-family:var(--f-body);font-style:italic;font-size:13px;color:var(--rubric)}
+
+/* the toast speaks in ink on a slip of vellum */
+.mmToast{background:var(--vellum);border:1px solid var(--gold-dk);border-radius:0;font-family:var(--f-display);
+  color:var(--ink);font-size:14px;letter-spacing:.06em}
+
+/* ==========================================================================
+   THE CALLING — first-run class choice, as a leaf laid over the book
+   ========================================================================== */
+.calling{background:rgba(8,5,2,.66);backdrop-filter:blur(2px)}
+.calling .callingPanel{position:relative;border:none;border-radius:2px;padding:30px 40px 30px;gap:10px;
+  width:min(780px,94vw);box-shadow:0 30px 80px rgba(0,0,0,.75),4px 4px 0 #a88f61}
+.calling .callingPanel::before{content:'';position:absolute;inset:12px;pointer-events:none;border:1.5px solid rgba(169,123,36,.7)}
+.callingHead{display:flex;justify-content:center;font-family:var(--f-display);font-size:32px;letter-spacing:.04em;color:var(--ink);
+  text-transform:none;align-items:flex-end;gap:4px}
+.callingSub{font-family:var(--f-body);font-style:italic;font-size:15px;color:var(--rubric)}
+.callingGrid{grid-template-columns:repeat(3,1fr);gap:8px}
+.callingTile{padding:10px 12px}
+.ctText{display:flex;flex-direction:column;gap:2px;min-width:0}
+
+/* ==========================================================================
+   STORY — chapters as manuscript miniatures with written captions
+   ========================================================================== */
+.chapters{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;width:100%;max-width:980px;margin-top:6px}
+.chapter{position:relative;width:auto;height:auto;display:flex;flex-direction:column;gap:6px;border:none;border-radius:0;
+  background:none;box-shadow:none;overflow:visible;cursor:pointer;transition:transform .16s ease}
+.chapter::after{display:none}
+.chapter:hover{transform:translateY(-4px);box-shadow:none}
+.chMini{position:relative;aspect-ratio:3/4;border:4px solid transparent;border-image:var(--gilt) 1;
+  box-shadow:0 0 0 1px var(--gold-dk),0 6px 14px rgba(42,26,14,.45);background:#2a1a0e;overflow:hidden}
+.chArt{position:absolute;inset:0;background-size:cover;background-position:center 20%}
+.chNo{position:static;font-family:var(--f-display);font-size:13px;letter-spacing:.18em;color:var(--rubric);text-shadow:none;text-transform:none}
+.chTitle{position:static;font-family:var(--f-display);font-weight:400;font-size:19px;line-height:1.05;color:var(--ink);text-shadow:none}
+.chSub{position:static;font-family:var(--f-body);font-style:italic;font-size:13px;color:var(--ink-2);text-shadow:none}
+.chDone{position:absolute;top:6px;right:6px;bottom:auto;left:auto;display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;background:var(--verdigris);color:var(--vellum-lt);
+  box-shadow:0 0 0 2px var(--gold-md),0 2px 4px rgba(0,0,0,.4);font-size:0}
+.chLock{background:rgba(232,219,187,.55);backdrop-filter:grayscale(1);color:var(--ink);font-family:var(--f-display);
+  font-size:14px;letter-spacing:.08em;flex-direction:column;gap:4px}
+.chapter.locked .chArt{filter:grayscale(1) sepia(.4) brightness(.9)}
+.chapter.locked .chTitle,.chapter.locked .chSub{opacity:.55}
+.chapter.locked:hover{transform:none}
+.chapter.done .chMini{box-shadow:0 0 0 1px var(--verdigris),0 6px 14px rgba(42,26,14,.45)}
+.chapter.free .chNo{color:var(--azurite)}
+
+/* ==========================================================================
+   THE ARMORY — index tabs on the page edge, ruled lists, a card album
+   ========================================================================== */
+.armTabs{display:flex;gap:4px;border-bottom:1.5px solid var(--gold-dk);padding:0 6px;align-self:stretch;justify-content:center;
+  animation:none;margin-bottom:4px}
+.armTabs button{font-family:var(--f-display);font-size:16px;letter-spacing:.06em;color:var(--ink-2);padding:6px 20px 5px;
+  cursor:pointer;border:1px solid var(--ink-line);border-bottom:none;border-radius:0;background:rgba(205,184,138,.35);
+  margin-bottom:-1.5px;min-height:auto;box-shadow:none}
+.armTabs button.on{background:var(--vellum);color:var(--rubric);border-color:var(--gold-dk);border-bottom:1.5px solid var(--vellum)}
+.armBody{display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,1.2fr);gap:18px;width:100%;flex:1;min-height:0;
+  align-items:start}
+.armShelf.deckShelf{grid-template-columns:1fr;max-height:100%;overflow-y:auto;padding-left:26px}
+.deckDetail,.inset{position:relative;display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:0;
+  background:rgba(255,248,230,.3);border:1px solid var(--ink-line);box-shadow:inset 0 0 0 4px rgba(255,248,230,.25);
+  max-height:100%;min-height:0}
+.ddList{display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:0;flex:1}
+.dRow{display:flex;align-items:center;gap:9px;padding:4px 4px;border:none;border-bottom:1px solid var(--ink-line);
+  background:none;border-radius:0;cursor:pointer;color:var(--ink)}
+.dRow:hover{background:rgba(212,166,64,.14)}
+.drCost{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 auto;border-radius:50%;
+  font-family:var(--f-display);font-size:13px;color:var(--vellum-lt);background:var(--lapis);box-shadow:0 0 0 1.5px var(--gold-md)}
+.drName{flex:1;font-family:var(--f-body);font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dRow.r-rare .drName{color:var(--azurite)}.dRow.r-epic .drName{color:var(--murex)}.dRow.r-legendary .drName{color:#8a5a0e}
+.drN{font-family:var(--f-display);font-size:13px;color:var(--rubric)}
+.drDel{border:1px solid var(--ink-line);background:none;color:var(--rubric);border-radius:0;width:22px;height:22px;cursor:pointer}
+.ddBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.ddBtns .bigbtn{font-size:15px;padding:8px 18px}
+.classPick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.classPick button{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;font-family:var(--f-display);
+  font-size:16px;color:var(--ink);background:rgba(255,248,230,.3);border:1px solid var(--ink-line);border-radius:0}
+.classPick button:hover{border-color:var(--ink-2);background:rgba(255,248,230,.6)}
+
+/* collection controls: a ruled search line and ledger marks */
+.collBar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;justify-content:center;width:100%;
+  background:none;border:none;box-shadow:none;padding:2px 0}
+.collSearch{font-family:var(--f-body);font-style:italic;font-size:16px;color:var(--ink);background:transparent;border:none;
+  border-bottom:1.5px solid var(--ink-2);border-radius:0;padding:4px 2px;width:220px;outline:none}
+.collSearch::placeholder{color:var(--ink-3)}
+.collSearch:focus{border-bottom-color:var(--rubric)}
+.collSort{font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--ink-line);
+  border-radius:0;padding:4px 8px}
+.collRarities{display:flex;gap:4px}
+.collCount{font-family:var(--f-display);font-size:13px;color:var(--rubric)}
+.collChips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.collGrid{width:100%}
+.collEmpty{font-family:var(--f-body);font-style:italic;color:var(--ink-2)}
+.chip.rc-common.on{background:#6b5a3c;border-color:#4a3b2a}.chip.rc-rare.on{background:var(--azurite);border-color:#1d3a6a}
+.chip.rc-epic.on{background:var(--murex);border-color:#3b1946}.chip.rc-legendary.on{background:#a8741a;border-color:#7a520e}
+/* the album: unowned cards are drawn as faded sketches in the book */
+.gridCard.unowned{filter:grayscale(1) sepia(.35) contrast(.85) brightness(1.05);opacity:.5}
+.gcCount{font-family:var(--f-display);background:var(--rubric);color:var(--vellum-lt);border-radius:0;border:none}
+
+/* the forge */
+.forge{width:100%;flex:1;min-height:0}
+.forgeSide{background:rgba(255,248,230,.3);border:1px solid var(--ink-line);border-radius:0}
+.forgeName,.forgeLeader{font-family:var(--f-display);font-size:16px;color:var(--ink);background:transparent;border:none;
+  border-bottom:1.5px solid var(--ink-2);border-radius:0}
+.forgeCount{font-family:var(--f-display);color:var(--rubric)}
+.forgeCount.ok{color:var(--verdigris)}
+.fbInfo{border-radius:50%;background:var(--lapis);color:var(--vellum-lt);border:1px solid var(--gold-md)}
+
+/* card peek: read the card on a slip; the forge buttons sit beneath it */
+.peekForge{background:var(--vellum);border-radius:0;border:1px solid var(--gold-dk);padding:10px 12px}
+.peekOwn{font-family:var(--f-body);font-style:italic;color:var(--ink-2)}
+
+/* ==========================================================================
+   THE STOREHOUSE — ledger + sealed bundle
+   ========================================================================== */
+.shMain{display:grid;grid-template-columns:260px 1fr;gap:20px;width:100%;max-width:900px;align-items:start}
+.wallet{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;align-items:center}
+.wallet>span{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:18px;color:var(--ink);
+  background:none;border:none;border-radius:0;padding:0;box-shadow:none}
+.wallet .wTal,.wallet .wFrag{color:var(--ink)}
+.wallet .glyph{color:var(--gold-dk)}
+.wallet .wFrag .glyph{color:var(--azurite)}
+.wallet .wColl{font-size:15px;color:var(--ink-2)}
+.wallet .wFwotd{font-family:var(--f-body);font-style:italic;font-size:14px;color:var(--rubric);animation:none}
+.packShelf{display:flex;flex-direction:column;align-items:center;gap:8px}
+.packTile{width:220px;padding:14px 14px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+  border-radius:0;background:rgba(255,248,230,.3);border:1px solid var(--ink-line);box-shadow:none;
+  transition:background .15s ease,border-color .15s ease}
+.packTile:hover{background:rgba(255,248,230,.6);border-color:var(--gold-dk);transform:none}
+.packArt{width:96px;height:132px;background-size:cover;background-position:center;font-size:0;
+  border:3px solid transparent;border-image:var(--gilt) 1;box-shadow:0 0 0 1px var(--gold-dk),0 8px 16px rgba(42,26,14,.45);
+  transition:transform .2s ease}
+.packTile:hover .packArt{transform:translateY(-4px) rotate(-1.5deg)}
+.packName{font-family:var(--f-display);font-size:19px;color:var(--ink)}
+.packSub{font-family:var(--f-body);font-style:italic;font-size:13px;color:var(--ink-2)}
+.packCost{font-size:15px;padding:6px 18px}
+.packCost.broke{filter:grayscale(.85) brightness(.85)}
+.packNote{max-width:240px;text-align:center;font-family:var(--f-body);font-style:italic;font-size:12.5px;color:var(--ink-3)}
+.breadPanel{width:100%;padding:14px 16px;border-radius:0;background:rgba(255,248,230,.3);border:1px solid var(--ink-line);box-shadow:none}
+.breadHead{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:400;font-size:21px;letter-spacing:.04em;
+  text-transform:none;color:var(--rubric)}
+.breadHead .glyph{color:var(--gold-dk)}
+.breadRow{display:flex;align-items:center;gap:12px;padding:8px 2px;border-radius:0;background:none;border:none;
+  border-bottom:1px solid var(--ink-line)}
+.breadDesc{font-family:var(--f-body);font-size:16px;color:var(--ink)}
+.breadRow.done .breadDesc{text-decoration:line-through;text-decoration-color:var(--rubric);color:var(--ink-3)}
+.breadBar{height:4px;background:rgba(42,26,14,.12);border-radius:0}
+.breadBar span{background:var(--rubric);border-radius:0}
+.breadPay{font-family:var(--f-display);font-size:14px;color:var(--ink-2)}
+.breadDone{color:var(--verdigris)}
+.breadReroll{border-radius:0;background:none;border:1px solid var(--ink-line);color:var(--ink-2)}
+
+/* ==========================================================================
+   SETTINGS — a ledger page
+   ========================================================================== */
+.setPanel{width:min(720px,100%);padding:6px 0;gap:0;border-radius:0;background:none;border:none;box-shadow:none}
+.setRow{min-height:58px;padding:8px 6px;border-radius:0;background:none;border:none;border-bottom:1px solid var(--ink-line)}
+.setKey{font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--ink);letter-spacing:.02em}
+.setSub{font-family:var(--f-body);font-size:14px;color:var(--ink-2)}
+.setVersion{font-family:var(--f-display);font-size:12px;color:var(--ink-3)}
+.setCredits{max-width:620px;text-align:center;font-family:var(--f-body);font-style:italic;font-size:12px;color:var(--ink-3);line-height:1.4}
+.setCredits a{color:var(--rubric)}
+
+/* ==========================================================================
+   battle chrome borrows the voice (the table, not the page)
+   ========================================================================== */
+.ovBtns .bigbtn,.mulligan .bigbtn{font-size:20px}
+.mulligan h2,.mulligan .mulTitle{font-family:var(--f-display)}
+.payout span{font-family:var(--f-display)}
+
+/* ==========================================================================
+   phone landscape (iPhones report up to ~600px CSS tall)
+   ========================================================================== */
+@media (orientation:landscape) and (max-height:620px){
+  .leaf{height:calc(100dvh - 14px);width:calc(100vw - 16px - var(--safe-l) - var(--safe-r));padding:12px 30px 8px;gap:3px}
+  .leaf.wide{width:calc(100vw - 16px - var(--safe-l) - var(--safe-r))}
+  .leaf::before{inset:7px}.leaf::after{inset:10px}
+  .corner{width:22px;height:22px}.corner.tl,.corner.tr{top:6px}.corner.bl,.corner.br{bottom:6px}
+  .corner.tl,.corner.bl{left:6px}.corner.tr,.corner.br{right:6px}
+  .ribbonBack{left:calc(16px + var(--safe-l))}
+  .ribbonBack span{padding:9px 11px 14px;min-width:72px;font-size:12px}
+  .leafMusic{top:10px;right:22px;transform:scale(.85);transform-origin:top right}
+  .rubricTitle{font-size:26px}
+  .rubricTitle .dropCap{width:36px!important;height:36px!important;font-size:28px!important}
+  .rubricKicker{font-size:12px}
+  .leaf>.rule{display:none}
+  .deckShelf{grid-template-columns:repeat(3,1fr);gap:5px}
+  .deckTile,.diffTile,.callingTile{padding:5px 8px;gap:7px}
+  .deckTile .crest{width:30px!important;height:30px!important}
+  .dtName,.dfName,.ctName{font-size:14px}.dtSub,.dfSub,.ctBlurb{font-size:10.5px}
+  .fpLabel{font-size:12px;margin-top:2px}.fpBlurb,.fpNote{font-size:11.5px}
+  .bigbtn{font-size:16px;padding:8px 24px 9px}
+  .chapters{grid-template-columns:repeat(5,1fr);gap:10px}
+  .chTitle{font-size:14px}.chSub{font-size:10.5px}.chNo{font-size:10px}
+  .armBody{grid-template-columns:1fr 1.2fr;gap:10px}
+  .armTabs button{font-size:13px;padding:4px 14px}
+  .shMain{grid-template-columns:200px 1fr;gap:10px}
+  .packArt{width:64px;height:88px}.packTile{width:190px;padding:8px}
+  .breadDesc{font-size:13px}.breadRow{padding:4px 2px}
+  .setRow{min-height:44px;padding:4px 4px}.setKey{font-size:15px}.setSub{font-size:11.5px}
+  .chip{font-size:11.5px;padding:3px 8px}
+  /* main menu: the book fills the screen */
+  .book{width:calc(100vw - 40px - var(--safe-l) - var(--safe-r));height:calc(100dvh - 30px)}
+  .bookBoard{inset:-9px -10px}
+  .bookPage{padding:18px 22px 16px}
+  .bookPage::before{inset:8px}.bookPage::after{inset:11px}
+  .wordmark .dropCap{width:52px!important;height:52px!important;font-size:42px!important}
+  .wmRest{font-size:30px}
+  .frontis{gap:6px}.sceneKicker{font-size:10px}.epigraph{font-size:14px}.marginalia{font-size:11px}
+  .contentsHead{font-size:16px;margin-bottom:0}
+  .tocItem{padding:2px 2px;gap:8px}.tocNum{width:24px;font-size:13px}
+  .tocKey{font-size:17px}.tocSub{font-size:10.5px}
+  .tocItem .glyph{width:16px;height:16px}
+  .rubricKicker{display:none}
+  .fpSetup .deckTile{flex-direction:row;text-align:left;gap:7px;padding:5px 8px}
+  .fpSetup .dtText{align-items:flex-start}
+  .collBar,.collChips{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .collBar::-webkit-scrollbar,.collChips::-webkit-scrollbar{display:none}
+  .collBar>*,.collChips>*{flex:0 0 auto}
+  .collSearch{width:150px;font-size:13px}
+  .armShelf.deckShelf{padding-left:22px}
+  .calling .callingPanel{padding:14px 20px;gap:6px}.callingHead{font-size:22px}.callingSub{font-size:12px}
+  .codexMenu .mmTopRight{top:6px;right:8px;transform:scale(.8);transform-origin:top right}
+}
+@media (prefers-reduced-motion:reduce){.leaf,.book{animation:none}}
+
+/* ==========================================================================
+   THE TITLE — the cover: illuminated initial + gilt lettering on the scene
+   ========================================================================== */
+.titleLogo{display:flex;align-items:flex-end;gap:8px;background:none;-webkit-background-clip:border-box;background-clip:border-box;
+  color:inherit;filter:drop-shadow(0 6px 18px rgba(0,0,0,.55))}
+.titleLogo .dropCap{box-shadow:0 0 0 1px var(--gold-dk),0 6px 18px rgba(0,0,0,.55)}
+.tlRest{font-family:var(--f-display);font-size:clamp(46px,7.6vw,88px);line-height:.8;letter-spacing:.05em;
+  background:linear-gradient(#fff4d2,#f0c766 50%,#a86e24);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(90,50,10,.65)) drop-shadow(0 0 24px rgba(240,199,102,.3))}
+.tagline{font-family:var(--f-body)}
+.tapBegin{font-family:var(--f-display);font-size:15px;letter-spacing:.22em}
+.titleFooter{font-family:var(--f-display);font-size:11px;letter-spacing:.24em}
+
+/* ==========================================================================
+   THE CHAPTER OPENING — one illuminated leaf laid on the chapter's own board
+   ========================================================================== */
+.introScreen{position:relative}
+.introScreen .mulBg,.introScreen .mulScrim{position:absolute;inset:0}
+.introScreen .mulScrim{background:rgba(10,6,3,.62)}
+.introLeaf{height:auto;max-height:calc(100dvh - 36px);width:min(780px,92vw);align-items:center;gap:8px;
+  overflow-y:auto;padding:30px 50px 26px}
+.introMini{position:relative;z-index:2;width:100%;height:clamp(90px,25vh,220px);flex:0 0 auto;
+  background-size:cover;background-position:center 24%;border:4px solid transparent;border-image:var(--gilt) 1;
+  box-shadow:0 0 0 1px var(--gold-dk),0 8px 18px rgba(42,26,14,.45)}
+.introLeaf .rubricHead{margin-top:2px}
+.introLeaf .rubricTitle{font-size:36px}
+.introLeaf>.rule{max-width:420px}
+.introLeaf .narr{position:relative;z-index:2;font-family:var(--f-body);font-size:18px;line-height:1.45;color:var(--ink);
+  text-align:left;max-width:640px}
+.introLeaf .narr::first-letter{float:left;font-family:var(--f-initial);font-size:3.1em;line-height:.82;
+  color:var(--rubric);padding:5px 8px 0 0}
+.introLeaf .tip{position:relative;z-index:2;display:flex;align-items:flex-start;gap:10px;max-width:640px;
+  font-family:var(--f-body);font-style:italic;font-size:15px;line-height:1.4;color:var(--rubric);
+  padding:8px 4px;border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);background:none;border-radius:0}
+.introLeaf .tip .glyph{flex:0 0 auto;transform:rotate(-45deg);margin-top:2px}
+.introLeaf .bigbtn{position:relative;z-index:2;margin-top:4px}
+
+/* ==========================================================================
+   THE TABLE — battle chrome borrows the voice (gilt plaques, Fell lettering)
+   ========================================================================== */
+.brand{font-family:var(--f-display);font-weight:400;letter-spacing:.08em;color:var(--gold-lt)}
+.brand span{font-family:var(--f-body);font-style:italic;letter-spacing:.02em;color:#cdb787}
+.turnLbl{font-family:var(--f-body);font-style:italic;font-size:14px}
+.topbar>button,.controls button{font-family:var(--f-display);font-weight:400;font-size:14px;letter-spacing:.05em;color:#2e1d07;
+  border:none;border-radius:0;background:var(--gilt);padding:6px 14px;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+  box-shadow:inset 0 0 0 1px rgba(255,240,200,.5),inset 0 0 0 2px rgba(110,74,20,.45)}
+.controls .boardBtn{background:#3a2a18;color:var(--gold-lt);box-shadow:inset 0 0 0 1px var(--gold-dk)}
+.mulligan h2{font-family:var(--f-display);font-weight:400;font-size:24px;letter-spacing:.1em;text-transform:none}
+.mulligan .keepLbl,.mulligan .mulKeep{font-family:var(--f-display)}
+.result{font-family:var(--f-display);font-weight:400;letter-spacing:.08em}
+
+@media (orientation:landscape) and (max-height:620px){
+  .introLeaf{width:calc(100vw - 16px - var(--safe-l) - var(--safe-r));max-height:calc(100dvh - 14px);padding:14px 30px 10px;gap:4px}
+  .introMini{height:22vh;border-width:3px}
+  .introLeaf .rubricTitle{font-size:24px}
+  .introLeaf .narr{font-size:13px;line-height:1.35}
+  .introLeaf .tip{font-size:11.5px;padding:4px 2px}
+  .introLeaf .tip .glyph{width:16px;height:16px}
+  .tlRest{font-size:44px}
+  .titleLogo .dropCap{width:62px!important;height:62px!important;font-size:50px!important}
+}
+
+/* payout + ritual chips carry drawn glyphs, not emoji */
+.payout span{display:inline-flex;align-items:center;gap:6px}
+.payTal .glyph,.payFrag .glyph{color:var(--gold-lt)}
+.payQuest .glyph{color:#8fd09a}
+.ritDupe{display:inline-flex;align-items:center;gap:3px}
+.ritSummary>span{font-family:var(--f-display);font-weight:400;letter-spacing:.04em}
+.ritHint,.sealHint{font-family:var(--f-display)}
+
+/* quiet buttons off the page (on the dark table / ritual): light lettering in a gilt-edged frame */
+:where(.overlay,.ritual,.mulligan,.choiceOverlay,.packlab) .bigbtn.quiet{color:var(--vellum-lt);background:rgba(20,12,4,.62);
+  box-shadow:inset 0 0 0 1px var(--gold-md),inset 0 0 0 4px rgba(0,0,0,.25),inset 0 0 0 5px rgba(165,48,28,.55)}
+:where(.overlay,.ritual,.mulligan,.choiceOverlay,.packlab) .bigbtn.quiet:hover{background:rgba(40,26,10,.75)}

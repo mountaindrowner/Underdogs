@@ -2,8 +2,8 @@
  *  plus your forged ones), read any card, and forge new decks under the real
  *  deck rules (30 cards, one class + neutral, max 2 copies, 1 per Legendary). */
 import { useMemo, useState } from 'react';
-import { ShellBg, type SceneId } from './title/scenes.tsx';
-import { MusicToggle } from './MusicToggle.tsx';
+import type { SceneId } from './title/scenes.tsx';
+import { Crest, Folio } from './codex/Codex.tsx';
 import { CardPreview } from './CardPreview.tsx';
 import { fitName } from './fit.ts';
 import { ownedCount, craft, canCraft, craftCost, disenchant, shatterValue, collectionStats, eco, clearNew } from './economy.ts';
@@ -102,14 +102,7 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
   const [collSort, setCollSort] = useState<CollSort>('cost');
   const [collOwn, setCollOwn] = useState<'all' | 'owned' | 'missing'>('all');
 
-  const header = (
-    <div className="topbar">
-      <button className="backBtn" onClick={() => (mode.t === 'decks' ? onBack() : setMode({ t: 'decks', sel: mode.t === 'edit' ? null : null }))}>
-        ‹ {mode.t === 'decks' ? 'Menu' : 'Armory'}</button>
-      <div className="brand">UNDERDOGS <span>· the armory</span></div>
-      <MusicToggle />
-    </div>
-  );
+  const toArmory = () => setMode({ t: 'decks', sel: null });
 
   // ============================ EDITOR ============================
   if (draft) {
@@ -118,10 +111,9 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
     const probs = deckProblems(draft);
     const leaders = [...registry.values()].filter((c) => c.type === 'leader' && c.class === draft.class);
     return (
-      <div className="app storyMenu armory">
-        <ShellBg scene={scene} />
-        <div className="storyWrap">
-          {header}
+      <>
+      <Folio scene={scene} title="The Forge" kicker="Thirty cards, one calling — forged from what you own."
+        back={toArmory} backLabel="The Armory" wide className="armory">
           <div className="forge">
             <div className="forgeSide">
               <input className="forgeName" value={draft.name} maxLength={28}
@@ -150,9 +142,9 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
               ))}
             </div>
           </div>
-        </div>
+      </Folio>
         {peek && <div className="peek" onClick={() => setPeek(null)}><CardPreview card={peek} /></div>}
-      </div>
+      </>
     );
   }
 
@@ -173,13 +165,12 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
       && (!q || c.name.toLowerCase().includes(q) || (c.text ?? '').toLowerCase().includes(q)))
       .sort(SORTS[collSort]);
     return (
-      <div className="app storyMenu armory">
-        <ShellBg scene={scene} />
-        <div className="storyWrap">
-          {header}
+      <>
+      <Folio scene={scene} title="The Armory" kicker="The card album — every card gathered, and every one still out there."
+        back={onBack} wide className="armory">
           <div className="armTabs">
-            <button onClick={() => setMode({ t: 'decks', sel: null })}>War-bands</button>
-            <button className="on">Collection</button>
+            <button onClick={toArmory}>War-bands</button>
+            <button className="on">The Album</button>
           </div>
           <div className="collBar">
             <input className="collSearch" type="search" placeholder="Search name or text…"
@@ -209,7 +200,7 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
           <div className="collChips">
             {['all', ...CLASSES, 'neutral'].map((k) => (
               <button key={k} className={`chip${collClass === k ? ' on' : ''}`} onClick={() => setCollClass(k)}>
-                {k === 'all' ? '❖ All' : `${CLASS_META[k]?.icon ?? '◇'} ${k[0].toUpperCase()}${k.slice(1)}`}
+                {k !== 'all' && <Crest cls={k} size={18} />}{k === 'all' ? 'All' : `${k[0].toUpperCase()}${k.slice(1)}`}
               </button>
             ))}
           </div>
@@ -221,7 +212,7 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
                 ribbon={eco().newIds.includes(c.id)} />
             ))}
           </div>
-        </div>
+      </Folio>
         {peek && (
           <div className="peek" onClick={() => setPeek(null)}>
             <div onClick={(e) => e.stopPropagation()} className="peekWrap">
@@ -229,49 +220,47 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
               <div className="peekForge">
                 <button className="bigbtn quiet" disabled={!canCraft(peek)}
                   onClick={() => { if (craft(peek)) setPeek({ ...peek }); }}>
-                  Craft — {craftCost(peek)} ✦</button>
+                  Craft — {craftCost(peek)} Fragments</button>
                 {ownedCount(peek.id) > 0 && (
                   <button className="bigbtn quiet" onClick={() => { if (disenchant(peek)) setPeek({ ...peek }); }}>
-                    Shatter — +{shatterValue(peek)} ✦</button>
+                    Shatter — +{shatterValue(peek)} Fragments</button>
                 )}
-                <span className="peekOwn">{ownedCount(peek.id)} owned · ✦ {eco().fragments}</span>
+                <span className="peekOwn">{ownedCount(peek.id)} owned · {eco().fragments} Fragments in hand</span>
               </div>
             </div>
           </div>
         )}
-      </div>
+      </>
     );
   }
 
   // ============================ DECK LIST ============================
   const sel = decks.find((d) => d.id === mode.sel) ?? null;
   return (
-    <div className="app storyMenu armory">
-      <ShellBg scene={scene} />
-      <div className="storyWrap">
-        {header}
+    <>
+    <Folio scene={scene} title="The Armory" kicker="War-bands, the card album, and the forge." back={onBack} wide className="armory">
         <div className="armTabs">
           <button className="on">War-bands</button>
-          <button onClick={() => setMode({ t: 'collection' })}>Collection</button>
+          <button onClick={() => setMode({ t: 'collection' })}>The Album</button>
         </div>
         <div className="armBody">
           <div className="deckShelf armShelf">
-            {decks.map((d) => {
-              const m = CLASS_META[d.class];
-              return (
-                <button key={d.id} className={`deckTile${sel?.id === d.id ? ' sel' : ''}`}
-                  style={{ ['--gem' as string]: m?.color ?? '#888' } as React.CSSProperties}
-                  onClick={() => setMode({ t: 'decks', sel: d.id })}>
-                  <span className="dtIcon">{m?.icon ?? '❖'}</span>
+            {decks.map((d) => (
+              <button key={d.id} className={`deckTile${sel?.id === d.id ? ' sel' : ''}`}
+                onClick={() => setMode({ t: 'decks', sel: d.id })}>
+                <Crest cls={d.class} size={36} />
+                <span className="dtText">
                   <span className="dtName">{d.name}</span>
                   <span className="dtSub">{registry.get(d.leader)?.name ?? d.class}{d.custom ? ' · forged' : ''}</span>
-                </button>
-              );
-            })}
-            <button className="deckTile forgeTile" onClick={() => setMode({ t: 'decks', sel: '__new__' })}>
-              <span className="dtIcon">⚒</span>
-              <span className="dtName">Forge a Deck</span>
-              <span className="dtSub">five smooth stones &amp; change</span>
+                </span>
+              </button>
+            ))}
+            <button className={`deckTile forgeTile${mode.sel === '__new__' ? ' sel' : ''}`} onClick={() => setMode({ t: 'decks', sel: '__new__' })}>
+              <Crest glyph="forge" size={36} />
+              <span className="dtText">
+                <span className="dtName">Forge a Deck</span>
+                <span className="dtSub">five smooth stones &amp; change</span>
+              </span>
             </button>
           </div>
 
@@ -280,14 +269,18 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
               <div className="ddName">Choose a calling</div>
               <div className="classPick">
                 {CLASSES.map((cls) => (
-                  <button key={cls} style={{ ['--gem' as string]: CLASS_META[cls].color } as React.CSSProperties}
-                    onClick={() => startForge(cls)}>
-                    <span>{CLASS_META[cls].icon}</span>{cls[0].toUpperCase()}{cls.slice(1)}
+                  <button key={cls} onClick={() => startForge(cls)}>
+                    <Crest cls={cls} size={28} />{cls[0].toUpperCase()}{cls.slice(1)}
                   </button>
                 ))}
               </div>
             </div>
-          ) : sel && (
+          ) : !sel ? (
+            <div className="deckDetail ddEmpty">
+              <div className="ddName">Choose a war-band</div>
+              <div className="ddSub">Read its list, copy it to the forge, or start a fresh one.</div>
+            </div>
+          ) : (
             <div className="deckDetail">
               <div className="ddName">{sel.name}</div>
               <div className="ddSub">{registry.get(sel.leader)?.name} · {sel.cards.length} cards{sel.blurb ? ` — ${sel.blurb}` : ''}</div>
@@ -305,8 +298,8 @@ export function DecksScreen({ scene, onBack }: { scene: SceneId; onBack: () => v
             </div>
           )}
         </div>
-      </div>
+    </Folio>
       {peek && <div className="peek" onClick={() => setPeek(null)}><CardPreview card={peek} /></div>}
-    </div>
+    </>
   );
 }
