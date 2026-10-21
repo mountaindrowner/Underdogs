@@ -13,7 +13,7 @@ const FINISHES: { f: SimFinish; label: string; sub: string }[] = [
   { f: 'random',    label: 'Random pack',   sub: 'real odds' },
   { f: 'rare',      label: 'Rare finish',   sub: 'ends on a rare' },
   { f: 'epic',      label: 'Epic finish',   sub: 'ends on an epic' },
-  { f: 'legendary', label: 'LEGENDARY',     sub: 'the full moment' },
+  { f: 'legendary', label: 'Legendary',     sub: 'the full moment' },
   { f: 'commons',   label: 'All commons',   sub: 'the floor' },
   { f: 'dupes',     label: 'All dupes',     sub: 'shatter test' },
 ];
@@ -30,7 +30,7 @@ export function PackLab() {
   return (
     <div className="app packlab">
       <div className="plBar">
-        <div className="plTitle">PACK LAB <span>· dev ritual tester — simulated, nothing is granted or spent</span></div>
+        <div className="plTitle">The Pack Lab <span>· dev ritual tester — simulated, nothing is granted or spent</span></div>
         <div className="plBtns">
           {FINISHES.map(({ f, label, sub }) => (
             <button key={f} className={`plBtn${last === f ? ' sel' : ''}`} onClick={() => open(f)}>

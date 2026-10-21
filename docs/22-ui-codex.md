@@ -81,6 +81,25 @@ The IM Fell faces are 1670s printing types, so they feel bookish without being c
 - **Pigment palette:** historical manuscript pigments (vermilion, azurite, lapis/ultramarine, verdigris, orpiment, leaf gold), per the Royal Society's summary of English manuscript pigment research.
 - **Technique:** procedural vellum grain/foxing as SVG `feTurbulence` data URIs (no texture files); `border-image` gilt frames; chamfered plaques via `clip-path`.
 
+## The table (battle chrome, D-48)
+
+The battle board is the table the book rests on, so its chrome uses the book's materials on a dark surface:
+
+| Element | Treatment |
+|---|---|
+| Hero portraits | illuminated roundels in a gilt ring (yours gold, the rival's vermilion) |
+| Health | a disc of red sealing wax with the number pressed in |
+| End Turn | a wax seal you press; it tilts on hover and pulses gold when you've nothing left to do |
+| Hero power | an illuminated medallion: your class glyph in gold on lapis |
+| Turn banner | a vellum strip with swallowtail ends: "Dawn 3 — your turn" |
+| Victory / defeat | the same strip, larger; defeat is inked in rubric |
+| Foresee / Discover | a vellum leaf laid over the table, opened by an initial |
+| Tooltips + glossary | slips of vellum in iron-gall ink |
+| Match start | the book's leather boards close with a tooled gold frame and the title in gold, then swing open |
+| Relics | lapis hexagons with a gilt edge |
+
+**Numbers** on game pieces (health, costs, deck counts) use Cinzel's lining figures (`--f-num`). IM Fell's old-style figures make "30" read as "3o" on a small badge.
+
 ## Adding a new screen
 
 1. Wrap it in `<Folio scene title kicker back>`. Don't build your own top bar.

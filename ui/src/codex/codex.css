@@ -25,6 +25,7 @@
   --f-display:'Fell SC','Palatino Linotype',Georgia,serif;
   --f-body:'Fell','Palatino Linotype',Georgia,serif;
   --f-initial:'Uncial','Fell SC',serif;
+  --f-num:'Cinzel','Fell SC',Georgia,serif;   /* lining figures for game stats (Fell's are old-style) */
   /* vellum grain + foxing, drawn procedurally (no texture files) */
   --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   --foxing:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .1 0 0 -.45 0 .2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
@@ -49,9 +50,9 @@
   text-shadow:0 1px 0 #6b4a14,0 2px 3px rgba(0,0,0,.45)}
 .rule{display:flex;align-items:center;gap:6px;width:100%;color:var(--gold-dk)}
 .rule>span{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-md) 18%,var(--gold-md) 82%,transparent)}
-.corner{position:absolute;width:34px;height:34px;pointer-events:none;background:var(--corner) center/contain no-repeat;z-index:1}
-.corner.tl{top:12px;left:12px}.corner.tr{top:12px;right:12px;transform:scaleX(-1)}
-.corner.bl{bottom:12px;left:12px;transform:scaleY(-1)}.corner.br{bottom:12px;right:12px;transform:scale(-1,-1)}
+.fleuron{position:absolute;width:34px;height:34px;pointer-events:none;background:var(--corner) center/contain no-repeat;z-index:1}
+.fleuron.tl{top:12px;left:12px}.fleuron.tr{top:12px;right:12px;transform:scaleX(-1)}
+.fleuron.bl{bottom:12px;left:12px;transform:scaleY(-1)}.fleuron.br{bottom:12px;right:12px;transform:scale(-1,-1)}
 
 /* a vellum surface: grain + foxing + darkened, handled edges */
 .vellum,.leaf,.bookPage,.calling .callingPanel{
@@ -404,8 +405,8 @@
   .leaf{height:calc(100dvh - 14px);width:calc(100vw - 16px - var(--safe-l) - var(--safe-r));padding:12px 30px 8px;gap:3px}
   .leaf.wide{width:calc(100vw - 16px - var(--safe-l) - var(--safe-r))}
   .leaf::before{inset:7px}.leaf::after{inset:10px}
-  .corner{width:22px;height:22px}.corner.tl,.corner.tr{top:6px}.corner.bl,.corner.br{bottom:6px}
-  .corner.tl,.corner.bl{left:6px}.corner.tr,.corner.br{right:6px}
+  .fleuron{width:22px;height:22px}.fleuron.tl,.fleuron.tr{top:6px}.fleuron.bl,.fleuron.br{bottom:6px}
+  .fleuron.tl,.fleuron.bl{left:6px}.fleuron.tr,.fleuron.br{right:6px}
   .ribbonBack{left:calc(16px + var(--safe-l))}
   .ribbonBack span{padding:9px 11px 14px;min-width:72px;font-size:12px}
   .leafMusic{top:10px;right:22px;transform:scale(.85);transform-origin:top right}
@@ -528,3 +529,167 @@
 :where(.overlay,.ritual,.mulligan,.choiceOverlay,.packlab) .bigbtn.quiet{color:var(--vellum-lt);background:rgba(20,12,4,.62);
   box-shadow:inset 0 0 0 1px var(--gold-md),inset 0 0 0 4px rgba(0,0,0,.25),inset 0 0 0 5px rgba(165,48,28,.55)}
 :where(.overlay,.ritual,.mulligan,.choiceOverlay,.packlab) .bigbtn.quiet:hover{background:rgba(40,26,10,.75)}
+
+/* ==========================================================================
+   THE TABLE, CHROME — the book's furniture on the battle board (D-48)
+   Portraits are illuminated roundels in gilt rings; health is a wax seal;
+   End Turn is a seal you press; the hero power is an illuminated medallion
+   bearing your class glyph; announcements are vellum strips.
+   ========================================================================== */
+.hero .portrait{border:none;
+  box-shadow:0 0 0 2px #3a250c,0 0 0 5px var(--gold-md),0 0 0 6px #6b4a14,0 0 0 7px rgba(0,0,0,.6),
+    0 8px 18px rgba(0,0,0,.6),inset 0 0 18px rgba(0,0,0,.45)}
+.foeCorner .portrait{box-shadow:0 0 0 2px #3a250c,0 0 0 5px #9c3a28,0 0 0 6px #5e1a0e,0 0 0 7px rgba(0,0,0,.6),
+    0 8px 18px rgba(0,0,0,.6),inset 0 0 18px rgba(0,0,0,.45)}
+.hero.foeTarget .portrait{box-shadow:0 0 0 3px var(--rubric),0 0 0 6px var(--gold-lt),0 0 24px var(--rubric);cursor:crosshair}
+/* health: a disc of sealing wax with the number pressed in */
+.hero .hpbadge{border:none;font-family:var(--f-display);font-weight:400;color:#fbe9d2;
+  background:radial-gradient(circle at 38% 32%,#d85c43,#a5301c 55%,#651309);
+  border-radius:48% 52% 50% 50%/52% 47% 53% 48%;text-shadow:0 1px 0 rgba(60,8,2,.8);
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.14),inset 0 0 0 4px rgba(255,200,170,.2),0 2px 6px rgba(0,0,0,.65)}
+.namep{font-family:var(--f-display);font-size:14px;letter-spacing:.12em;text-transform:none;color:var(--gold-lt);
+  text-shadow:0 1px 3px #000}
+.provNum{font-family:var(--f-display);font-size:12px;letter-spacing:.04em}
+/* the deck: count pressed in Fell, the readout a vellum slip */
+.deckCount{font-family:var(--f-display);font-weight:400;font-size:24px}
+.deckReadout{font-family:var(--f-display);font-weight:400;color:var(--ink);background:var(--vellum);border:1px solid var(--gold-dk);
+  border-radius:0;box-shadow:0 6px 14px rgba(0,0,0,.6)}
+.deckReadout small{font-family:var(--f-body);font-style:italic;color:var(--ink-2);letter-spacing:0;font-size:11px}
+/* hero power: an illuminated medallion — lapis field, gilt ring, your class glyph */
+.hpower{border:none;color:var(--gold-lt);
+  background:repeating-linear-gradient(45deg,rgba(243,218,146,.08) 0 1px,transparent 1px 6px),
+    radial-gradient(circle at 38% 32%,#3a5fae,#1f3a78 60%,#11214a);
+  box-shadow:0 0 0 2px #3a250c,0 0 0 4px var(--gold-md),0 0 0 5px #6b4a14,0 5px 12px rgba(0,0,0,.6),inset 0 0 12px rgba(0,0,0,.45)}
+.hpower.usable{box-shadow:0 0 0 2px #3a250c,0 0 0 4px var(--gold-lt),0 0 0 5px #6b4a14,0 0 20px rgba(243,218,146,.7),inset 0 0 12px rgba(0,0,0,.35)}
+.hpGlyph{display:flex;line-height:1;text-shadow:none;color:var(--gold-lt)}
+.hpGlyph .glyph{filter:drop-shadow(0 1px 0 rgba(40,20,0,.9))}
+.hpLabel{font-family:var(--f-body);font-style:italic;font-size:9px;letter-spacing:0;color:var(--vellum-lt)}
+.hpower .hpCost{border:none;font-family:var(--f-display);font-weight:400;color:#2e1d07;background:var(--gilt);
+  box-shadow:0 0 0 1px var(--gold-dk),0 2px 4px rgba(0,0,0,.5)}
+/* End Turn: press the seal */
+.endturn{border:none;font-family:var(--f-display);font-weight:400;font-size:15px;letter-spacing:.03em;color:#fbe9d2;
+  background:radial-gradient(circle at 40% 34%,#d65a40,#a5301c 52%,#5e1208);
+  border-radius:47% 53% 51% 49%/52% 46% 54% 48%;text-shadow:0 1px 0 rgba(60,8,2,.85);
+  box-shadow:inset 0 0 0 6px rgba(0,0,0,.12),inset 0 0 0 7px rgba(255,205,175,.32),inset 0 0 0 10px rgba(0,0,0,.1),
+    0 6px 14px rgba(0,0,0,.6);transition:transform .12s ease,filter .15s ease}
+.endturn:hover:not(:disabled){filter:brightness(1.1);transform:rotate(-3deg)}
+.endturn:active:not(:disabled){transform:scale(.93)}
+.endturn:disabled{opacity:.55;filter:saturate(.25) brightness(.7)}
+.endturn.hot{animation:sealPulse 1.6s ease-in-out infinite}
+@keyframes sealPulse{50%{box-shadow:inset 0 0 0 6px rgba(0,0,0,.12),inset 0 0 0 7px rgba(255,205,175,.32),
+  inset 0 0 0 10px rgba(0,0,0,.1),0 0 0 3px rgba(243,218,146,.85),0 0 22px rgba(243,218,146,.6)}}
+/* announcements: a vellum strip with swallowtail ends */
+.banner{font-family:var(--f-display);font-weight:400;font-size:28px;letter-spacing:.06em;text-transform:none;color:var(--ink);
+  border:none;border-radius:0;padding:10px 64px 11px;background:var(--vellum);background-image:var(--grain);
+  clip-path:polygon(0 0,100% 0,95% 50%,100% 100%,0 100%,5% 50%);
+  box-shadow:inset 0 3px 0 -1px var(--gold-md),inset 0 -3px 0 -1px var(--gold-md);filter:drop-shadow(0 8px 16px rgba(0,0,0,.6))}
+.thinking{font-family:var(--f-body);font-size:17px;letter-spacing:.04em;color:var(--gold-lt);opacity:.9;text-shadow:0 1px 4px #000}
+/* standing relics: small lapis hexagons with a gilt edge */
+.relicChip{font-family:var(--f-display);font-weight:400;color:var(--gold-lt);
+  background:radial-gradient(circle at 40% 30%,#3a5fae,#1f3a78 65%);
+  box-shadow:inset 0 0 0 2px var(--gold-md),inset 0 0 0 3px #3a250c,0 3px 8px rgba(0,0,0,.5)}
+/* the card reader's keyword glossary: vellum slips beneath the card */
+.gloss{background:var(--vellum);background-image:var(--grain);border:1px solid var(--gold-dk);border-radius:0;padding:6px 10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.5)}
+.glossTerm{font-family:var(--f-display);font-weight:400;font-size:14px;letter-spacing:.03em;color:var(--rubric)}
+.glossDesc{font-family:var(--f-body);font-size:12.5px;line-height:1.3;color:var(--ink)}
+.mulTag,.choiceTag{font-family:var(--f-display);font-weight:400;font-size:14px;letter-spacing:.06em}
+
+/* tooltips everywhere: a slip of vellum in iron-gall ink */
+[data-tip]::after{font-family:var(--f-body);font-size:13px;line-height:1.35;letter-spacing:0;color:var(--ink);
+  background:var(--vellum-lt);border:1px solid var(--gold-dk);border-radius:0;padding:6px 11px 7px;
+  box-shadow:0 0 0 3px rgba(232,219,187,.35),0 8px 18px rgba(0,0,0,.55)}
+
+/* ==========================================================================
+   FORESEE / DISCOVER — a leaf laid over the table
+   ========================================================================== */
+.choiceOverlay{background:rgba(8,5,2,.7)}
+.choiceLeaf{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;
+  width:min(880px,94vw);max-height:calc(100dvh - 30px);overflow-y:auto;padding:26px 40px 24px;border-radius:2px;
+  box-shadow:0 30px 80px rgba(0,0,0,.75),3px 3px 0 #a88f61;animation:leafIn .35s cubic-bezier(.2,.8,.3,1) both}
+.choiceLeaf::before{content:'';position:absolute;inset:12px;pointer-events:none;border:1.5px solid rgba(169,123,36,.7)}
+.choiceHead{display:flex;align-items:flex-end;gap:4px;font-family:var(--f-display);font-weight:400;font-size:34px;
+  letter-spacing:.03em;line-height:.9;color:var(--ink);background:none;-webkit-background-clip:border-box;background-clip:border-box;filter:none}
+.choiceSub{font-family:var(--f-body);font-style:italic;font-size:15px;color:var(--rubric);text-shadow:none}
+.choiceRow{margin-top:8px;gap:22px}
+.choiceTag{color:var(--ink-2)}
+.choiceCard.bottomed .choiceTag{color:var(--ink-3)}
+.choiceCard.picked .choiceTag{color:var(--verdigris)}
+.choiceCard.picked .handcard .hcInner{box-shadow:0 0 0 3px var(--gold-md),0 0 18px rgba(212,166,64,.6)}
+.choiceLeaf .bigbtn{margin-top:22px}
+
+/* ==========================================================================
+   THE MATCH OPENS — the book's boards close, the title is tooled in gold,
+   then they swing open onto the table
+   ========================================================================== */
+.mtDoor{background:radial-gradient(120% 100% at 50% 45%,#5a2a1c,#3a170e 68%,#220b06)}
+.mtL{box-shadow:inset -26px 0 40px rgba(0,0,0,.5),inset 0 0 0 22px #34150c,inset 0 0 0 24px #b8862e,
+  inset 0 0 0 30px #3a170e,inset 0 0 0 31px rgba(201,154,58,.6)}
+.mtR{box-shadow:inset 26px 0 40px rgba(0,0,0,.5),inset 0 0 0 22px #34150c,inset 0 0 0 24px #b8862e,
+  inset 0 0 0 30px #3a170e,inset 0 0 0 31px rgba(201,154,58,.6)}
+.mtName{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4.6vw,54px);letter-spacing:.05em;
+  background:linear-gradient(#fff4d2,#f0c766 50%,#a86e24);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(40,15,5,.9)) drop-shadow(0 0 22px rgba(240,199,102,.35))}
+.mtSub{font-family:var(--f-body);font-size:clamp(14px,1.9vw,20px);color:#e2c98f}
+
+/* the dev Pack Lab bar, in the house voice too */
+.plBar{background:var(--vellum);background-image:var(--grain);border-bottom:2px solid var(--gold-dk)}
+.plTitle{font-family:var(--f-display);font-weight:400;color:var(--rubric);letter-spacing:.1em}
+.plTitle span{font-family:var(--f-body);color:var(--ink-2)}
+.plBtn{border-radius:0;background:rgba(255,248,230,.4);border:1px solid var(--ink-line)}
+.plBtn:hover{border-color:var(--ink-2);transform:none}
+.plBtn.sel{border-color:var(--gold-dk);background:rgba(212,166,64,.18);box-shadow:none}
+.plBtn b{font-family:var(--f-display);font-weight:400;font-size:14px;color:var(--ink)}
+.plBtn i{font-family:var(--f-body);color:var(--ink-2)}
+.plBtn.faucet{border-color:var(--verdigris)}.plBtn.faucet b{color:var(--verdigris)}
+.plHint{font-family:var(--f-display)}
+.plHint span{font-family:var(--f-body)}
+
+@media (orientation:landscape) and (max-height:620px){
+  .hero .hpbadge{font-size:13px}
+  .namep{font-size:11px}
+  .hpGlyph .glyph{width:18px;height:18px}
+  .endturn{font-size:12px}
+  .banner{font-size:19px;padding:7px 40px 8px}
+  .thinking{font-size:13px}
+  .choiceLeaf{padding:12px 22px 12px;gap:4px}
+  .choiceHead{font-size:24px}.choiceHead .dropCap{width:32px!important;height:32px!important;font-size:25px!important}
+  .choiceSub{font-size:12px}
+  .choiceLeaf .bigbtn{margin-top:14px}
+  .glossTerm{font-size:12px}.glossDesc{font-size:11px}
+}
+
+/* game numbers use lining figures — Fell's old-style "30" reads as "3o" on a badge */
+.hero .hpbadge,.deckCount,.provNum,.hpower .hpCost,.drCost,.gcCount,.relicChip{font-family:var(--f-num);font-weight:700}
+.hero .hpbadge{font-size:17px}
+@media (orientation:landscape) and (max-height:620px){.hero .hpbadge{font-size:11px}.provNum{font-size:10px}}
+
+/* the Pack Lab sits on the same tooled-leather board as the book */
+.packlab{background:radial-gradient(120% 100% at 50% 40%,#4a2216,#2b110a 70%,#170805)}
+/* disabled plaques: still legible, just un-gilded */
+.bigbtn:disabled{filter:none;opacity:1;background:#cbb68a;color:#6b5a3c;text-shadow:none;cursor:default;
+  box-shadow:inset 0 0 0 1px #9c8758,inset 0 0 0 3px rgba(255,248,230,.35)}
+.bigbtn.quiet:disabled{background:rgba(42,26,14,.04);color:var(--ink-3);
+  box-shadow:inset 0 0 0 1px var(--ink-line),inset 0 0 0 5px rgba(42,26,14,.06)}
+/* the battle card reader: its glossary rides under the card as vellum slips (above);
+   the rarity tag reads in the house hand */
+.bcRarity{font-family:var(--f-display);font-size:10.5px;letter-spacing:.08em;text-transform:none;border-radius:0}
+.bcName{font-family:var(--f-display);font-weight:400}
+.bcType{font-family:var(--f-body);font-style:italic;letter-spacing:.04em;text-transform:none;font-size:11px}
+
+/* victory / defeat: the result is written on a vellum strip with swallowtail ends */
+.result{font-size:58px;letter-spacing:.06em;padding:8px 92px 12px;background:var(--vellum);background-image:var(--grain);
+  clip-path:polygon(0 0,100% 0,94% 50%,100% 100%,0 100%,6% 50%);text-shadow:none;
+  box-shadow:inset 0 4px 0 -1px var(--gold-md),inset 0 -4px 0 -1px var(--gold-md);filter:drop-shadow(0 10px 22px rgba(0,0,0,.7))}
+.result.victory{color:var(--ink);text-shadow:none}
+.result.defeat{color:var(--rubric);text-shadow:none}
+.payout span{font-size:16px}
+/* the revealed pack cards name themselves in the house hand */
+.ritName{font-family:var(--f-display);font-weight:400;font-size:12.5px;letter-spacing:.02em}
+.ritName.fit-sm{font-size:11px}.ritName.fit-xs{font-size:10px}
+.ritStats{font-family:var(--f-num)}
+.ritNew{font-family:var(--f-display);font-weight:400;letter-spacing:.1em;font-size:10px}
+@media (orientation:landscape) and (max-height:620px){
+  .result{font-size:34px;padding:5px 54px 8px}
+  .ritName{font-size:10.5px}
+}

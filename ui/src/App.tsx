@@ -23,7 +23,7 @@ import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
 import { MainMenu } from './title/MainMenu.tsx';
 import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
-import { Corners, Folio, Glyph, Rubric, Rule } from './codex/Codex.tsx';
+import { Corners, DropCap, Folio, Glyph, glyphFor, Rubric, Rule } from './codex/Codex.tsx';
 import './styles.css';
 import './codex/codex.css';
 
@@ -226,7 +226,9 @@ function ChoiceOverlay({ choice, onResolve }: { choice: PendingChoice; onResolve
   let topN = 0;
   return (
     <div className="overlay choiceOverlay" onPointerDown={(e) => e.stopPropagation()}>
-      <div className="choiceHead">{foresee ? 'Foresee' : 'Discover'}</div>
+      <div className="choiceLeaf vellum">
+      <Corners />
+      <div className="choiceHead"><DropCap letter={foresee ? 'F' : 'D'} pigment="#1f3a78" size={46} />{foresee ? 'oresee' : 'iscover'}</div>
       <div className="choiceSub">
         {foresee
           ? 'Tap a card to send it to the bottom of your deck. The rest stay on top, in this order.'
@@ -241,7 +243,7 @@ function ChoiceOverlay({ choice, onResolve }: { choice: PendingChoice; onResolve
             <div key={i} className={`choiceCard${bottom ? ' bottomed' : ''}${sel ? ' picked' : ''}`} onClick={() => toggle(i)}>
               <ChoiceFace c={c} />
               <div className="choiceTag">
-                {foresee ? (bottom ? '↓ BOTTOM' : `TOP ${topN}`) : (sel ? '✓ KEEP' : 'TAP TO KEEP')}
+                {foresee ? (bottom ? 'to the bottom' : `top · ${topN}`) : (sel ? 'kept' : 'tap to keep')}
               </div>
             </div>
           );
@@ -250,6 +252,7 @@ function ChoiceOverlay({ choice, onResolve }: { choice: PendingChoice; onResolve
       <button className="bigbtn" disabled={!ready} onClick={confirm}>
         {foresee ? 'Set the Order' : `Take ${picked.size}/${choice.pick}`}
       </button>
+      </div>
     </div>
   );
 }
@@ -604,7 +607,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           {hpwr && (
             <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} data-tip-align="left"
               data-tip={`${hpwr.name} (${hpwr.cost} Provision, once per turn)\n${registry.get(you.leaderId ?? '')?.hero_power?.text ?? ''}`}>
-              <div className="hpGlyph">✦</div><div className="hpCost">{hpwr.cost}</div>
+              <div className="hpGlyph"><Glyph name={glyphFor(registry.get(you.leaderId ?? '')?.class)} size={26} /></div><div className="hpCost">{hpwr.cost}</div>
               <div className="hpLabel">{hpwr.name}</div>
             </div>
           )}

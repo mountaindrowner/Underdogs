@@ -68,7 +68,7 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
   switch (e.t) {
     case 'phase':
       nv.active = e.player; nv.turn = e.turn; nv.phase = e.phase;
-      if (e.phase === 'dawn') nv.banner = `Player ${e.player + 1} — Turn ${e.turn}`;
+      if (e.phase === 'dawn') nv.banner = `Dawn ${e.turn} — ${e.player === 0 ? 'your turn' : 'the rival’s turn'}`;
       break;
     case 'provision':
       nv.prov[e.player] = { cur: e.current, max: e.max }; break;
@@ -120,7 +120,7 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
     case 'relicPlaced':
       nv.relics[e.player] = [...nv.relics[e.player], e.defId]; break;
     case 'gameOver':
-      nv.over = e.winner; nv.banner = `Player ${e.winner + 1} wins`; break;
+      nv.over = e.winner; nv.banner = e.winner === 0 ? 'You prevail' : 'The rival prevails'; break;
   }
   return nv;
 }

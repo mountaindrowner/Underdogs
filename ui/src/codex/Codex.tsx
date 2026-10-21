@@ -26,10 +26,13 @@ export function Glyph({ name, size = 20, className = '' }: { name: GlyphName; si
   );
 }
 
+/** The glyph that stands for a class (falls back to the neutral triquetra). */
+export const glyphFor = (cls?: string): GlyphName => (cls && cls in GLYPHS ? cls : 'neutral') as GlyphName;
+
 /** An illuminated crest: gold glyph on a pigment field inside a gilt frame. */
 export function Crest({ cls, glyph, size = 44, className = '' }:
   { cls?: string; glyph?: GlyphName; size?: number; className?: string }) {
-  const name = (glyph ?? (cls && cls in GLYPHS ? cls : 'neutral')) as GlyphName;
+  const name = glyph ?? glyphFor(cls);
   const field = PIGMENT[cls ?? 'neutral'] ?? PIGMENT.neutral;
   return (
     <span className={`crest ${className}`} style={{ ['--field' as string]: field, width: size, height: size } as React.CSSProperties}>
@@ -63,7 +66,7 @@ export function Rule({ className = '' }: { className?: string }) {
 
 /** The four gilt corner fleurons of a ruled page. */
 export function Corners() {
-  return <><i className="corner tl" /><i className="corner tr" /><i className="corner bl" /><i className="corner br" /></>;
+  return <><i className="fleuron tl" /><i className="fleuron tr" /><i className="fleuron bl" /><i className="fleuron br" /></>;
 }
 
 /** A title opened with an illuminated initial: "T" + "he Sparring Pit". */
