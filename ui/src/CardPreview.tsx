@@ -23,7 +23,7 @@ export function CardPreview({ card }: { card: CardDef }) {
     <div className="preview" data-rarity={rarity}>
       <div className={`bigcard r-${rarity}`}>
         <div className="bcWindow">
-          <div className="bcArt" style={artStyle(card.id, 'reader')}>
+          <div className="bcArt art-win" style={artStyle(card.id, 'reader')}>
             {!art && <div className="bcArtFallback">{card.name[0]}</div>}
           </div>
         </div>

@@ -34,37 +34,34 @@ export function artUrl(defId: string): string | undefined {
 }
 
 // ---- art placement: put each painting's focal point (usually a face) in view.
-// Paintings are landscape but most windows are portrait, so only a slice shows;
-// artFocus.json (tools/cardart/art_focus.py) records where the face sits.
+// Paintings are landscape but most windows are portrait, so only a slice shows.
+// artFocus.json (tools/cardart/art_focus.py, hand-checked) records where the
+// main face sits; codex.css (.art-win::before) does the maths against the
+// window's REAL size via container units, so the painting always covers the
+// window, never tiles, and the face lands at --ty from the top.
 import FOCUS from './artFocus.json';
 import type { CSSProperties } from 'react';
 type Surface = 'hand' | 'minion' | 'reader' | 'ritual' | 'chapter' | 'intro' | 'portrait';
-/** window aspect (w/h), where the focal point should land vertically, extra zoom */
-const SURF: Record<Surface, { ac: number; ty: number; zoom: number }> = {
-  hand:     { ac: 0.717, ty: 0.38, zoom: 1.04 },   // hand, album, mulligan, choice, drag ghost
-  minion:   { ac: 0.75,  ty: 0.38, zoom: 1.04 },   // name band covers the bottom
-  reader:   { ac: 1.347, ty: 0.42, zoom: 1.04 },
-  ritual:   { ac: 0.711, ty: 0.38, zoom: 1.04 },
-  chapter:  { ac: 0.75,  ty: 0.40, zoom: 1.04 },
-  intro:    { ac: 3.1,   ty: 0.42, zoom: 1.0 },
-  portrait: { ac: 1,     ty: 0.46, zoom: 1.45 },   // small circle: lean in on the face
+/** where the face should land vertically (0 top..1 bottom) and extra zoom */
+const SURF: Record<Surface, { ty: number; zoom: number }> = {
+  hand:     { ty: 0.30, zoom: 1.0 },    // hand, album, mulligan, choice, drag ghost (name plate low)
+  minion:   { ty: 0.30, zoom: 1.0 },    // name band covers the bottom
+  reader:   { ty: 0.36, zoom: 1.0 },
+  ritual:   { ty: 0.30, zoom: 1.0 },
+  chapter:  { ty: 0.32, zoom: 1.0 },
+  intro:    { ty: 0.40, zoom: 1.0 },
+  portrait: { ty: 0.45, zoom: 1.6 },    // small circle: lean in on the face
 };
-const DEFAULT_FOCUS: [number, number, number] = [0.5, 0.42, 768 / 560];
+const DEFAULT_FOCUS: [number, number, number] = [0.5, 0.35, 768 / 560];
 
-/** inline background style: image + size + position for one surface */
+/** style for an art window: the element must also carry className "art-win" */
 export function artStyle(defId: string | undefined, surface: Surface): CSSProperties | undefined {
   const url = defId ? artUrl(defId) : undefined;
   if (!url) return undefined;
-  const [fx, fy, ai] = (FOCUS as Record<string, [number, number, number]>)[defId!] ?? DEFAULT_FOCUS;
-  const { ac, ty, zoom } = SURF[surface];
-  const rx = zoom * Math.max(1, ai / ac);           // image width / window width
-  const ry = zoom * Math.max(1, ac / ai);           // image height / window height
-  // background-position p puts image point f at window point t when p = (t - f·r) / (1 - r)
-  const pos = (t: number, f: number, r: number) =>
-    r <= 1.0001 ? 50 : Math.min(100, Math.max(0, ((t - f * r) / (1 - r)) * 100));
+  const f = (FOCUS as unknown as Record<string, [number, number, number]>)[defId!];
+  const [fx, fy, ai] = Array.isArray(f) ? f : DEFAULT_FOCUS;
+  const { ty, zoom } = SURF[surface];
   return {
-    backgroundImage: `url(${url})`,
-    backgroundSize: `${(rx * 100).toFixed(1)}% ${(ry * 100).toFixed(1)}%`,
-    backgroundPosition: `${pos(0.5, fx, rx).toFixed(1)}% ${pos(ty, fy, ry).toFixed(1)}%`,
-  };
+    '--art': `url(${url})`, '--fx': fx, '--fy': fy, '--ai': ai, '--ty': ty, '--z': zoom,
+  } as CSSProperties;
 }

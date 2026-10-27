@@ -7,13 +7,16 @@ from each edge, drops rows/columns that are mostly near-white or near-black,
 then insets a little more on any trimmed side to kill rounded corners and
 frame lines. Writes WebP in place; pass --dry to only report.
 
-Usage: python3 clean_borders.py [--dry] <file.webp> ...
+Usage: python3 clean_borders.py [--dry] [--any-colour] <file.webp> ...
+Always eyeball --dry proposals drawn on the art before applying.
 """
 import subprocess, sys
 
 SCALE = 4          # analyse a 1/4-size copy (fast, plenty precise)
 BG_SHARE = 0.80    # a row/col is "border" if >= this share of pixels are bg
-INSET = 0.025      # extra trim on trimmed sides (rounded corners / frame lines)
+INSET = 0.035
+ANY_COLOUR = False   # --any-colour: also uniform margins of any colour. Dark scenes
+                     # false-positive (night = 'margin'), so review every proposal.      # extra trim on trimmed sides (rounded corners / frame lines)
 
 def pixels(path):
     out = subprocess.run(["convert", path, "-resize", f"{100 // SCALE}%", "ppm:-"],
@@ -29,20 +32,39 @@ def is_bg(r, g, b):
 
 def bbox(w, h, data):
     px = lambda x, y: data[3 * (y * w + x): 3 * (y * w + x) + 3]
-    row_bg = lambda y: sum(is_bg(*px(x, y)) for x in range(w)) / w >= BG_SHARE
-    col_bg = lambda x: sum(is_bg(*px(x, y)) for y in range(h)) / h >= BG_SHARE
-    t = 0
-    while t < h // 3 and row_bg(t): t += 1
-    b = h - 1
-    while b > 2 * h // 3 and row_bg(b): b -= 1
-    l = 0
-    while l < w // 3 and col_bg(l): l += 1
-    r = w - 1
-    while r > 2 * w // 3 and col_bg(r): r -= 1
-    return l, t, r, b
+    # (a) a margin of ANY uniform colour: rows/cols matching the corner colour,
+    #     accepted only when the band frames at least 3 sides (a sky touches one)
+    k = max(2, w // 60)
+    corners = [px(x, y) for x in (k, w - 1 - k) for y in (k, h - 1 - k)]
+    cc = tuple(sorted(c[i] for c in corners)[len(corners) // 2] for i in range(3))
+    near = lambda p: sum((p[i] - cc[i]) ** 2 for i in range(3)) < 30 ** 2
+    def run(get_line, length, limit):
+        n = 0
+        while n < limit and sum(near(p) or is_bg(*p) for p in get_line(n)) / length >= BG_SHARE: n += 1
+        return n
+    rows = lambda y: [px(x, y) for x in range(w)]
+    cols = lambda x: [px(x, y) for y in range(h)]
+    t = run(lambda i: rows(i), w, h // 3)
+    b = run(lambda i: rows(h - 1 - i), w, h // 3)
+    l = run(lambda i: cols(i), h, w // 3)
+    r = run(lambda i: cols(w - 1 - i), h, w // 3)
+    corner_is_bg = is_bg(*cc)
+    sides = sum(n > 0 for n in (t, b, l, r))
+    if not ANY_COLOUR or (sides < 3 and not corner_is_bg):
+        # (b) classic white/black/parchment edges only (letterbox bars etc.)
+        t = run(lambda i: [p for p in rows(i) if is_bg(*p)] or [None], 1, 0) if False else 0
+        def run_bg(get_line, length, limit):
+            n = 0
+            while n < limit and sum(is_bg(*p) for p in get_line(n)) / length >= BG_SHARE: n += 1
+            return n
+        t = run_bg(lambda i: rows(i), w, h // 3); b = run_bg(lambda i: rows(h - 1 - i), w, h // 3)
+        l = run_bg(lambda i: cols(i), h, w // 3); r = run_bg(lambda i: cols(w - 1 - i), h, w // 3)
+    return l, t, w - 1 - r, h - 1 - b
 
 def main(argv):
+    global ANY_COLOUR
     dry = "--dry" in argv
+    ANY_COLOUR = "--any-colour" in argv
     for path in [a for a in argv if not a.startswith("--")]:
         W, H = map(int, subprocess.run(["identify", "-format", "%w %h", path],
                                        capture_output=True, text=True, check=True).stdout.split())

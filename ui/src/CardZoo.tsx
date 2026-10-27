@@ -21,7 +21,7 @@ function Hand({ c, big }: { c: CardDef; big?: boolean }) {
   return (
     <div className={`handcard${big ? ' big' : ''} r-${c.rarity ?? 'common'}`} style={{ margin: 0, transform: 'none', filter: 'none' }}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={artStyle(c.id, 'hand')} />
+        <div className="hcArt art-win" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -32,7 +32,7 @@ function Hand({ c, big }: { c: CardDef; big?: boolean }) {
 function BoardMinion({ c }: { c: CardDef }) {
   return (
     <div className="minion" style={{ position: 'relative' }}>
-      <div className="body"><div className="mFace" style={artStyle(c.id, 'minion')}>
+      <div className="body"><div className="mFace art-win" style={artStyle(c.id, 'minion')}>
         <div className={`nameband${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="atk">{c.attack ?? 0}</div><div className="hp">{c.health ?? 0}</div>

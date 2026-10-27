@@ -227,7 +227,7 @@ function RitCard({ p, i, flipped, armed, teasing }:
           <div className="ritGlow" />
         </div>
         <div className="ritFace">
-          <div className="ritArt" style={artStyle(p.card.id, 'ritual')} />
+          <div className="ritArt art-win" style={artStyle(p.card.id, 'ritual')} />
           {(rar === 'rare' || rar === 'epic' || rar === 'legendary') && <div className="ritHolo" />}
           <div className={`ritName${fitName(p.card.name)}`}>{p.card.name}</div>
           {p.card.type === 'minion' && (

@@ -19,12 +19,11 @@ DIRS = ["cards", "leaders", "adversaries", "tokens"]
 OUT = ROOT / "ui" / "src" / "artFocus.json"
 MODEL = "gemini-2.5-flash"
 PROMPT = (
-    "This is a painted illustration for a trading card. Find the single most important "
-    "point a viewer should see if the image is cropped tightly: the FACE of the main "
-    "character (the most prominent / central figure). If there is no person or creature "
-    "face, use the centre of the main subject. Reply with JSON only: "
-    '{"x": <0..1 horizontal position from the left>, "y": <0..1 vertical position from the top>, '
-    '"kind": "face" or "subject"}'
+    "This is a painted illustration for a trading card. Detect the HEAD (face and hair) of "
+    "the main character: the most prominent figure the picture is about (largest / most "
+    "central / best lit person; if a person and a creature, the person). If there is no "
+    "person or creature, box the main object. Return JSON: "
+    '{"box_2d": [ymin, xmin, ymax, xmax]} with coordinates normalised to 0-1000.'
 )
 
 def size(p):
@@ -36,7 +35,7 @@ def ask(path):
     img = base64.b64encode(path.read_bytes()).decode()
     body = {"contents": [{"parts": [{"inlineData": {"mimeType": "image/webp", "data": img}},
                                     {"text": PROMPT}]}],
-            "generationConfig": {"responseMimeType": "application/json", "temperature": 0}}
+            "generationConfig": {"responseMimeType": "application/json", "temperature": 0, "thinkingConfig": {"thinkingBudget": 0}}}
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={gen_art.KEY}"
     for attempt in range(3):
         try:
@@ -44,9 +43,9 @@ def ask(path):
                                          headers={"Content-Type": "application/json"})
             d = json.load(urllib.request.urlopen(req, timeout=120))
             j = json.loads(d["candidates"][0]["content"]["parts"][0]["text"])
-            x, y = float(j["x"]), float(j["y"])
-            if x > 1 or y > 1:      # tolerate 0..100 answers
-                x, y = x / 100, y / 100
+            if isinstance(j, list): j = j[0]
+            y0, x0, y1, x1 = [float(v) / 1000 for v in j["box_2d"]]
+            x, y = (x0 + x1) / 2, (y0 + y1) / 2
             return round(min(max(x, 0), 1), 3), round(min(max(y, 0), 1), 3)
         except Exception as e:     # noqa: BLE001 — retry, then fall back to centre
             err = e
@@ -57,7 +56,8 @@ def main(argv):
     cache = json.loads(OUT.read_text()) if OUT.exists() else {}
     redo = set(argv[1:]) if argv[:1] == ["--redo"] else set()
     files = [p for d in DIRS for p in sorted((ROOT / "ui" / "assets" / d).glob("*.webp"))]
-    todo = [p for p in files if p.stem not in cache or p.stem in redo]
+    keep = set(cache.get('_overrides', []))     # hand-corrected entries: never re-ask
+    todo = [p for p in files if (p.stem not in cache or p.stem in redo) and p.stem not in keep]
     def work(p):
         w, h = size(p)
         fx, fy = ask(p)

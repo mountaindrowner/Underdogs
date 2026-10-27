@@ -704,3 +704,25 @@
 .fsBtn.on{background:#6d5a3c;color:var(--vellum-lt)}
 .leafMusic,.mmTopRight{display:flex;align-items:center;gap:8px}
 @media (orientation:landscape) and (max-height:620px){.fsBtn,.controls .fsBtn{width:28px;height:28px}}
+
+/* ==========================================================================
+   ART WINDOWS (D-49 rev.) — exact focal-point cover, measured per window.
+   The element is a size container; its ::before is the painting, sized to
+   cover the window's REAL box (cqw/cqh) and shifted so the focal point
+   (--fx,--fy from artFocus.json) lands at --ty, clamped so no edge shows.
+   ========================================================================== */
+.art-win{container-type:size;overflow:hidden;background-image:none!important}
+.art-win::before{content:'';position:absolute;z-index:0;pointer-events:none;
+  --W:calc(max(100cqw, 100cqh * var(--ai)) * var(--z));
+  --H:calc(var(--W) / var(--ai));
+  width:var(--W);height:var(--H);
+  left:clamp(calc(100cqw - var(--W)), calc(50cqw - var(--fx) * var(--W)), 0px);
+  top:clamp(calc(100cqh - var(--H)), calc(var(--ty) * 100cqh - var(--fy) * var(--H)), 0px);
+  background:var(--art) center/100% 100% no-repeat}
+/* the windows' own inner shading (formerly painted over the background) rides on top */
+.minion .mFace.art-win::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,224,150,.24),inset 0 -30px 26px rgba(0,0,0,.55)}
+.minion .mFace.art-win>*{z-index:2}
+.hero .portrait.art-win{overflow:hidden}
+.hero .portrait.art-win::after{content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:1;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.45)}

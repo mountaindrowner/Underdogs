@@ -91,7 +91,7 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
       data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
       {(u.keywords.includes('guard') || u.auraKw.includes('guard')) && <div className="ward" />}
       <div className="body">
-        <div className="mFace" style={artStyle(u.defId, 'minion')}>
+        <div className="mFace art-win" style={artStyle(u.defId, 'minion')}>
           {!art && <div className="artFallback">{u.name[0]}</div>}
           <div className={`nameband${fitName(u.name)}`}>{u.name}</div>
           {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
@@ -133,7 +133,7 @@ function HandCard({ c, playable, selected, fan, onDown, onEnter, onLeave }:
     <div className={`handcard r-${c.rarity ?? 'common'}${playable ? ' playable' : ''}${selected ? ' selected' : ''}`}
       style={style} onPointerDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={artStyle(c.id, 'hand')} />
+        <div className="hcArt art-win" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -177,7 +177,7 @@ function HeroCorner({ h, side, name, artId, prov, deck, targetable, foe, childre
     <div className={`corner ${side}Corner`}>
       <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`}
         onPointerDown={onDown} data-drop={foe ? 'foeHero' : undefined}>
-        <div className="portrait" style={artStyle(artId, 'portrait')} />
+        <div className="portrait art-win" style={artStyle(artId, 'portrait')} />
         <div className="hpbadge">{h.hp}</div>
         {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
         {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
@@ -197,7 +197,7 @@ function ChoiceFace({ c }: { c: CardDef }) {
   return (
     <div className={`handcard big r-${c.rarity ?? 'common'}`}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={artStyle(c.id, 'hand')} />
+        <div className="hcArt art-win" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -504,7 +504,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div className="leaf vellum introLeaf">
           <Corners />
           <button className="ribbonBack" onClick={onExit}><span>‹ Contents</span></button>
-          <div className="introMini" style={artStyle(meta.art, 'intro')} />
+          <div className="introMini art-win" style={artStyle(meta.art, 'intro')} />
           <Rubric title={meta.title} kicker={meta.subtitle} pigment="#a5301c" />
           <Rule />
           <p className="narr">{meta.narrative}</p>
@@ -529,7 +529,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
                 onClick={() => setKeep((k) => { const n = new Set(k); n.has(i) ? n.delete(i) : n.add(i); return n; })}>
                 <div className={`handcard big r-${c.rarity ?? 'common'}`}>
                   <div className="hcInner"><div className="hcFace">
-                    <div className="hcArt" style={artStyle(c.id, 'hand')} />
+                    <div className="hcArt art-win" style={artStyle(c.id, 'hand')} />
                     <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
                   </div></div>
                   <div className="hcCost">{c.cost ?? 0}</div>
@@ -697,7 +697,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div ref={ghostRef} className={`ghost handcard r-${act.src.card.rarity ?? 'common'}`}
           style={{ left: act.from.x, top: act.from.y, transform: 'translate(-50%,-58%)' }}>
           <div className="hcInner"><div className="hcFace">
-            <div className="hcArt" style={artStyle(act.src.card.id, 'hand')} />
+            <div className="hcArt art-win" style={artStyle(act.src.card.id, 'hand')} />
             <div className={`hcName${fitName(act.src.card.name)}`}>{act.src.card.name}</div>
           </div></div>
           <div className="hcCost">{act.src.card.cost ?? 0}</div>
@@ -726,7 +726,7 @@ function StoryMenu({ scene, onPlay, onBack }:
             <div key={e.id} className={`chapter${done.has(e.id) ? ' done' : ''}${locked ? ' locked' : ''}`}
               onClick={() => { if (!locked) onPlay(toMatchConfig(e), e); }}>
               <div className="chMini">
-                <div className="chArt" style={artStyle(e.art, 'chapter')} />
+                <div className="chArt art-win" style={artStyle(e.art, 'chapter')} />
                 {done.has(e.id) && <div className="chDone" title="Cleared"><Glyph name="check" size={16} /></div>}
                 {locked && <div className="chLock"><Glyph name="lock" size={22} />Sealed</div>}
               </div>
@@ -737,7 +737,7 @@ function StoryMenu({ scene, onPlay, onBack }:
           );
         })}
         <div className="chapter free" onClick={() => onPlay(SANDBOX)}>
-          <div className="chMini"><div className="chArt" style={artStyle('david_the_king', 'chapter')} /></div>
+          <div className="chMini"><div className="chArt art-win" style={artStyle('david_the_king', 'chapter')} /></div>
           <div className="chNo">An interlude</div>
           <div className="chTitle">Skirmish</div>
           <div className="chSub">A quick sandbox match</div>

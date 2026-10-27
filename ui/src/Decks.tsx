@@ -29,7 +29,7 @@ function GridCard({ c, count, onClick, dim, ribbon }:
   return (
     <div className={`handcard big r-${c.rarity ?? 'common'} gridCard${dim ? ' unowned' : ''}${ribbon ? ' gcNew' : ''}`} onClick={onClick}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={artStyle(c.id, 'hand')} />
+        <div className="hcArt art-win" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
