@@ -693,3 +693,14 @@
   .result{font-size:34px;padding:5px 54px 8px}
   .ritName{font-size:10.5px}
 }
+
+/* fullscreen toggle: a gilt roundel beside the music control */
+.fsBtn{width:32px;height:32px;border-radius:50%;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  color:#2e1d07;background:var(--gilt);clip-path:none;
+  box-shadow:inset 0 0 0 1px rgba(255,240,200,.5),0 0 0 1px var(--gold-dk),0 2px 5px rgba(0,0,0,.45);transition:filter .15s ease,transform .12s ease}
+.controls .fsBtn{padding:0;width:32px;height:32px;border-radius:50%;clip-path:none}
+.fsBtn:hover{filter:brightness(1.1)}
+.fsBtn:active{transform:scale(.92)}
+.fsBtn.on{background:#6d5a3c;color:var(--vellum-lt)}
+.leafMusic,.mmTopRight{display:flex;align-items:center;gap:8px}
+@media (orientation:landscape) and (max-height:620px){.fsBtn,.controls .fsBtn{width:28px;height:28px}}

@@ -3,8 +3,8 @@
   "budget_anchor_usd": 7.4036,
   "budget_funded_on": "2026-07-12",
   "budget_note": "budget_usd is the REAL account balance (checked 2026-07-12). Remaining = budget_usd - (usd - budget_anchor_usd). The all-time \"usd\" is a worst-case paid-rate estimate (/bin/bash.039/img); free-tier images actually cost $0, so real spend is lower than this figure.",
-  "images": 255,
-  "usd": 10.3512744,
+  "images": 256,
+  "usd": 10.390128299999999,
   "runs": [
     {
       "id": "scribe_of_the_word",
@@ -1847,6 +1847,15 @@
       "id": "cover_slinger",
       "cls": "cover",
       "usd": 0.134
+    },
+    {
+      "id": "judah_lions_line",
+      "cls": "patriarch",
+      "img_tok": 1290,
+      "usd": 0.03885,
+      "refs": [
+        "judah_the_pledge.png"
+      ]
     }
   ]
 }

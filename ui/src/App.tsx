@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useMatch, needsTarget, targetSideOf } from './useMatch.ts';
-import { artUrl, CARD_BACK, registry } from './data.ts';
+import { artStyle, artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
   type Encounter, type MatchConfig } from './campaign.ts';
 import { FreePlaySetup } from './FreePlay.tsx';
@@ -26,6 +26,7 @@ import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
 import { Corners, DropCap, Folio, Glyph, glyphFor, Rubric, Rule } from './codex/Codex.tsx';
 import './styles.css';
 import './codex/codex.css';
+import { FullscreenButton, useFullscreenHotkey } from './Fullscreen.tsx';
 
 const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CAN_HOVER = typeof matchMedia !== 'undefined' && matchMedia('(hover: hover)').matches;
@@ -90,7 +91,7 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
       data-drop="unit" data-uid={u.uid} data-owner={u.owner}>
       {(u.keywords.includes('guard') || u.auraKw.includes('guard')) && <div className="ward" />}
       <div className="body">
-        <div className="mFace" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+        <div className="mFace" style={artStyle(u.defId, 'minion')}>
           {!art && <div className="artFallback">{u.name[0]}</div>}
           <div className={`nameband${fitName(u.name)}`}>{u.name}</div>
           {kw && <div className="kw">{KW_LABEL[kw].toUpperCase()}</div>}
@@ -127,13 +128,12 @@ function Minion({ u, cls, valid, onDown, onEnter, onLeave }:
 function HandCard({ c, playable, selected, fan, onDown, onEnter, onLeave }:
   { c: CardDef; playable: boolean; selected: boolean; fan: { rot: number; ty: number };
     onDown: (e: React.PointerEvent) => void; onEnter: () => void; onLeave: () => void }) {
-  const art = artUrl(c.id);
   const style = { '--rot': `${fan.rot}deg`, '--ty': `${fan.ty}px` } as React.CSSProperties;
   return (
     <div className={`handcard r-${c.rarity ?? 'common'}${playable ? ' playable' : ''}${selected ? ' selected' : ''}`}
       style={style} onPointerDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcArt" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -170,14 +170,14 @@ function Deck({ n, side }: { n: number; side: 'you' | 'foe' }) {
   );
 }
 
-function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children, onDown }:
-  { h: HeroV; side: 'you' | 'foe'; name: string; art?: string; prov: Prov; deck: number;
+function HeroCorner({ h, side, name, artId, prov, deck, targetable, foe, children, onDown }:
+  { h: HeroV; side: 'you' | 'foe'; name: string; artId?: string; prov: Prov; deck: number;
     targetable?: boolean; foe?: boolean; children?: React.ReactNode; onDown?: (e: React.PointerEvent) => void }) {
   return (
     <div className={`corner ${side}Corner`}>
       <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`}
         onPointerDown={onDown} data-drop={foe ? 'foeHero' : undefined}>
-        <div className="portrait" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="portrait" style={artStyle(artId, 'portrait')} />
         <div className="hpbadge">{h.hp}</div>
         {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
         {h.heal != null && <div className="float heal heroFloat">+{h.heal}</div>}
@@ -194,11 +194,10 @@ function HeroCorner({ h, side, name, art, prov, deck, targetable, foe, children,
 
 // A small face used inside the choice overlay (same frame as the mulligan cards).
 function ChoiceFace({ c }: { c: CardDef }) {
-  const art = artUrl(c.id);
   return (
     <div className={`handcard big r-${c.rarity ?? 'common'}`}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcArt" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -505,7 +504,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div className="leaf vellum introLeaf">
           <Corners />
           <button className="ribbonBack" onClick={onExit}><span>‹ Contents</span></button>
-          <div className="introMini" style={{ backgroundImage: `url(${artUrl(meta.art)})` }} />
+          <div className="introMini" style={artStyle(meta.art, 'intro')} />
           <Rubric title={meta.title} kicker={meta.subtitle} pigment="#a5301c" />
           <Rule />
           <p className="narr">{meta.narrative}</p>
@@ -530,7 +529,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
                 onClick={() => setKeep((k) => { const n = new Set(k); n.has(i) ? n.delete(i) : n.add(i); return n; })}>
                 <div className={`handcard big r-${c.rarity ?? 'common'}`}>
                   <div className="hcInner"><div className="hcFace">
-                    <div className="hcArt" style={artUrl(c.id) ? { backgroundImage: `url(${artUrl(c.id)})` } : undefined} />
+                    <div className="hcArt" style={artStyle(c.id, 'hand')} />
                     <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
                   </div></div>
                   <div className="hcCost">{c.cost ?? 0}</div>
@@ -555,6 +554,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div className="controls">
           <span className="turnLbl">Turn {view.turn} · {view.active === 0 ? 'Your turn' : 'Adversary'}</span>
           <MusicToggle />
+          <FullscreenButton />
           <button className="boardBtn" onPointerDown={(e) => e.stopPropagation()} onClick={cycleBoard}
             data-tip="Change the table's finish" data-tip-side="bottom">◈ {BOARD_LABEL[board]}</button>
           <button onPointerDown={(e) => e.stopPropagation()} onClick={onExit}
@@ -600,9 +600,9 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
 
         {/* L2 — HUD: hero corners (opponent top-right, you bottom-left) */}
         <HeroCorner h={view.heroes[1]} side="foe" name={meta ? 'Adversary' : 'Rival'}
-          art={artUrl(foe.leaderId ?? (cfg.startUnits?.[1]?.[0] ?? ''))}
+          artId={foe.leaderId ?? (cfg.startUnits?.[1]?.[0] ?? '')}
           prov={view.prov[1]} deck={foe.deck.length} foe targetable={foeHeroTarget} onDown={foeHeroDown} />
-        <HeroCorner h={view.heroes[0]} side="you" name="You" art={artUrl(you.leaderId ?? '')}
+        <HeroCorner h={view.heroes[0]} side="you" name="You" artId={you.leaderId ?? ''}
           prov={view.prov[0]} deck={you.deck.length}>
           {hpwr && (
             <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} data-tip-align="left"
@@ -697,7 +697,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         <div ref={ghostRef} className={`ghost handcard r-${act.src.card.rarity ?? 'common'}`}
           style={{ left: act.from.x, top: act.from.y, transform: 'translate(-50%,-58%)' }}>
           <div className="hcInner"><div className="hcFace">
-            <div className="hcArt" style={artUrl(act.src.card.id) ? { backgroundImage: `url(${artUrl(act.src.card.id)})` } : undefined} />
+            <div className="hcArt" style={artStyle(act.src.card.id, 'hand')} />
             <div className={`hcName${fitName(act.src.card.name)}`}>{act.src.card.name}</div>
           </div></div>
           <div className="hcCost">{act.src.card.cost ?? 0}</div>
@@ -726,7 +726,7 @@ function StoryMenu({ scene, onPlay, onBack }:
             <div key={e.id} className={`chapter${done.has(e.id) ? ' done' : ''}${locked ? ' locked' : ''}`}
               onClick={() => { if (!locked) onPlay(toMatchConfig(e), e); }}>
               <div className="chMini">
-                <div className="chArt" style={{ backgroundImage: `url(${artUrl(e.art)})` }} />
+                <div className="chArt" style={artStyle(e.art, 'chapter')} />
                 {done.has(e.id) && <div className="chDone" title="Cleared"><Glyph name="check" size={16} /></div>}
                 {locked && <div className="chLock"><Glyph name="lock" size={22} />Sealed</div>}
               </div>
@@ -737,7 +737,7 @@ function StoryMenu({ scene, onPlay, onBack }:
           );
         })}
         <div className="chapter free" onClick={() => onPlay(SANDBOX)}>
-          <div className="chMini"><div className="chArt" style={{ backgroundImage: `url(${artUrl('david_the_king')})` }} /></div>
+          <div className="chMini"><div className="chArt" style={artStyle('david_the_king', 'chapter')} /></div>
           <div className="chNo">An interlude</div>
           <div className="chTitle">Skirmish</div>
           <div className="chSub">A quick sandbox match</div>
@@ -766,6 +766,7 @@ function MatchTransition({ label, sub, onDone }: { label: string; sub?: string; 
 
 // ---- router ----------------------------------------------------------------
 export default function App() {
+  useFullscreenHotkey();
   const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
   const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks' | 'settings' | 'packs'>('menu');

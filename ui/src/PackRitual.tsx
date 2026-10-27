@@ -9,7 +9,7 @@
  *  Reused by the Storehouse (real packs) and the Pack Lab (?pack=1 dev kit,
  *  simulated packs) — identical spectacle either way. */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { artUrl, CARD_BACK } from './data.ts';
+import { artStyle, CARD_BACK } from './data.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
 import { music } from './audio.ts';
@@ -201,7 +201,6 @@ function RitCard({ p, i, flipped, armed, teasing }:
   { p: PackCard; i: number; flipped: boolean; armed: boolean; teasing: boolean }) {
   const el = useRef<HTMLDivElement>(null);
   const rar = p.card.rarity ?? 'common';
-  const art = artUrl(p.card.id);
 
   // pointer-tilt + moving holo sheen (rare+ only, once revealed)
   const tilt = (e: React.PointerEvent) => {
@@ -228,7 +227,7 @@ function RitCard({ p, i, flipped, armed, teasing }:
           <div className="ritGlow" />
         </div>
         <div className="ritFace">
-          <div className="ritArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+          <div className="ritArt" style={artStyle(p.card.id, 'ritual')} />
           {(rar === 'rare' || rar === 'epic' || rar === 'legendary') && <div className="ritHolo" />}
           <div className={`ritName${fitName(p.card.name)}`}>{p.card.name}</div>
           {p.card.type === 'minion' && (

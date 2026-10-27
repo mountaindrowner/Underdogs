@@ -6,6 +6,7 @@ import { MusicToggle } from './MusicToggle.tsx';
 import { haptics } from './haptics.ts';
 import { version } from '../package.json';
 import { Folio } from './codex/Codex.tsx';
+import { fullscreenSupported, toggleFullscreen, useFullscreen } from './Fullscreen.tsx';
 
 const BOARD_KEY = 'underdogs.board';
 const BOARD_OPTS = [
@@ -19,6 +20,7 @@ const RESET_KEYS = [
 
 export function SettingsScreen({ scene, onBack }: { scene: SceneId; onBack: () => void }) {
   const [hap, setHap] = useState(() => haptics.enabled);
+  const full = useFullscreen();
   const [board, setBoard] = useState(() => {
     try { return localStorage.getItem(BOARD_KEY) ?? 'relief'; } catch { return 'relief'; }
   });
@@ -46,6 +48,15 @@ export function SettingsScreen({ scene, onBack }: { scene: SceneId; onBack: () =
           </div>
           <MusicToggle />
         </div>
+        {fullscreenSupported() && (
+          <div className="setRow">
+            <div className="setText">
+              <div className="setKey">Fullscreen</div>
+              <div className="setSub">Fill the whole screen. Press F any time; Esc steps back out.</div>
+            </div>
+            <button className={`chip${full ? ' on' : ''}`} onClick={toggleFullscreen}>{full ? 'On' : 'Off'}</button>
+          </div>
+        )}
         <div className="setRow">
           <div className="setText">
             <div className="setKey">Haptics</div>

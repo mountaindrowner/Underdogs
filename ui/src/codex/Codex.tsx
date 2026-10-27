@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { GLYPHS, type GlyphName } from './glyphs.ts';
 import { ShellBg, type SceneId } from '../title/scenes.tsx';
 import { MusicToggle } from '../MusicToggle.tsx';
+import { FullscreenButton } from '../Fullscreen.tsx';
 
 /** Pigment per class — the crest field. Each is a real manuscript colour. */
 export const PIGMENT: Record<string, string> = {
@@ -98,7 +99,7 @@ export function Folio({ scene, title, kicker, back, backLabel = 'Contents', pigm
         <button className="ribbonBack" onClick={back} aria-label={`Back to ${backLabel}`}>
           <span>‹ {backLabel}</span>
         </button>
-        <div className="leafMusic"><MusicToggle /></div>
+        <div className="leafMusic"><MusicToggle /><FullscreenButton /></div>
         <Rubric title={title} kicker={kicker} pigment={pigment} />
         <Rule />
         <div className="leafBody">{children}</div>

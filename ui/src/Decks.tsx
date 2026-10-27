@@ -7,7 +7,7 @@ import { Crest, Folio } from './codex/Codex.tsx';
 import { CardPreview } from './CardPreview.tsx';
 import { fitName } from './fit.ts';
 import { ownedCount, craft, canCraft, craftCost, disenchant, shatterValue, collectionStats, eco, clearNew } from './economy.ts';
-import { artUrl, registry } from './data.ts';
+import { artStyle, registry } from './data.ts';
 import {
   allDecks, collectiblePool, saveCustomDeck, deleteCustomDeck, deckProblems, maxCopies,
   CLASSES, CLASS_META, type DeckDef,
@@ -26,11 +26,10 @@ const RAR_ORD: Record<string, number> = { common: 0, rare: 1, epic: 2, legendary
 
 function GridCard({ c, count, onClick, dim, ribbon }:
   { c: CardDef; count?: number; onClick?: () => void; dim?: boolean; ribbon?: boolean }) {
-  const art = artUrl(c.id);
   return (
     <div className={`handcard big r-${c.rarity ?? 'common'} gridCard${dim ? ' unowned' : ''}${ribbon ? ' gcNew' : ''}`} onClick={onClick}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcArt" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>

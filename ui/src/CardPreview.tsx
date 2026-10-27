@@ -2,7 +2,7 @@
  *  keyword glossary for anything printed on it. Anchored so it never covers the
  *  player's bottom-left HUD. Shown on hover (desktop) or select/hold (touch). */
 import type { CardDef } from '../../engine/src/index.ts';
-import { artUrl } from './data.ts';
+import { artStyle, artUrl } from './data.ts';
 import { glossaryFor } from './glossary.ts';
 import { fitName, fitText } from './fit.ts';
 
@@ -23,7 +23,7 @@ export function CardPreview({ card }: { card: CardDef }) {
     <div className="preview" data-rarity={rarity}>
       <div className={`bigcard r-${rarity}`}>
         <div className="bcWindow">
-          <div className="bcArt" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+          <div className="bcArt" style={artStyle(card.id, 'reader')}>
             {!art && <div className="bcArtFallback">{card.name[0]}</div>}
           </div>
         </div>

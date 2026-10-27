@@ -13,6 +13,7 @@ import { ownsStarter, chooseStarter, claimGift, eco } from '../economy.ts';
 import { completed, encounters } from '../campaign.ts';
 import { Corners, Crest, DropCap, Glyph, Rule } from '../codex/Codex.tsx';
 import type { GlyphName } from '../codex/glyphs.ts';
+import { FullscreenButton } from '../Fullscreen.tsx';
 
 /** the coat of many colours — one thread per era, the game's oldest motif */
 const TRIBES: [string, number][] = [
@@ -62,7 +63,7 @@ export function MainMenu({ scene, onStory, onFreePlay, onDecks, onSettings, onPa
   return (
     <div className="mainmenu codexMenu">
       <ShellBg scene={scene} />
-      <div className="mmTopRight"><MusicToggle /></div>
+      <div className="mmTopRight"><MusicToggle /><FullscreenButton /></div>
 
       <div className="book">
         <div className="bookBoard" />

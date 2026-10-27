@@ -1,7 +1,7 @@
 /** DEV-ONLY card gallery (?zoo=1): every card surface rendered with the
  *  worst-case cards (longest names, wordiest text, each type) so a single
  *  screenshot audits fit/format everywhere. Not linked from any menu. */
-import { registry, artUrl } from './data.ts';
+import { registry, artStyle } from './data.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { fitName } from './fit.ts';
 import type { CardDef } from '../../engine/src/index.ts';
@@ -18,11 +18,10 @@ const ZOO: CardDef[] = [
 ].filter(Boolean) as CardDef[];
 
 function Hand({ c, big }: { c: CardDef; big?: boolean }) {
-  const art = artUrl(c.id);
   return (
     <div className={`handcard${big ? ' big' : ''} r-${c.rarity ?? 'common'}`} style={{ margin: 0, transform: 'none', filter: 'none' }}>
       <div className="hcInner"><div className="hcFace">
-        <div className="hcArt" style={art ? { backgroundImage: `url(${art})` } : undefined} />
+        <div className="hcArt" style={artStyle(c.id, 'hand')} />
         <div className={`hcName${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="hcCost">{c.cost ?? 0}</div>
@@ -31,10 +30,9 @@ function Hand({ c, big }: { c: CardDef; big?: boolean }) {
   );
 }
 function BoardMinion({ c }: { c: CardDef }) {
-  const art = artUrl(c.id);
   return (
     <div className="minion" style={{ position: 'relative' }}>
-      <div className="body"><div className="mFace" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+      <div className="body"><div className="mFace" style={artStyle(c.id, 'minion')}>
         <div className={`nameband${fitName(c.name)}`}>{c.name}</div>
       </div></div>
       <div className="atk">{c.attack ?? 0}</div><div className="hp">{c.health ?? 0}</div>

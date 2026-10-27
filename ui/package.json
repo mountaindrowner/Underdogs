@@ -1,6 +1,6 @@
 {
   "name": "@underdogs/ui",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "type": "module",
   "description": "React board + animation layer for UNDERDOGS. Consumes the engine's GameEvent stream.",
   "scripts": {
