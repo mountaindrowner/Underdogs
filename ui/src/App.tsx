@@ -14,6 +14,7 @@ import { fitName } from './fit.ts';
 import { SettingsScreen } from './Settings.tsx';
 import { CardZoo } from './CardZoo.tsx';
 import { PackLab } from './PackLab.tsx';
+import { ArtGallery } from './ArtGallery.tsx';
 import { StorehouseScreen } from './Storehouse.tsx';
 import { applyMatch, type MatchPayout } from './economy.ts';
 import { music } from './audio.ts';
@@ -786,6 +787,7 @@ export default function App() {
   // dev-only fit-audit gallery (?zoo=1) + pack-ritual tester (?pack=1) — not linked from any menu
   if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('zoo')) return <CardZoo />;
   if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('pack')) return <PackLab />;
+  if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('art')) return <ArtGallery />;
   if (!started) return <Title scene={scene} onBegin={() => setStarted(true)} />;
   if (battle) {
     return <>
