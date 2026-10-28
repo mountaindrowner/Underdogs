@@ -85,7 +85,7 @@ export interface EffectOp {
   refreshEachTurn?: boolean;        // aura giveKeyword: re-arm at the start of your turn
   perEnemyUnit?: boolean;           // buff: multiply by enemy unit count
   ifLastCard?: { attack?: number; health?: number }; // Widow's Mite: bigger if hand is empty
-  thisTurn?: boolean;               // buff: temporary, wears off at your next dawn
+  thisTurn?: boolean;               // buff: temporary, wears off when the turn ends
   toFull?: boolean;                 // heal: restore to max
   toField?: boolean;                // returnFromDiscard: to the board (else to hand)
   withKeyword?: Keyword;            // summon/returnFromDiscard: unit arrives with this
@@ -157,8 +157,10 @@ export interface UnitInstance {
   auraHp: number;
   /** keywords granted by auras (revoked when the aura leaves). */
   auraKw: Keyword[];
-  /** temporary attack (thisTurn buffs); cleared at the owner's next dawn. */
+  /** temporary attack (thisTurn buffs); cleared when the turn ends. */
   tempAtk: number;
+  /** temporary health (thisTurn buffs, e.g. Deborah's Command); removed when the turn ends. */
+  tempHp?: number;
   /** how many of the owner's turns this unit has begun (covenant onTurn). */
   covenantTicks: number;
   /** global turn counter when this unit entered play (auto_next_turn). */
@@ -234,6 +236,9 @@ export interface PendingChoice {
   resume: EffectOp[];
   sourceUid?: number;
   targetUid?: number;
+  /** set when the choice opened during Dusk (Habakkuk): the end-of-turn
+   *  triggers of these units still have to run, then the turn passes. */
+  endTurnRest?: number[];
 }
 
 export interface GameState {

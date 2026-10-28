@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useMatch, needsTarget, targetSideOf } from './useMatch.ts';
+import { useMatch } from './useMatch.ts';
 import { artStyle, artUrl, CARD_BACK, registry } from './data.ts';
 import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
   type Encounter, type MatchConfig } from './campaign.ts';
 import { FreePlaySetup } from './FreePlay.tsx';
 import { DecksScreen } from './Decks.tsx';
 import type { VUnit, HeroV, Prov } from './view.ts';
-import { effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide, type CardDef, type Action, type PendingChoice } from '../../engine/src/index.ts';
+import { effAttack, effCost, hasKeyword, explicitTargetOp, legalTargets, heroCanBeTarget,
+  type CardDef, type Action, type PendingChoice, type EffectOp, type GameState } from '../../engine/src/index.ts';
 import { KW_LABEL } from './glossary.ts';
 import { CardPreview } from './CardPreview.tsx';
 import { Board } from './board/Board.tsx';
@@ -37,10 +38,20 @@ type Src = SrcHand | { kind: 'attacker'; uid: number } | { kind: 'heropower' };
 // Pointer position/tilt are NOT stored here — they live in refs and the ghost/
 // arrow are positioned imperatively, so a drag never re-renders the board.
 type Act = { src: Src; from: { x: number; y: number }; dragging: boolean; needsTgt: boolean };
-type Drop = { kind: 'none' | 'board' | 'foeHero' } | { kind: 'unit'; uid: number; owner: number };
+type Drop = { kind: 'none' | 'board' | 'foeHero' | 'youHero' } | { kind: 'unit'; uid: number; owner: number };
 
-const needsTargetPower = (hp?: { effects?: { target?: string }[] }) =>
-  !!hp?.effects?.some((op) => needsExplicitTarget(op as never));
+/** What a card / the hero power asks you to aim at right now: the legal units,
+ *  and whether your own hero is a legal pick ("…or your hero"). null = no aiming.
+ *  `can` is false when it asks for a target but none exists (then a minion is
+ *  simply placed, its Arrival fizzling; a spell or power can't be used). */
+type Aim = { units: Set<number>; hero: boolean; can: boolean };
+function aimFor(engine: GameState, ops?: EffectOp[]): Aim | null {
+  const op = explicitTargetOp(ops);
+  if (!op) return null;
+  const units = new Set(legalTargets(engine, 0, op).map((u) => u.uid));
+  const hero = heroCanBeTarget(op);
+  return { units, hero, can: units.size > 0 || hero };
+}
 
 function dropAt(x: number, y: number): Drop {
   const el = document.elementFromPoint(x, y);
@@ -48,7 +59,7 @@ function dropAt(x: number, y: number): Drop {
   if (!hit) return { kind: 'none' };
   const kind = hit.getAttribute('data-drop')!;
   if (kind === 'unit') return { kind: 'unit', uid: Number(hit.getAttribute('data-uid')), owner: Number(hit.getAttribute('data-owner')) };
-  return { kind: kind as 'board' | 'foeHero' };
+  return { kind: kind as 'board' | 'foeHero' | 'youHero' };
 }
 
 // ---- presentational pieces -------------------------------------------------
@@ -176,8 +187,8 @@ function HeroCorner({ h, side, name, artId, prov, deck, targetable, foe, childre
     targetable?: boolean; foe?: boolean; children?: React.ReactNode; onDown?: (e: React.PointerEvent) => void }) {
   return (
     <div className={`corner ${side}Corner`}>
-      <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? ' foeTarget' : ''}`}
-        onPointerDown={onDown} data-drop={foe ? 'foeHero' : undefined}>
+      <div className={`hero ${side}${h.shake ? ' shake' : ''}${targetable ? (foe ? ' foeTarget' : ' youTarget') : ''}`}
+        onPointerDown={onDown} data-drop={foe ? 'foeHero' : 'youHero'}>
         <div className="portrait art-win" style={artStyle(artId, 'portrait')} />
         <div className="hpbadge">{h.hp}</div>
         {h.dmg != null && <div className="float dmg heroFloat">-{h.dmg}</div>}
@@ -374,6 +385,11 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const you = engine.players[0];
   const foe = engine.players[1];
   const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0).map((u) => u.uid));
+  const hpAim = aimFor(engine, you.heroPower?.effects);
+  // can this hand card be played right now? (a targeted spell needs something to aim at)
+  const castable = (c: CardDef) => effCost(engine, 0, c) <= you.provision
+    && !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit)
+    && (c.type === 'minion' || (aimFor(engine, c.effects?.arrival)?.can ?? true));
   const guardActive = foe.board.some((u) => hasKeyword(u, 'guard'));
   const over = engine.phase === 'over';
   const won = over && engine.winner === 0;
@@ -407,11 +423,10 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     if (drop.kind !== 'none') haptics.play();
     if (src.kind === 'hand') {
       const card = src.card;
-      if (needsTarget(card)) {
-        const side = targetSideOf(card);
-        const ok = drop.kind === 'unit'
-          && (side === 'any' || (side === 'enemy' ? drop.owner === 1 : drop.owner === 0));
-        if (ok && drop.kind === 'unit') dispatch({ type: 'PLAY_CARD', handIndex: src.index, targetUid: drop.uid });
+      const aim = engine ? aimFor(engine, card.effects?.arrival) : null;
+      if (aim?.can) {
+        if (drop.kind === 'unit' && aim.units.has(drop.uid)) dispatch({ type: 'PLAY_CARD', handIndex: src.index, targetUid: drop.uid });
+        else if (drop.kind === 'youHero' && aim.hero) dispatch({ type: 'PLAY_CARD', handIndex: src.index });
       } else if (drop.kind === 'board' || drop.kind === 'unit') {
         dispatch({ type: 'PLAY_CARD', handIndex: src.index });
       }
@@ -421,7 +436,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
       else if (drop.kind === 'foeHero' && !guardActive)
         dispatch({ type: 'ATTACK', attackerUid: src.uid, targetUid: 'hero' });
     } else if (src.kind === 'heropower') {
-      if (drop.kind === 'unit') dispatch({ type: 'HERO_POWER', targetUid: drop.uid });
+      if (drop.kind === 'unit' && hpAim?.units.has(drop.uid)) dispatch({ type: 'HERO_POWER', targetUid: drop.uid });
     }
     setAct(null);
   }
@@ -431,10 +446,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
     if (!canAct) { setHover(you.hand[i]); return; }
     if (act && !act.dragging) { resolve(act.src, { kind: 'none' }); return; } // second tap on hand cancels
     const card = you.hand[i];
-    const affordable = effCost(engine, 0, card) <= you.provision &&
-      !(card.type === 'minion' && you.board.length >= engine.rules.boardLimit);
-    if (!affordable) { setHover(card); return; }
-    beginGrab({ kind: 'hand', index: i, card }, e, needsTarget(card));
+    if (!castable(card)) { setHover(card); return; }
+    beginGrab({ kind: 'hand', index: i, card }, e, !!aimFor(engine, card.effects?.arrival)?.can);
   };
   const unitDown = (u: VUnit, e: React.PointerEvent) => {
     if (act && !act.dragging) { e.stopPropagation(); resolve(act.src, { kind: 'unit', uid: u.uid, owner: u.owner }); return; }
@@ -443,11 +456,14 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const foeHeroDown = (e: React.PointerEvent) => {
     if (act && !act.dragging) { e.stopPropagation(); resolve(act.src, { kind: 'foeHero' }); }
   };
+  const youHeroDown = (e: React.PointerEvent) => {
+    if (act && !act.dragging) { e.stopPropagation(); resolve(act.src, { kind: 'youHero' }); }
+  };
   const hpwr = you.heroPower;
-  const hpUsable = canAct && !!hpwr && you.provision >= hpwr.cost && !hpwr.usedThisTurn;
+  const hpUsable = canAct && !!hpwr && you.provision >= hpwr.cost && !hpwr.usedThisTurn && (hpAim?.can ?? true);
   const heroPowerDown = (e: React.PointerEvent) => {
     if (!hpUsable || !hpwr) return;
-    if (needsTargetPower(hpwr)) beginGrab({ kind: 'heropower' }, e, true);
+    if (hpAim) beginGrab({ kind: 'heropower' }, e, true);
     else { dispatch({ type: 'HERO_POWER' }); clear(); }
   };
 
@@ -456,20 +472,13 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   const validUnit = (u: VUnit): boolean => {
     if (!act) return false;
     if (act.src.kind === 'attacker') return u.owner === 1 && (!guardActive || u.keywords.includes('guard'));
-    if (act.src.kind === 'heropower') {
-      // respect the power's target side (e.g. Aaron's Intercede is ally-only)
-      const op = hpwr?.effects?.find((o) => needsExplicitTarget(o as never));
-      const side = targetSide(op?.target as never);
-      return side === 'any' || (side === 'enemy' ? u.owner === 1 : u.owner === 0);
-    }
-    if (act.src.kind === 'hand') {
-      if (!act.needsTgt) return false;
-      const side = targetSideOf(act.src.card);
-      return side === 'any' || (side === 'enemy' ? u.owner === 1 : u.owner === 0);
-    }
+    // legal picks only: side + tribe (Timothy / Exhort want a Disciple)
+    if (act.src.kind === 'heropower') return !!hpAim?.units.has(u.uid);
+    if (act.src.kind === 'hand') return act.needsTgt && !!aimFor(engine, act.src.card.effects?.arrival)?.units.has(u.uid);
     return false;
   };
   const foeHeroTarget = !!act && act.src.kind === 'attacker' && !guardActive;
+  const youHeroTarget = !!act && act.src.kind === 'hand' && act.needsTgt && !!aimFor(engine, act.src.card.effects?.arrival)?.hero;
   const boardOpen = !!act && act.src.kind === 'hand' && !act.needsTgt;
 
   const previewCard = (act?.src.kind === 'hand' ? act.src.card : null) ?? hover;
@@ -604,7 +613,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           artId={foe.leaderId ?? (cfg.startUnits?.[1]?.[0] ?? '')}
           prov={view.prov[1]} deck={foe.deck.length} foe targetable={foeHeroTarget} onDown={foeHeroDown} />
         <HeroCorner h={view.heroes[0]} side="you" name="You" artId={you.leaderId ?? ''}
-          prov={view.prov[0]} deck={you.deck.length}>
+          prov={view.prov[0]} deck={you.deck.length} targetable={youHeroTarget} onDown={youHeroDown}>
           {hpwr && (
             <div className={`hpower${hpUsable ? ' usable' : ''}`} onPointerDown={heroPowerDown} data-tip-align="left"
               data-tip={`${hpwr.name} (${hpwr.cost} Provision, once per turn)\n${registry.get(you.leaderId ?? '')?.hero_power?.text ?? ''}`}>
@@ -638,8 +647,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
           {you.hand.map((c, i) => {
             const off = i - (n - 1) / 2;
             const fan = { rot: Math.max(-9, Math.min(9, off * 3)), ty: Math.abs(off) * 5 };
-            const playable = canAct && effCost(engine, 0, c) <= you.provision &&
-              !(c.type === 'minion' && you.board.length >= engine.rules.boardLimit);
+            const playable = canAct && castable(c);
             const picked = act?.src.kind === 'hand' && act.src.index === i;
             return (
               <HandCard key={i} c={c} playable={playable} selected={!!picked} fan={fan}

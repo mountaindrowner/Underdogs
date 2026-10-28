@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
   createGame, applyAction, registerDefs, makeRegistry, effAttack, effHealth, hasKeyword, effCost,
+  explicitTargetOp, legalTargets,
   type CardDef, type Action, type GameState,
 } from '../src/index.ts';
 import { loadCardData } from '../src/cards.node.ts';
@@ -533,4 +534,138 @@ test('AI difficulty is deterministic per level', async () => {
     const b = pickAction(structuredClone(s), lvl);
     assert.deepEqual(a, b, `level ${lvl} deterministic`);
   }
+});
+
+// ---- the play-every-card audit (D-51): text that wasn't happening ----------
+
+const discipleCount = (s: GameState) => s.players[0].board.filter((u) => u.defId === 'tok_disciple').length;
+const kill = (s: GameState, defId: string) => {
+  s = structuredClone(s);
+  const u = s.players[0].board.find((x) => x.defId === defId)!;
+  u.health = -9; u.endure = false;
+  return act(s, { type: 'END_TURN' });                    // the next action settles the death
+};
+
+test('Scatter summons exactly what the card says (no extra Disciple)', () => {
+  for (const [id, n] of [['eager_convert', 1], ['matthias', 1], ['stephen', 2], ['sons_of_thunder', 2]] as const) {
+    let s = rig([id]);
+    s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+    s = kill(s, id);
+    assert.equal(discipleCount(s), n, `${id} scatters ${n}`);
+  }
+});
+
+test('Saul → Paul: Paul arrives and draws 2', () => {
+  let s = rig(['saul_of_tarsus']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = act(s, { type: 'END_TURN' });
+  const before = s.players[0].hand.length;
+  s = act(s, { type: 'END_TURN' });                       // your dawn: draw 1, then Paul draws 2
+  assert.equal(s.players[0].board[0].defId, 'paul_apostle');
+  assert.equal(s.players[0].hand.length - before, 3);
+});
+
+test("Saul's -1 attack lasts this turn only", () => {
+  let s = rig(['firstborn_heir', 'saul_of_tarsus']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(effAttack(s.players[0].board[0]), 0, 'Heir 1 → 0 this turn');
+  s = act(s, { type: 'END_TURN' });                       // rival's turn: the penalty is gone
+  assert.equal(effAttack(s.players[0].board[0]), 1);
+});
+
+test('Abram fulfills at the start of your turn (not the moment allies arrive) and Abraham brings two Heirs', () => {
+  let s = rig(['abram_the_called'], [], ['watchman', 'watchman', 'watchman']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[0].board[3].defId, 'abram_the_called', 'not yet — mid-turn');
+  s = act(s, { type: 'END_TURN' });
+  s = act(s, { type: 'END_TURN' });
+  assert.equal(s.players[0].board[3].defId, 'abraham_father_of_nations');
+  assert.equal(s.players[0].board.filter((u) => u.defId === 'tok_heir').length, 2, 'Arrival on Fulfill');
+});
+
+test('Daniel → Daniel the Beloved: the Foresee 3 opens for the human at dawn', () => {
+  let s = rigDeck(['daniel'], []);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = structuredClone(s); s.players[0].board[0].health -= 1;   // wounded in the den
+  s = act(s, { type: 'END_TURN' });
+  s = act(s, { type: 'END_TURN' });
+  assert.equal(s.players[0].board[0].defId, 'daniel_the_beloved');
+  assert.equal(s.pending?.kind, 'foresee');
+  assert.equal(s.pending?.cardIds.length, 3);
+});
+
+test('Joseph returns as Lord of Egypt and draws 2', () => {
+  let s = rig(['joseph_the_dreamer']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = kill(s, 'joseph_the_dreamer');                      // exiled; back in 2 of your turns
+  let drew = 0;
+  for (let i = 0; i < 4 && !s.players[0].board.length; i++) {
+    const h = s.players[0].hand.length; s = act(s, { type: 'END_TURN' }); drew = s.players[0].hand.length - h;
+  }
+  assert.equal(s.players[0].board[0]?.defId, 'joseph_lord_of_egypt');
+  assert.equal(drew, 3, 'dawn draw + his 2');
+});
+
+test("The Birthright's Legacy rides on the unit it's equipped to", () => {
+  let s = rig(['the_birthright'], [], ['watchman']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0, targetUid: s.players[0].board[0].uid });
+  const h = s.players[0].hand.length;
+  s = kill(s, 'watchman');
+  assert.equal(s.players[0].hand.length - h, 1, 'Legacy: draw a card');
+});
+
+test('Huldah discovers a SPELL from the deck (Rebekah a unit)', () => {
+  let s = rigDeck(['huldah_prophetess'], ['watchman', 'watchman', 'watchman', 'fire_from_heaven'], false);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.deepEqual(s.players[0].hand.map((c) => c.id), ['fire_from_heaven']);
+});
+
+test('John Mark: the second fall is a real death (to the discard, not vanished)', () => {
+  let s = rig(['john_mark_deserter']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = kill(s, 'john_mark_deserter');
+  assert.ok(s.players[0].hand.some((c) => c.id === 'john_mark_deserter'), 'first time: back to hand');
+  s = act(s, { type: 'END_TURN' });
+  s = act(s, { type: 'PLAY_CARD', handIndex: s.players[0].hand.findIndex((c) => c.id === 'john_mark_deserter') });
+  s = kill(s, 'john_mark_deserter');
+  assert.ok(s.players[0].discard.some((c) => c.id === 'john_mark_deserter'));
+});
+
+test("Hero powers: Rally / Command last this turn; Exhort only picks a Disciple", () => {
+  const withPower = (leader: string, myBoard: string[]) => {
+    const s = structuredClone(rig([], [], myBoard));
+    const hp = reg.get(leader)!.hero_power!;
+    s.players[0].heroPower = { name: hp.name, cost: hp.cost, effects: hp.effects ?? [], usedThisTurn: false };
+    return s;
+  };
+  let s = withPower('deborah_leader', ['firstborn_heir']);
+  const heir = s.players[0].board[0];
+  s = act(s, { type: 'HERO_POWER', targetUid: heir.uid });
+  assert.equal(effAttack(s.players[0].board[0]), 2);
+  assert.equal(effHealth(s.players[0].board[0]), 4);
+  s = act(s, { type: 'END_TURN' });
+  assert.equal(effAttack(s.players[0].board[0]), 1, 'Command wore off');
+  assert.equal(effHealth(s.players[0].board[0]), 3);
+
+  s = withPower('paul_leader', ['andrew_the_first', 'tok_disciple']);
+  const op = explicitTargetOp(s.players[0].heroPower!.effects)!;
+  assert.deepEqual(legalTargets(s, 0, op).map((u) => u.defId), ['tok_disciple']);
+});
+
+test('Habakkuk: a Foresee at Dusk pauses the end of YOUR turn, then the turn passes', () => {
+  let s = rigDeck(['habakkuk_watchtower'], []);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = act(s, { type: 'END_TURN' });
+  assert.equal(s.pending?.kind, 'foresee');
+  assert.equal(s.active, 0, 'still your Dusk — the rival has not started');
+  s = act(s, { type: 'RESOLVE_CHOICE', keep: [0] });
+  assert.equal(s.active, 1);
+  assert.equal(s.phase, 'main');
+});
+
+test('A targeted minion with nothing to aim at is still played (Andrew on an empty board)', () => {
+  let s = rig(['andrew_the_first']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  assert.equal(s.players[0].board[0]?.defId, 'andrew_the_first');
 });

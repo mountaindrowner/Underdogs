@@ -2,7 +2,7 @@
  *  engine's GameEvent stream — the UI holds NO engine state. Each event is one
  *  "beat": transient flags (lunge, damage float, hit flash) live for one beat,
  *  then are cleared; dead units fade during their beat and are removed next. */
-import type { GameEvent, PlayerId, CardDef } from '../../engine/src/index.ts';
+import type { GameEvent, GameState, PlayerId, CardDef } from '../../engine/src/index.ts';
 
 export interface VUnit {
   uid: number; defId: string; name: string; owner: PlayerId;
@@ -52,6 +52,32 @@ export function clearTransient(v: View): View {
              { ...v.heroes[1], dmg: undefined, heal: undefined, shake: false }],
     boards: [v.boards[0].filter((u) => !u.dead).map(scrub),
              v.boards[1].filter((u) => !u.dead).map(scrub)],
+  };
+}
+
+/** Snap the view to the engine's truth once an action's beats have all played.
+ *  Catches anything that changed without an event of its own — a unit exiled
+ *  by its own Covenant (Enoch), a Raise at 1 health, a spent Endure — so the
+ *  board can never drift from the real game. Transient flags are kept; units
+ *  mid death-fade stay put until clearTransient sweeps them. */
+export function reconcile(v: View, s: GameState): View {
+  const boards = ([0, 1] as const).map((p) => {
+    const vb = v.boards[p];
+    const out: VUnit[] = s.players[p].board.map((u) => ({
+      ...(vb.find((x) => x.uid === u.uid) ?? { enter: true }),
+      uid: u.uid, defId: u.defId, name: u.name, owner: u.owner,
+      attack: u.attack + (u.tempAtk ?? 0), health: u.health, maxHealth: u.maxHealth,
+      keywords: u.keywords.filter((k) => k !== 'endure' || u.endure),
+      auraAtk: u.auraAtk, auraHp: u.auraHp, auraKw: [...u.auraKw],
+    }));
+    vb.forEach((x, i) => { if (x.dead && !out.some((o) => o.uid === x.uid)) out.splice(Math.min(i, out.length), 0, x); });
+    return out;
+  }) as [VUnit[], VUnit[]];
+  const hero = (p: PlayerId): HeroV => ({ ...v.heroes[p], hp: s.players[p].heroHp, maxHp: s.players[p].heroMaxHp });
+  return {
+    ...v, boards, heroes: [hero(0), hero(1)],
+    relics: [s.players[0].relics.map((r) => r.defId), s.players[1].relics.map((r) => r.defId)],
+    prov: [{ cur: s.players[0].provision, max: s.players[0].provisionMax }, { cur: s.players[1].provision, max: s.players[1].provisionMax }],
   };
 }
 
@@ -114,7 +140,7 @@ export function applyEvent(v: View, e: GameEvent, reg: Map<string, CardDef>): Vi
       upd(e.uid, (u) => ({ ...u, defId: e.intoDef, name: def?.name ?? u.name,
         attack: def?.attack ?? u.attack, maxHealth: def?.health ?? u.maxHealth,
         health: def?.health ?? u.maxHealth, keywords: [...(def?.keywords ?? [])],
-        auraAtk: 0, auraHp: 0, auraKw: [], fulfilling: true }));
+        fulfilling: true }));                 // auras carry over (the engine keeps them)
       break;
     }
     case 'relicPlaced':

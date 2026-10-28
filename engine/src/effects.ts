@@ -30,7 +30,7 @@ export interface Ctx {
   healUnit(u: UnitInstance, amount: number): void;
   healHero(p: PlayerId, amount: number): void;
   buff(u: UnitInstance, atk: number, hp: number): void;
-  tempBuff(u: UnitInstance, atk: number): void;
+  tempBuff(u: UnitInstance, atk: number, hp: number): void;
   giveKeyword(u: UnitInstance, k: Keyword): void;
   silence(u: UnitInstance): void;
   setAttack(u: UnitInstance, atk: number): void;
@@ -46,7 +46,7 @@ export interface Ctx {
   foreseeChoice(count: number, source?: UnitInstance, targetUid?: number): void;
   /** Discover: reveal `count` from the top of the deck, keep `keep` into hand.
    *  Pauses for the interactive player; auto-keeps the first `keep` otherwise. */
-  discoverChoice(count: number, keep: number, source?: UnitInstance, targetUid?: number): void;
+  discoverChoice(count: number, keep: number, source?: UnitInstance, targetUid?: number, cardType?: string): void;
   addToHand(p: PlayerId, defId: string): void;
   returnUnitToHand(u: UnitInstance): void;
   shuffleUnitIntoDeck(u: UnitInstance): void;
@@ -81,6 +81,26 @@ export function targetSide(spec: TargetSpec | undefined): 'enemy' | 'ally' | 'an
     case 'ally': case 'anyFriendlyOrHero': case 'friendlyDisciple': return 'ally';
     default: return 'any';
   }
+}
+
+/** The op on a card / hero power that asks the player for a target, if any. */
+export function explicitTargetOp(ops?: EffectOp[]): EffectOp | undefined {
+  return ops?.find(needsExplicitTarget);
+}
+
+/** The units a player may legally pick for an explicit-target op — the one
+ *  answer the UI (highlighting, drops) and the AI (move generation) share. */
+export function legalTargets(state: GameState, me: PlayerId, op: EffectOp): UnitInstance[] {
+  const allies = state.players[me].board;
+  const enemies = state.players[me === 0 ? 1 : 0].board;
+  const side = targetSide(op.target);
+  const pool = side === 'enemy' ? enemies : side === 'ally' ? allies : [...allies, ...enemies];
+  return op.target === 'friendlyDisciple' ? pool.filter(isDisciple) : pool;
+}
+
+/** "…or your hero": with no unit picked, these ops land on your own hero. */
+export function heroCanBeTarget(op: EffectOp): boolean {
+  return op.target === 'anyCharacter' || op.target === 'anyFriendlyOrHero';
 }
 
 export function resolveTargets(
@@ -277,7 +297,7 @@ export function applyEffect(
         const n = ctx.unitsOf(ctx.controller).filter((u) => u.uid !== source?.uid).length;
         atk *= n; hp *= n;
       }
-      if (op.thisTurn) eachUnit((u) => ctx.tempBuff(u, atk));   // temp hp not modelled
+      if (op.thisTurn) eachUnit((u) => ctx.tempBuff(u, atk, hp));
       else eachUnit((u) => ctx.buff(u, atk, hp));
       break;
     }
@@ -327,8 +347,9 @@ export function applyEffect(
         op.count ?? op.amount ?? 1, op.random);
       break;
     case 'discoverFromDeck':
-      // reveal `count` from the deck, keep `keep` (Solomon: 3 → keep 2)
-      ctx.discoverChoice(op.count ?? 3, op.keep ?? 2, source, explicitTargetUid);
+      // reveal `count` from the deck, keep `keep` (Solomon: 3 → keep 2);
+      // cardType narrows the reveal (Huldah: a spell, Rebekah: a unit)
+      ctx.discoverChoice(op.count ?? 3, op.keep ?? 2, source, explicitTargetUid, op.cardType ?? op.type);
       break;
     case 'transform':
       if (op.into && source) ctx.transform(source, op.into);

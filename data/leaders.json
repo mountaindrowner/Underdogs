@@ -63,7 +63,8 @@
             "verb": "buff",
             "attack": 1,
             "health": 0,
-            "target": "target"
+            "target": "ally",
+            "thisTurn": true
           }
         ]
       },
@@ -88,7 +89,8 @@
             "verb": "buff",
             "attack": 1,
             "health": 1,
-            "target": "target"
+            "target": "ally",
+            "thisTurn": true
           }
         ]
       },
@@ -136,7 +138,7 @@
           {
             "verb": "giveKeyword",
             "keyword": "endure",
-            "target": "target"
+            "target": "ally"
           }
         ]
       },
@@ -185,7 +187,7 @@
             "verb": "buff",
             "attack": 0,
             "health": 2,
-            "target": "target"
+            "target": "ally"
           }
         ]
       },
@@ -234,7 +236,7 @@
             "verb": "buff",
             "attack": 1,
             "health": 1,
-            "target": "target"
+            "target": "ally"
           }
         ]
       },
@@ -283,7 +285,7 @@
             "verb": "buff",
             "attack": 1,
             "health": 1,
-            "target": "target"
+            "target": "friendlyDisciple"
           }
         ]
       },

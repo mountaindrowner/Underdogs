@@ -10,7 +10,7 @@
 
 UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 239 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy is real** (docs/21 + D-45): you pick a starter calling, earn Talents by playing, buy packs in the Storehouse (seal-break → fan → rarity-glow flip ritual), shatter dupes into Fragments, craft any card, and the Armory enforces true ownership. **Scroll Study and the iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 57 engine tests pass · card audit clean (239 defs, 3 deferred) · AI-vs-AI soak clean (36 matchups) · `vite build` succeeds.
+**Green across the board:** 69 engine tests pass · card audit clean (239 defs, 3 deferred) · all-modes soak clean (81 configs: story, skirmish, free play, full pool) · `vite build` succeeds.
 
 ---
 
@@ -35,13 +35,13 @@ Rule of thumb: **if a fact in a doc is now false, fixing it is part of the chang
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 57, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 69, # fail 0
 node --test engine/test/*.test.ts
 
 # 2. Card-data audit  → expect: "all 239 definitions check out (3 deferred)"
 node tools/audit-cards.ts
 
-# 3. AI-vs-AI soak (all class matchups, full games)  → expect: "SOAK OK: 36 games … no crashes"
+# 3. AI-vs-AI soak over every mode (~70s)  → expect: "SOAK OK: 81 games over 81 configs … no crashes, stalls or broken invariants"
 node tools/soak.ts 1
 
 # 3b. Balance sims (optional — measure, don't gate). See docs/08-balance.md.
@@ -109,7 +109,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 /ui/assets         cards|leaders|adversaries|tokens|backs (WebP + PNG originals),
                    audio (3 mp3), sfx (~80 mp3), fonts
 /ui/dist           BUILT OUTPUT, git-ignored but FORCE-ADDED so githack can serve it
-/tools           audit-cards.ts (data↔engine check) · soak.ts (AI-vs-AI) ·
+/tools           audit-cards.ts (data↔engine check) · soak.ts (AI-vs-AI, every mode) ·
                  cardart/ (Python art-gen pipeline; build-time only)
 /prototypes      battle-slice.html (the original reference slice)
 /docs            01–08 design docs (01 GDD predates the role-class pivot — CLAUDE.md wins)
@@ -195,6 +195,9 @@ Measured against `CLAUDE.md` and the design docs:
 
 - **`ui/dist` is git-ignored but force-added.** After a UI change you must `cd ui && npm run build && git add -f ui/dist` or the githack preview goes stale. The build output has content-hashed filenames, so stale `dist/assets/*` accumulate — occasionally prune.
 - **`data/cards.seed.json` contains SUPERSEDED sublists.** Its top-level `tokens` / `leaders` / `adversary` arrays are **early drafts**. The live data is in the separate `data/tokens.json`, `leaders.json`, `adversaries.json`. `collectDefs()` loads the separate files; the seed's `cards` array is the only live part of that file. (This already bit us once — `mantle_of_elijah` lived only in the seed's token draft and had to be moved into `tokens.json`.) **When adding tokens/leaders/adversaries, edit the dedicated file, not the seed sublists.**
+- **The audit is static; it can't tell you an effect *fires*.** It checks a card's verbs/targets exist, not that its trigger is ever reached — that's how Paul's draw, Abraham's Heirs and The Birthright's Legacy sat dead (D-51). For a new mechanic, add an effects test that plays the real card and checks its text happens, and keep the soak green.
+- **Targeting has one source of truth:** `legalTargets` / `explicitTargetOp` / `heroCanBeTarget` in `engine/src/effects.ts`. The battle UI and the AI both call them — never re-derive "which units can this hit" locally (D-51).
+- **The battle view is event-sourced but reconciles.** `ui/src/view.ts` animates from events, then `reconcile()` snaps it to engine state once the beats finish. A state change with no event still shows correctly, but it won't animate — emit an event if it should.
 - **The audit's constant Sets are the contract.** `tools/audit-cards.ts` hard-codes what the engine supports (VERBS, TRIGGERS, TARGETS, CONDITIONS, KEYWORDS, OP_FIELDS…). If you add an engine capability, **add it to the audit too**, or the audit lies. If you add card data using an unsupported field, the audit fails loudly — that's the point.
 - **Card art placement goes through `artStyle(id, surface)` + the `art-win` class (`ui/src/data.ts`, `codex.css`, D-49/D-50).** The painting is drawn by `.art-win::before`, measured against the window's real size, so it can't tile or leave gaps. Never set a card's `backgroundImage` by hand. After adding or regenerating art: run `python3 tools/cardart/clean_borders.py --dry` (and `--any-colour`) and **look at the proposals drawn on the art before applying**, then run `python3 tools/cardart/art_focus.py` and **check the head markers**; hand fixes go in `artFocus.json` `_overrides`.
 - **No emoji in the UI** (D-47). Class identity is a `Crest` (`ui/src/codex/Codex.tsx`, glyph + pigment). New icons come from game-icons.net: add the name to `ui/scripts/gen-glyphs.mjs` and rerun it; never hand-edit `glyphs.ts`. The icons are CC BY 3.0, so keep `CREDITS.md` and the Settings credit line.

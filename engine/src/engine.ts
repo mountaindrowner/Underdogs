@@ -199,7 +199,6 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
   sink.emit({ t: 'phase', phase: 'dawn', player: p, turn: state.turn });
   for (const u of pl.board) {
     u.ready = true; u.attacksThisTurn = 0; u.survivedDamage = false;
-    u.tempAtk = 0;                                           // thisTurn buffs wear off
     if (u.health < u.maxHealth) u.survivedDamagedTurn = true; // Daniel in the den
     u.covenantTicks = (u.covenantTicks ?? 0) + 1;
   }
@@ -213,8 +212,10 @@ function beginTurn(state: GameState, sink: EventSink, rng: Rng, p: PlayerId): vo
   // units returning after a delay (Joseph, Lord of Egypt)
   for (const d of [...pl.delayed]) {
     d.remaining -= 1;
-    if (d.remaining <= 0 && summonToken(state, sink, p, d.into)) {
+    const back = d.remaining <= 0 ? summonToken(state, sink, p, d.into) : null;
+    if (back) {
       pl.delayed.splice(pl.delayed.indexOf(d), 1);
+      runTrigger(ctx, back.effects.arrival, back);           // he arrives: Lord of Egypt draws 2
     }
   }
   // ops queued for this dawn (Job's restoration)
@@ -262,14 +263,40 @@ function endTurn(state: GameState, sink: EventSink, rng: Rng): void {
   const p = state.active;
   state.phase = 'dusk';
   sink.emit({ t: 'phase', phase: 'dusk', player: p, turn: state.turn });
-  // Dusk: end-of-turn triggers (Tabernacle, Musician, the idols of the AI…)
-  const ctx = makeCtx(state, sink, rng, p);
   const pl = state.players[p];
-  for (const u of [...pl.board, ...pl.relics]) runTrigger(ctx, u.effects.endOfTurn, u);
+  duskTriggers(state, sink, rng, p, [...pl.board, ...pl.relics].map((u) => u.uid));
+}
+
+/** Dusk: end-of-turn triggers (Tabernacle, Musician, the idols of the AI…),
+ *  unit by unit. If one opens the human's choice (Habakkuk's Foresee), stop
+ *  there; resolveChoice picks up the remaining units and then passes the turn. */
+function duskTriggers(state: GameState, sink: EventSink, rng: Rng, p: PlayerId, uids: number[]): void {
+  const pl = state.players[p];
+  const ctx = makeCtx(state, sink, rng, p);
+  for (let i = 0; i < uids.length; i++) {
+    const u = [...pl.board, ...pl.relics].find((x) => x.uid === uids[i]);
+    if (!u) continue;
+    runTrigger(ctx, u.effects.endOfTurn, u);
+    if (state.pending) { state.pending.endTurnRest = uids.slice(i + 1); return; }
+  }
   pl.nextCardDiscount = 0;                                    // Terah's window closes
+  expireThisTurn(state, sink);
   settle(state, sink, rng, p);
   if (state.phase === 'over') return;
   beginTurn(state, sink, rng, other(p));
+}
+
+/** "This turn" buffs (Saul, Rally, Command, the Taskmaster) end with the turn. */
+function expireThisTurn(state: GameState, sink: EventSink): void {
+  for (const pl of state.players) {
+    for (const u of pl.board) {
+      const atk = u.tempAtk ?? 0, hp = u.tempHp ?? 0;
+      if (!atk && !hp) continue;
+      u.tempAtk = 0; u.tempHp = 0;
+      if (hp) { u.maxHealth -= hp; u.health = Math.min(u.health, u.maxHealth); }
+      sink.emit({ t: 'buff', uid: u.uid, attack: -atk, health: -hp });
+    }
+  }
 }
 
 // ---- actions ---------------------------------------------------------------
@@ -318,6 +345,10 @@ function playCard(state: GameState, sink: EventSink, rng: Rng, handIndex: number
     // spell / equip relic: run its arrival-keyed effects, then discard
     if (card.type === 'spell') pl.spellsCast = (pl.spellsCast ?? 0) + 1;   // Fulfill: cast_spells
     runTrigger(ctx, card.effects?.arrival, undefined, targetUid);
+    // an equip relic's Legacy rides on the unit it's fastened to (The Birthright)
+    const bearer = card.type === 'relic' && card.effects?.legacy && targetUid != null
+      ? pl.board.find((u) => u.uid === targetUid) : undefined;
+    if (bearer) bearer.effects.legacy = [...(bearer.effects.legacy ?? []), ...structuredClone(card.effects!.legacy!)];
     pl.discard.push(card);
   }
   if (state.pending) return;              // a Foresee/Discover is waiting — settle on resolve
@@ -450,12 +481,16 @@ function makeCtx(state: GameState, sink: EventSink, rng: Rng, controller: Player
     },
     buff: (u, atk, hp) => { u.attack += atk; u.maxHealth += hp; u.health += hp;
       sink.emit({ t: 'buff', uid: u.uid, attack: atk, health: hp }); },
-    tempBuff: (u, atk) => { u.tempAtk = (u.tempAtk ?? 0) + atk;
-      sink.emit({ t: 'buff', uid: u.uid, attack: atk, health: 0 }); },
+    tempBuff: (u, atk, hp) => {
+      u.tempAtk = (u.tempAtk ?? 0) + atk;
+      if (hp > 0) { u.tempHp = (u.tempHp ?? 0) + hp; u.maxHealth += hp; u.health += hp; }
+      sink.emit({ t: 'buff', uid: u.uid, attack: atk, health: Math.max(0, hp) });
+    },
     giveKeyword: (u, k) => { if (!u.keywords.includes(k)) u.keywords.push(k);
       if (k === 'endure') u.endure = true; sink.emit({ t: 'keyword', uid: u.uid, keyword: k, gained: true }); },
     silence: (u) => { u.keywords = []; u.effects = {}; u.endure = false;
       u.auraAtk = 0; u.auraHp = 0; u.auraKw = []; u.tempAtk = 0;
+      if (u.tempHp) { u.maxHealth -= u.tempHp; u.health = Math.min(u.health, u.maxHealth); u.tempHp = 0; }
       sink.emit({ t: 'silence', uid: u.uid }); },
     setAttack: (u, atk) => { u.attack = atk; sink.emit({ t: 'setAttack', uid: u.uid, attack: atk }); },
     summon: (owner, defId, position, withKeyword) => {
@@ -482,8 +517,8 @@ function makeCtx(state: GameState, sink: EventSink, rng: Rng, controller: Player
     exileUnit: (u) => exileUnit(state, u),
     foreseeChoice: (count, source, targetUid) =>
       openChoice(state, sink, controller, 'foresee', count, 0, source, targetUid),
-    discoverChoice: (count, keep, source, targetUid) =>
-      openChoice(state, sink, controller, 'discover', count, keep, source, targetUid),
+    discoverChoice: (count, keep, source, targetUid, cardType) =>
+      openChoice(state, sink, controller, 'discover', count, keep, source, targetUid, cardType),
     addToHand: (p, defId) => { const def = DEFS.get(defId) ?? DEFS.get('tok_' + defId); if (def) addToHand(p, def); },
     returnUnitToHand: (u) => {
       const pl = state.players[u.owner];
@@ -586,11 +621,19 @@ function findUnitByUid(state: GameState, uid: number): UnitInstance | undefined 
  *  stay in the deck until resolveChoice pulls them. */
 function openChoice(state: GameState, sink: EventSink, player: PlayerId,
                     kind: 'foresee' | 'discover', count: number, keep: number,
-                    source?: UnitInstance, targetUid?: number): void {
+                    source?: UnitInstance, targetUid?: number, cardType?: string): void {
   const pl = state.players[player];
+  if (cardType) {
+    // "Discover a spell": lift the first `count` matching cards to the top (in
+    // deck order) so the reveal is exactly those; the rest keep their order.
+    const hits = pl.deck.filter((c) => c.type === cardType).slice(0, count);
+    pl.deck = [...hits, ...pl.deck.filter((c) => !hits.includes(c))];
+    count = hits.length;
+  }
   const n = Math.min(count, pl.deck.length);
   if (n <= 0) return;                                    // empty deck → nothing to do
-  if (state.interactivePlayer === player) {
+  // pause only on the human's own turn — never hand them a choice mid-rival-turn
+  if (state.interactivePlayer === player && state.active === player) {
     state.pending = {
       kind, player, cardIds: pl.deck.slice(0, n).map((c) => c.id),
       pick: kind === 'discover' ? Math.min(keep, n) : 0,
@@ -633,10 +676,16 @@ function resolveChoice(state: GameState, sink: EventSink, rng: Rng,
     for (let i = 0; i < n; i++) if (!set.has(i)) pl.deck.push(slice[i]);  // unpicked → bottom
   }
 
-  const { resume, sourceUid, targetUid } = pc;
+  const { resume, sourceUid, targetUid, endTurnRest } = pc;
   state.pending = null;
   const ctx = makeCtx(state, sink, rng, pc.player);
   runTrigger(ctx, resume, sourceUid != null ? findUnitByUid(state, sourceUid) : undefined, targetUid);
+  const reopened = state.pending as GameState['pending'];  // the resumed ops opened another choice
+  if (reopened) {
+    if (endTurnRest) reopened.endTurnRest = endTurnRest;
+    return;
+  }
+  if (endTurnRest) return duskTriggers(state, sink, rng, pc.player, endTurnRest); // finish Dusk, pass the turn
   settle(state, sink, rng, pc.player);
 }
 
@@ -701,8 +750,10 @@ function settle(state: GameState, sink: EventSink, rng: Rng, controller: PlayerI
       pl.board.splice(idx, 1);
       const ctx = makeCtx(state, sink, rng, u.owner);
 
-      // death replacement (Jonah swims, Elijah rides, Joseph waits)
-      const replaced = (u.effects.onDeath ?? []).some((op) => op.replaceDeath);
+      // death replacement (Jonah swims, Elijah rides, Joseph waits) — a once-per-game
+      // replacement that's already spent (John Mark's second fall) is an ordinary death
+      const replaced = (u.effects.onDeath ?? []).some((op) => op.replaceDeath
+        && !(op.oncePerGame && pl.usedOnce.includes(`${u.defId}:${op.verb}`)));
       if (!replaced) {
         const def = DEFS.get(u.defId);
         if (def) { pl.discard.push(def); pl.fallen.push({ defId: u.defId, turn: state.turn }); }
@@ -711,15 +762,16 @@ function settle(state: GameState, sink: EventSink, rng: Rng, controller: PlayerI
       if (u.effects.onDeath) runTrigger(ctx, u.effects.onDeath, u);
 
       if (u.effects.legacy) { sink.emit({ t: 'legacy', uid: u.uid, defId: u.defId }); runTrigger(ctx, u.effects.legacy, u); }
-      if (u.effects.redeem) { sink.emit({ t: 'redeem', uid: u.uid, defId: u.defId }); runTrigger(ctx, u.effects.redeem, u); }
-      if (u.keywords.includes('scatter')) {
+      // own-death Redeem (David, the Shepherd's Redeem only listens for Sheep — no beat for him)
+      if (u.effects.redeem?.some((op) => !op.trigger && !op.on)) {
+        sink.emit({ t: 'redeem', uid: u.uid, defId: u.defId }); runTrigger(ctx, u.effects.redeem, u);
+      }
+      // Scatter: the card's own scatter ops say how many (Stephen: two); the bare
+      // keyword (e.g. granted mid-game) means the default single Disciple
+      if (u.effects.scatter || u.keywords.includes('scatter')) {
         sink.emit({ t: 'scatter', uid: u.uid, defId: u.defId });
-        summonToken(state, sink, u.owner, 'tok_disciple');
-        // extra Scatter ops (Stephen scatters two)
         if (u.effects.scatter) runTrigger(ctx, u.effects.scatter, u);
-      } else if (u.effects.scatter) {
-        sink.emit({ t: 'scatter', uid: u.uid, defId: u.defId });
-        runTrigger(ctx, u.effects.scatter, u);
+        else summonToken(state, sink, u.owner, 'tok_disciple');
       }
 
       // ---- listeners on the owner's other units/relics ----
@@ -751,17 +803,24 @@ function settle(state: GameState, sink: EventSink, rng: Rng, controller: PlayerI
     recomputeAuras(state, sink);
   }
   recomputeAuras(state, sink);
-  checkFulfills(state, sink, rng);
+  // a fulfilled form's Arrival can summon or draw — settle again if one fired
+  if (checkFulfills(state, sink, rng) && !state.pending) return settle(state, sink, rng, controller);
   checkWin(state, sink);
 }
 
-function checkFulfills(state: GameState, sink: EventSink, rng: Rng): void {
+/** Transform every unit whose Fulfill is met; the new form then ARRIVES —
+ *  its Arrival runs (Abraham's Heirs, Paul's draw, Daniel's Foresee). */
+function checkFulfills(state: GameState, sink: EventSink, rng: Rng): boolean {
+  let any = false;
   for (const pl of state.players) {
     for (const u of [...pl.board]) {
-      if (!u.fulfill) continue;
-      if (fulfillMet(state, u)) transformUnit(state, sink, u, u.fulfill.into);
+      if (!u.fulfill || !fulfillMet(state, u)) continue;
+      transformUnit(state, sink, u, u.fulfill.into);
+      any = true;
+      if (u.effects.arrival && !state.pending) runTrigger(makeCtx(state, sink, rng, u.owner), u.effects.arrival, u);
     }
   }
+  return any;
 }
 
 function fulfillMet(state: GameState, u: UnitInstance): boolean {
@@ -769,6 +828,9 @@ function fulfillMet(state: GameState, u: UnitInstance): boolean {
   const allies = state.players[u.owner].board;
   switch (f.condition) {
     case 'control_allies': return allies.filter((x) => x.uid !== u.uid).length >= (f.value ?? 3);
+    case 'start_turn_allies':                                      // Abram: checked at your Dawn only
+      return state.phase === 'dawn' && state.active === u.owner
+        && allies.filter((x) => x.uid !== u.uid).length >= (f.value ?? 3);
     case 'slay_giant': return !!u.slewGiant;
     case 'survive_damage': return !!u.survivedDamage;
     case 'survive_stronger': return !!u.survivedStronger;          // Jacob wrestles

@@ -542,6 +542,8 @@
 .foeCorner .portrait{box-shadow:0 0 0 2px #3a250c,0 0 0 5px #9c3a28,0 0 0 6px #5e1a0e,0 0 0 7px rgba(0,0,0,.6),
     0 8px 18px rgba(0,0,0,.6),inset 0 0 18px rgba(0,0,0,.45)}
 .hero.foeTarget .portrait{box-shadow:0 0 0 3px var(--rubric),0 0 0 6px var(--gold-lt),0 0 24px var(--rubric);cursor:crosshair}
+/* a heal that may land on you ("…or your hero") — a verdigris ring, not the red of attack */
+.hero.youTarget .portrait{box-shadow:0 0 0 3px var(--verdigris),0 0 0 6px var(--gold-lt),0 0 24px var(--verdigris);cursor:crosshair}
 /* health: a disc of sealing wax with the number pressed in */
 .hero .hpbadge{border:none;font-family:var(--f-display);font-weight:400;color:#fbe9d2;
   background:radial-gradient(circle at 38% 32%,#d85c43,#a5301c 55%,#651309);

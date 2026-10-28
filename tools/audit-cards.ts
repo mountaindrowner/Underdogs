@@ -44,7 +44,7 @@ const OP_FIELDS = new Set(['verb', 'amount', 'count', 'value', 'attack', 'health
   'delayTurns', 'drawIfLegendary', 'trigger', 'on', 'delayToNextTurn', 'filter',
   'perOtherAlly', 'toHand', 'diedThisTurn']);
 const OP_LISTENERS = new Set([undefined, 'friendlySheepDies', 'ally_death', 'self_damaged']);
-const FULFILL = new Set(['control_allies', 'slay_giant', 'survive_damage',
+const FULFILL = new Set(['control_allies', 'start_turn_allies', 'slay_giant', 'survive_damage',
   'survive_stronger', 'survive_damaged_turn', 'auto_next_turn',
   'hero_damaged', 'cast_spells', 'outnumbered_win']);
 const KEYWORDS = new Set(['guard', 'swift', 'endure', 'giant_slayer', 'redeem', 'scatter',

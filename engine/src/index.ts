@@ -13,4 +13,5 @@ export { createGame, applyAction, registerDefs, effAttack, effHealth, hasKeyword
 export { flattenCards, collectDefs, makeRegistry, buildDeck } from './cards.ts';
 // Node-only disk loader lives in ./cards.node.ts (kept out of the browser bundle).
 export { applyEffect, runTrigger, resolveTargets, needsExplicitTarget, targetSide,
+  explicitTargetOp, legalTargets, heroCanBeTarget,
   isSheep, isDisciple, isHeir, type Ctx, type Target } from './effects.ts';

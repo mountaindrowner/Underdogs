@@ -4,25 +4,15 @@
  *  free-play use the same loop. Input enabled only when animation catches up. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  createGame, applyAction, buildDeck, needsExplicitTarget, targetSide,
-  type GameState, type GameEvent, type Action, type CardDef,
+  createGame, applyAction, buildDeck,
+  type GameState, type GameEvent, type Action,
 } from '../../engine/src/index.ts';
 import { registry } from './data.ts';
-import { initialView, applyEvent, clearTransient, type View } from './view.ts';
+import { initialView, applyEvent, clearTransient, reconcile, type View } from './view.ts';
 import { pickAction, pickActionStrong } from './ai.ts';
 import { sfx } from './sfx.ts';
 import { haptics } from './haptics.ts';
 import type { MatchConfig } from './campaign.ts';
-
-export function needsTarget(c: CardDef): boolean {
-  return !!c.effects?.arrival?.some(needsExplicitTarget);
-}
-
-/** which side a targeted card may aim at ('enemy' | 'ally' | 'any') */
-export function targetSideOf(c: CardDef): 'enemy' | 'ally' | 'any' {
-  const op = c.effects?.arrival?.find(needsExplicitTarget);
-  return targetSide(op?.target);
-}
 
 const deck = (ids: string[]) => buildDeck(registry, ids);
 const leaderDef = (id?: string) => (id ? registry.get(id) : undefined);
@@ -35,6 +25,7 @@ export function useMatch(cfg: MatchConfig) {
   const [view, setView] = useState<View>(() => initialView(hp0, hp1));
   const [busy, setBusy] = useState(false);
   const feed = useRef<GameEvent[]>([]);
+  const truth = useRef<GameState | null>(null);   // latest engine state, for reconcile
   // economy: running tally of YOUR actions this match (docs/21 quest fuel)
   const stats = useRef({ spellsCast: 0, fulfills: 0, classCardsPlayed: 0, unitsSummoned: 0 });
   const youClass = registry.get(cfg.playerLeader ?? '')?.class;
@@ -67,6 +58,7 @@ export function useMatch(cfg: MatchConfig) {
     tally(g.events);
     cursor.current = 0;
     setView(initialView(hp0, hp1));
+    truth.current = g.state;
     setEngine(g.state);
     setBusy(feed.current.length > 0);
   }, [seed, cfg.key]);
@@ -82,6 +74,8 @@ export function useMatch(cfg: MatchConfig) {
         setView((v) => applyEvent(clearTransient(v), e, registry));
         setBusy(cursor.current < feed.current.length);
       } else if (busy) {
+        // every beat has played: snap the board to the engine's truth
+        if (truth.current) { const t = truth.current; setView((v) => reconcile(v, t)); }
         setBusy(false);
       }
     }, 300);
@@ -92,6 +86,7 @@ export function useMatch(cfg: MatchConfig) {
     setEngine((prev) => {
       if (!prev || prev.phase === 'over') return prev;
       const r = applyAction(prev, a);
+      truth.current = r.state;
       feed.current.push(...r.events);
       tally(r.events);
       setBusy(true);

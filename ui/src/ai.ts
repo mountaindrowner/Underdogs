@@ -4,23 +4,9 @@
  *  state, and take the best — passing only when nothing beats ending the turn.
  *  `pickAction` returns ONE action; the controller loops it until END_TURN. */
 import {
-  applyAction, effAttack, effCost, hasKeyword, needsExplicitTarget, targetSide,
-  type GameState, type Action, type PlayerId, type CardDef, type UnitInstance,
+  applyAction, effAttack, effCost, hasKeyword, explicitTargetOp, legalTargets, heroCanBeTarget,
+  type GameState, type Action, type PlayerId, type UnitInstance,
 } from '../../engine/src/index.ts';
-
-function needsTargetCard(c: CardDef): boolean {
-  return !!c.effects?.arrival?.some(needsExplicitTarget);
-}
-
-/** which units a targeted card may legally pick */
-function targetPool(c: CardDef, allies: UnitInstance[], enemies: UnitInstance[]): UnitInstance[] {
-  const op = c.effects?.arrival?.find(needsExplicitTarget);
-  switch (targetSide(op?.target)) {
-    case 'enemy': return enemies;
-    case 'ally': return allies;
-    default: return [...allies, ...enemies];
-  }
-}
 
 function unitValue(u: UnitInstance): number {
   let v = 1 + effAttack(u) + u.health;                 // a body worth ~1 + its stats
@@ -53,25 +39,25 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
   const enemies = s.players[foe].board;
   const acts: Action[] = [];
 
-  // plays (enumerate targets for targeted cards, on the legal side only)
+  // plays (enumerate legal targets for targeted cards). Like the UI: a minion
+  // with nothing to aim at is still played (its Arrival just fizzles); a
+  // "…or your hero" card may also go untargeted.
   pl.hand.forEach((c, i) => {
     if (effCost(s, me, c) > pl.provision) return;
     if (c.type === 'minion' && pl.board.length >= s.rules.boardLimit) return;
-    if (needsTargetCard(c)) {
-      for (const t of targetPool(c, pl.board, enemies)) acts.push({ type: 'PLAY_CARD', handIndex: i, targetUid: t.uid });
-    } else {
-      acts.push({ type: 'PLAY_CARD', handIndex: i });
-    }
+    const op = explicitTargetOp(c.effects?.arrival);
+    if (!op) { acts.push({ type: 'PLAY_CARD', handIndex: i }); return; }
+    const pool = legalTargets(s, me, op);
+    for (const t of pool) acts.push({ type: 'PLAY_CARD', handIndex: i, targetUid: t.uid });
+    if (heroCanBeTarget(op) || (!pool.length && c.type === 'minion')) acts.push({ type: 'PLAY_CARD', handIndex: i });
   });
 
   // hero power
   const hp = pl.heroPower;
   if (hp && !hp.usedThisTurn && pl.provision >= hp.cost) {
-    const hpOp = hp.effects.find(needsExplicitTarget);
+    const hpOp = explicitTargetOp(hp.effects);
     if (hpOp) {
-      const side = targetSide(hpOp.target);
-      const hpPool = side === 'enemy' ? enemies : side === 'ally' ? pl.board : [...pl.board, ...enemies];
-      for (const t of hpPool) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
+      for (const t of legalTargets(s, me, hpOp)) acts.push({ type: 'HERO_POWER', targetUid: t.uid });
     } else {
       acts.push({ type: 'HERO_POWER' });
     }
