@@ -24,7 +24,7 @@ const VERBS = new Set(['deal', 'heal', 'healUnit', 'healHero', 'buff', 'setAttac
   'silence', 'destroy', 'exile', 'summon', 'draw', 'drawType', 'transform', 'foresee', 'discover',
   'returnToHand', 'shuffleIntoDeck', 'delayedTransform', 'conditionalDeal', 'gainForEachSheep',
   'discoverFromDeck', 'onHealBonus', 'discountHand', 'returnFromDiscard', 'auraBuff', 'gainProvision',
-  'costReduce', 'cannotAttackAlone', 'requiresOtherPlay', 'breakAfterTurns']);
+  'costReduce', 'cannotAttack', 'cannotAttackAlone', 'requiresOtherPlay', 'breakAfterTurns']);
 const NOOP_VERBS = new Set<string>([]); // costReduce is now a real cost-aura (effCost)
 const TARGETS = new Set(['self', 'allAllies', 'allEnemies', 'allUnits', 'randomAlly', 'randomEnemy',
   'ownHero', 'enemyHero', 'strongestEnemy', 'weakestEnemy', 'target',

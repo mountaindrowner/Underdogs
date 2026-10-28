@@ -15,9 +15,16 @@
       "keywords": [
         "guard"
       ],
-      "text": "Guard.",
+      "text": "Guard. Can't attack \u2014 he only taunts.",
       "flavor": "Nine feet of contempt. Nobody volunteered. Then a boy did. \u2014 1 Samuel 17.",
-      "art": "A towering armored Philistine champion with a massive spear, sneering down from the height, cold bronze and shadow."
+      "art": "A towering armored Philistine champion with a massive spear, sneering down from the height, cold bronze and shadow.",
+      "effects": {
+        "passive": [
+          {
+            "verb": "cannotAttack"
+          }
+        ]
+      }
     },
     {
       "id": "egyptian_taskmaster",
@@ -227,7 +234,7 @@
       "health": 9,
       "rarity": "adversary",
       "boss": true,
-      "text": "Arrival: bow or burn \u2014 deal 3 to all enemy units without Guard.",
+      "text": "Can't attack \u2014 the king decrees; others fight. Arrival: bow or burn \u2014 deal 3 to all enemy units without Guard.",
       "flavor": "Built a golden statue and a furnace to match. Three men declined. \u2014 Daniel 3.",
       "art": "A colossal golden statue with a king enthroned before it, furnace-glow, cold pride.",
       "effects": {
@@ -236,6 +243,11 @@
             "verb": "deal",
             "amount": 3,
             "target": "allEnemiesWithoutGuard"
+          }
+        ],
+        "passive": [
+          {
+            "verb": "cannotAttack"
           }
         ]
       }

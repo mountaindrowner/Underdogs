@@ -385,7 +385,8 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
   const you = engine.players[0];
   const foe = engine.players[1];
-  const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0).map((u) => u.uid));
+  const readyUids = new Set(you.board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0
+    && !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttack')).map((u) => u.uid));
   const hpAim = aimFor(engine, you.heroPower?.effects);
   // can this hand card be played right now? (a targeted spell needs something to aim at)
   const castable = (c: CardDef) => effCost(engine, 0, c) <= you.provision

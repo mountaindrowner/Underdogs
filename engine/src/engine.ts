@@ -378,6 +378,8 @@ function attack(state: GameState, sink: EventSink, rng: Rng, attackerUid: number
   const foe = other(p);
   const attacker = state.players[p].board.find((u) => u.uid === attackerUid);
   if (!attacker || !attacker.ready || attacker.attacksThisTurn >= 1 || effAttack(attacker) <= 0) return;
+  // a champion who only taunts (Goliath) or a king who never takes the field himself
+  if ((attacker.effects.passive ?? []).some((op) => op.verb === 'cannotAttack')) return;
   // Barak: can't attack while it's your only unit
   if (state.players[p].board.length <= 1 &&
       (attacker.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone')) return;

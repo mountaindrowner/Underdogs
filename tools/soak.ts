@@ -81,7 +81,7 @@ interface Cfg { name: string; deck0: string[]; deck1: string[]; lead0?: string; 
   start?: [string[], string[]]; hp?: [number, number]; ai1: 0 | 1 | 2 | 3 }
 const cfgs: Cfg[] = [];
 for (const e of load('campaign.json').encounters.filter((x: { id?: string }) => x?.id && !x.id.startsWith('_'))) {
-  for (const ai1 of [0, 2] as const) cfgs.push({ name: `story:${e.id}@${ai1}`, deck0: padDeck(e.playerDeck), deck1: padDeck(e.enemyDeck),
+  for (const ai1 of [e.aiLevel ?? 3, 0] as const) cfgs.push({ name: `story:${e.id}@${ai1}`, deck0: padDeck(e.playerDeck), deck1: padDeck(e.enemyDeck),
     lead0: e.playerLeader ?? undefined, lead1: e.enemyLeader ?? undefined, start: [[], e.enemyBoard ?? []],
     hp: [e.playerHp ?? 30, e.enemyHp ?? 30], ai1 });
 }

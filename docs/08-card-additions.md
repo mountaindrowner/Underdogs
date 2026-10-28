@@ -148,7 +148,7 @@ Already defined (in `04`): Goliath of Gath, Egyptian Taskmaster, Philistine Sold
 **New Adversary units**
 - **Pharaoh, the Hardened** — 7 · 6/8 · Boss · Arrival: your enemy's units can't attack next turn (his heart hardens). 🎨 An enthroned king of Egypt, arms crossed, cold gold, a river of shadow behind.
 - **Haman the Agagite** — 5 · 5/4 · Boss · Legacy: the gallows he built fall on the strongest enemy unit. 🎨 A sneering vizier beside an enormous empty gallows, torchlight, dread irony.
-- **Nebuchadnezzar** — 8 · 7/9 · Boss · Arrival: bow or burn — deal 3 to all enemy units that don't have Guard. 🎨 A colossal golden statue with a king enthroned before it, furnace-glow.
+- **Nebuchadnezzar** — 8 · 7/9 · Boss · Can't attack (the king decrees; others fight). Arrival: bow or burn — deal 3 to all enemy units that don't have Guard. *(Can't attack added in D-53.)* 🎨 A colossal golden statue with a king enthroned before it, furnace-glow.
 - **Herod** — 6 · 5/6 · Boss · Arrival: destroy the enemy's cheapest unit. 🎨 A paranoid king on a too-large throne, soldiers in shadow, cold marble.
 - **Sennacherib's Host** — 5 · 5/5 · Arrival: summon two 2/2 Assyrian Soldiers. 🎨 A vast siege camp bristling with spears outside a walled city at dusk.
 - **Delilah** — 3 · 2/3 · Arrival: an enemy unit loses its keywords and gets −2 attack. 🎨 An elegant figure with shears, a sleeping strongman's silhouette, candlelit betrayal.

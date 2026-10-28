@@ -9,6 +9,8 @@ export interface Encounter {
   playerLeader?: string | null; enemyLeader?: string | null;
   playerHp?: number; enemyHp?: number;
   enemyBoard?: string[]; playerDeck: string[]; enemyDeck: string[];
+  /** rival AI for this chapter (default Sage — the Story is tuned against it, D-53) */
+  aiLevel?: 0 | 1 | 2 | 3;
 }
 
 export interface MatchConfig {
@@ -41,6 +43,7 @@ export function toMatchConfig(e: Encounter): MatchConfig {
     enemyLeader: e.enemyLeader ?? undefined,
     startUnits: [[], e.enemyBoard ?? []],
     heroHp: [e.playerHp ?? 30, e.enemyHp ?? 30],
+    difficulty: e.aiLevel ?? 3,
   };
 }
 

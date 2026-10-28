@@ -678,3 +678,14 @@ test('Fulfill events name their owner (the "Fulfill a Legendary" Daily Bread que
   const f = r.events.find((e) => e.t === 'fulfill');
   assert.ok(f && f.t === 'fulfill' && f.owner === 0, 'Simon → Peter, owned by P0');
 });
+
+test("Goliath can't attack — he only taunts (and the AI never tries)", () => {
+  const { state } = createGame({ seed: 5, decks: [[card('watchman')], [card('watchman')]] as [CardDef[], CardDef[]],
+    skipMulligan: true, startUnits: [['firstborn_heir'], ['goliath_of_gath']] });
+  const s = act(state, { type: 'END_TURN' });                   // the rival's turn: Goliath is ready
+  const g = s.players[1].board[0];
+  const r = applyAction(s, { type: 'ATTACK', attackerUid: g.uid, targetUid: 'hero' });
+  assert.equal(r.events.length, 0, 'the swing is refused');
+  assert.equal(r.state.players[0].heroHp, s.players[0].heroHp);
+  assert.ok(hasKeyword(g, 'guard'), 'still a Guard wall');
+});

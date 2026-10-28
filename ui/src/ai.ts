@@ -33,6 +33,18 @@ function evaluate(s: GameState, me: PlayerId): number {
   return v;
 }
 
+/** Can this unit swing right now? Never offer an attack the engine will refuse
+ *  as a no-op — the greedy loop would re-pick it forever and stall. The gates:
+ *  Goliath / Nebuchadnezzar (never attack), Barak (not alone), the
+ *  Eleventh-Hour Laborer (needs another play this turn). */
+function canSwing(s: GameState, me: PlayerId, u: UnitInstance): boolean {
+  const pl = s.players[me];
+  const has = (verb: string) => (u.effects.passive ?? []).some((op) => op.verb === verb);
+  return u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0 && !has('cannotAttack')
+    && (pl.board.length > 1 || !has('cannotAttackAlone'))
+    && ((pl.cardsPlayedThisTurn ?? 0) >= 1 || !has('requiresOtherPlay'));
+}
+
 function legalActions(s: GameState, me: PlayerId): Action[] {
   const pl = s.players[me];
   const foe = (me ^ 1) as PlayerId;
@@ -63,18 +75,10 @@ function legalActions(s: GameState, me: PlayerId): Action[] {
     }
   }
 
-  // attacks (respect Guard). Never offer a swing the engine will refuse as a
-  // no-op — the greedy loop would re-pick it forever and stall. Two such gates:
-  // Barak (can't attack alone) and the Eleventh-Hour Laborer (needs another play).
-  const passiveHas = (u: (typeof pl.board)[number], verb: string) =>
-    (u.effects.passive ?? []).some((op) => op.verb === verb);
-  const played = pl.cardsPlayedThisTurn ?? 0;
-  const canSwing = (u: (typeof pl.board)[number]) =>
-    (pl.board.length > 1 || !passiveHas(u, 'cannotAttackAlone'))
-    && (played >= 1 || !passiveHas(u, 'requiresOtherPlay'));
+  // attacks (respect Guard; only units that can really swing — see canSwing)
   const guards = enemies.filter((u) => hasKeyword(u, 'guard'));
   for (const u of pl.board) {
-    if (!u.ready || u.attacksThisTurn >= 1 || effAttack(u) <= 0 || !canSwing(u)) continue;
+    if (!canSwing(s, me, u)) continue;
     if (guards.length) {
       for (const g of guards) acts.push({ type: 'ATTACK', attackerUid: u.uid, targetUid: g.uid });
     } else {
@@ -120,13 +124,7 @@ export function pickAction(state: GameState, level: AiLevel = 2): Action {
   const foePl = state.players[(me ^ 1) as PlayerId];
   const faceOpen = !foePl.board.some((u) => hasKeyword(u, 'guard'));
   if (faceOpen) {
-    const board = state.players[me].board;
-    const playedT = state.players[me].cardsPlayedThisTurn ?? 0;
-    const noNoop = (u: (typeof board)[number]) =>
-      (board.length > 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'cannotAttackAlone'))
-      && (playedT >= 1 || !(u.effects.passive ?? []).some((op) => op.verb === 'requiresOtherPlay'));
-    const swings = board
-      .filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0 && noNoop(u));
+    const swings = state.players[me].board.filter((u) => canSwing(state, me, u));
     const total = swings.reduce((sum, u) => sum + effAttack(u), 0);
     if (total >= foePl.heroHp && swings.length) {
       return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };
@@ -205,7 +203,7 @@ export function pickActionStrong(state: GameState): Action {
   }
   const foePl = state.players[other(me)];
   if (!foePl.board.some((u) => hasKeyword(u, 'guard'))) {
-    const swings = state.players[me].board.filter((u) => u.ready && u.attacksThisTurn < 1 && effAttack(u) > 0);
+    const swings = state.players[me].board.filter((u) => canSwing(state, me, u));
     if (swings.length && swings.reduce((n, u) => n + effAttack(u), 0) >= foePl.heroHp) {
       return { type: 'ATTACK', attackerUid: swings[0].uid, targetUid: 'hero' };
     }
