@@ -88,6 +88,10 @@ for (const e of load('campaign.json').encounters.filter((x: { id?: string }) => 
 const SANDBOX = ['shepherd_boy', 'watchman', 'firstborn_heir', 'eager_convert', 'benaiah', 'ruth', 'stephen',
   'isaiah', 'shepherd_david', 'faithful_sheepdog', 'gather_the_flock', 'sarah', 'fire_from_heaven'];
 cfgs.push({ name: 'skirmish', deck0: padDeck(SANDBOX), deck1: padDeck(SANDBOX), lead0: 'david_leader', lead1: 'elijah_leader', ai1: 2 });
+// the First Lesson (D-54): each starter war-band against the gentle prologue raiders
+const pro = load('campaign.json').prologue;
+for (const a of Object.keys(LEADER)) cfgs.push({ name: `lesson:${a}`, deck0: buildPreset(a), deck1: padDeck(pro.enemyDeck),
+  lead0: LEADER[a], hp: [pro.playerHp ?? 30, pro.enemyHp ?? 30], ai1: pro.aiLevel ?? 0 });
 CLASSES.forEach((a, i) => CLASSES.forEach((b, j) => cfgs.push({ name: `free:${a}v${b}`, deck0: buildPreset(a), deck1: buildPreset(b),
   lead0: (i + j) % 2 ? ALT_LEADER[a] : LEADER[a], lead1: LEADER[b], ai1: ((i + j) % 4) as 0 | 1 | 2 | 3 })));
 const dealt = new Set<string>();
@@ -150,5 +154,5 @@ if (problems.length) {
   for (const p of problems) console.error('  -', p);
   process.exit(1);
 }
-console.log(`SOAK OK: ${games} games over ${cfgs.length} configs (story, skirmish, free play, full pool), ` +
+console.log(`SOAK OK: ${games} games over ${cfgs.length} configs (story, first lesson, skirmish, free play, full pool), ` +
   `${actions} actions, ${choices} human choices resolved — no crashes, stalls or broken invariants`);

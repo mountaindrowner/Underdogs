@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useMatch } from './useMatch.ts';
 import { artStyle, artUrl, CARD_BACK, registry } from './data.ts';
-import { encounters, toMatchConfig, SANDBOX, completed, markComplete,
+import { encounters, toMatchConfig, SANDBOX, completed, markComplete, firstLesson, firstLessonConfig,
   type Encounter, type MatchConfig } from './campaign.ts';
 import { FreePlaySetup } from './FreePlay.tsx';
 import { DecksScreen } from './Decks.tsx';
@@ -24,6 +24,8 @@ import { haptics } from './haptics.ts';
 import { MusicToggle } from './MusicToggle.tsx';
 import { Title } from './title/Title.tsx';
 import { MainMenu } from './title/MainMenu.tsx';
+import { Intro, introSeen } from './title/Intro.tsx';
+import { PRESETS } from './decks.ts';
 import { ShellBg, chooseScene, type SceneId } from './title/scenes.tsx';
 import { Corners, DropCap, Folio, Glyph, glyphFor, Rubric, Rule } from './codex/Codex.tsx';
 import './styles.css';
@@ -672,7 +674,7 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
         {choice && !over && <ChoiceOverlay choice={choice} onResolve={(a) => { sfx.play('select'); dispatch(a); }} />}
         {over && (
           <div className="overlay" onPointerDown={(e) => e.stopPropagation()}>
-            <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? 'CHAPTER CLEARED' : 'VICTORY') : 'DEFEAT'}</div>
+            <div className={`result ${won ? 'victory' : 'defeat'}`}>{won ? (meta ? (meta.id === 'first_lesson' ? 'LESSON LEARNED' : 'CHAPTER CLEARED') : 'VICTORY') : 'DEFEAT'}</div>
             {payout && (
               <div className="payout">
                 <span className="payTal"><Glyph name="talents" size={20} />+{payout.talents} Talents</span>
@@ -780,6 +782,7 @@ export default function App() {
   useFullscreenHotkey();
   const [scene] = useState<SceneId>(chooseScene); // one scene for the whole session shell
   const [started, setStarted] = useState(false);
+  const [intro, setIntro] = useState(false);       // first run only (D-54)
   const [screen, setScreen] = useState<'menu' | 'story' | 'freeplay' | 'decks' | 'settings' | 'packs'>('menu');
   const [battle, setBattle] = useState<{ cfg: MatchConfig; meta?: Encounter } | null>(null);
   const [trans, setTrans] = useState<{ label: string; sub?: string } | null>(null);
@@ -798,7 +801,8 @@ export default function App() {
   if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('zoo')) return <CardZoo />;
   if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('pack')) return <PackLab />;
   if (typeof location !== 'undefined' && new URLSearchParams(location.search).has('art')) return <ArtGallery />;
-  if (!started) return <Title scene={scene} onBegin={() => setStarted(true)} />;
+  if (intro) return <Intro onDone={() => { setIntro(false); setStarted(true); }} />;
+  if (!started) return <Title scene={scene} onBegin={() => (introSeen() ? setStarted(true) : setIntro(true))} />;
   if (battle) {
     return <>
       <Battle key={battle.cfg.key} cfg={battle.cfg} meta={battle.meta} onExit={() => setBattle(null)} />
@@ -822,5 +826,6 @@ export default function App() {
   }
   return <MainMenu scene={scene} onStory={() => setScreen('story')}
     onFreePlay={() => setScreen('freeplay')} onDecks={() => setScreen('decks')}
-    onSettings={() => setScreen('settings')} onPacks={() => setScreen('packs')} />;
+    onSettings={() => setScreen('settings')} onPacks={() => setScreen('packs')}
+    onFirstLesson={(cls) => { const d = PRESETS.find((x) => x.class === cls); if (d) play(firstLessonConfig(d.cards, d.leader), firstLesson); }} />;
 }

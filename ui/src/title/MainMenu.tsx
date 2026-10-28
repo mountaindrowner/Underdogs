@@ -8,10 +8,10 @@ import { ShellBg, type SceneId } from './scenes.tsx';
 import { MusicToggle } from '../MusicToggle.tsx';
 import './menu.css';
 import { version } from '../../package.json';
-import { CLASSES, CLASS_META } from '../decks.ts';
+import { CallingPage } from './Calling.tsx';
 import { ownsStarter, chooseStarter, claimGift, eco } from '../economy.ts';
 import { completed, encounters } from '../campaign.ts';
-import { Corners, Crest, DropCap, Glyph, Rule } from '../codex/Codex.tsx';
+import { Corners, DropCap, Glyph, Rule } from '../codex/Codex.tsx';
 import type { GlyphName } from '../codex/glyphs.ts';
 import { FullscreenButton } from '../Fullscreen.tsx';
 
@@ -49,8 +49,9 @@ function Hedera() {
   );
 }
 
-export function MainMenu({ scene, onStory, onFreePlay, onDecks, onSettings, onPacks }:
-  { scene: SceneId; onStory: () => void; onFreePlay: () => void; onDecks: () => void; onSettings: () => void; onPacks: () => void }) {
+export function MainMenu({ scene, onStory, onFreePlay, onDecks, onSettings, onPacks, onFirstLesson }:
+  { scene: SceneId; onStory: () => void; onFreePlay: () => void; onDecks: () => void; onSettings: () => void; onPacks: () => void;
+    onFirstLesson?: (cls: string) => void }) {
   const [toast, setToast] = useState('');
   const click = (it: Item) => {
     if (it.act === 'story') onStory();
@@ -108,49 +109,23 @@ export function MainMenu({ scene, onStory, onFreePlay, onDecks, onSettings, onPa
         </section>
       </div>
 
-      <CallingOverlays />
+      <CallingOverlays onLesson={onFirstLesson} />
       {toast && <div className="mmToast">{toast}</div>}
     </div>
   );
 }
 
-/** First-run "choose your calling" + the post-chapter-1 second deck gift. */
-function CallingOverlays() {
-  const [, bump] = useState(0);
-  const panel = (head: string, sub: string, classes: readonly string[], pick: (cls: string) => void) => (
-    <div className="calling">
-      <div className="callingPanel">
-        <Corners />
-        <div className="callingHead"><DropCap letter={head[0]} pigment="#a5301c" size={46} />{head.slice(1)}</div>
-        <div className="callingSub">{sub}</div>
-        <Rule />
-        <div className="callingGrid">
-          {classes.map((cls) => {
-            const m = CLASS_META[cls];
-            return (
-              <button key={cls} className="callingTile" onClick={() => { pick(cls); bump((n) => n + 1); }}>
-                <Crest cls={cls} size={44} />
-                <span className="ctText">
-                  <span className="ctName">{m.name}</span>
-                  <span className="ctBlurb">{m.blurb}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-  if (!ownsStarter()) {
-    return panel('Choose Your Calling',
-      'A free war-band to begin. Every other card, you earn — packs, crafting, Daily Bread. Free forever.',
-      CLASSES, (cls) => chooseStarter(cls));
-  }
+/** First-run Calling (choose the war-band you keep) + the post-chapter-1 gift.
+ *  Which one opens is decided once on mount, so the page stays up through its
+ *  own "yours" moment after the choice is recorded. */
+function CallingOverlays({ onLesson }: { onLesson?: (cls: string) => void }) {
   const ch1 = encounters[0]?.id;
-  if (ch1 && completed().has(ch1) && !eco().gifts.includes('second_deck')) {
-    return panel('A Second Calling',
-      'The first chapter is behind you. Take a second war-band — a gift, not a wage.',
-      CLASSES.filter((c) => c !== eco().starterClass), (cls) => claimGift('second_deck', cls));
-  }
-  return null;
+  const [open, setOpen] = useState<'starter' | 'gift' | null>(() => (!ownsStarter() ? 'starter'
+    : ch1 && completed().has(ch1) && !eco().gifts.includes('second_deck') ? 'gift' : null));
+  if (!open) return null;
+  return (
+    <CallingPage mode={open} exclude={open === 'gift' ? eco().starterClass : null}
+      onChoose={(cls) => (open === 'starter' ? chooseStarter(cls) : claimGift('second_deck', cls))}
+      onLesson={onLesson} onDone={() => setOpen(null)} />
+  );
 }

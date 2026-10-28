@@ -10,7 +10,7 @@
 
 UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 239 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy is real** (docs/21 + D-45): you pick a starter calling, earn Talents by playing, buy packs in the Storehouse (seal-break → fan → rarity-glow flip ritual), shatter dupes into Fragments, craft any card, and the Armory enforces true ownership. **Scroll Study and the iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 71 engine tests pass · card audit clean (239 defs, 3 deferred) · all-modes soak clean (81 configs: story, skirmish, free play, full pool) · `vite build` succeeds.
+**Green across the board:** 71 engine tests pass · card audit clean (239 defs, 3 deferred) · all-modes soak clean (87 configs: story, first lesson, skirmish, free play, full pool) · `vite build` succeeds.
 
 ---
 
@@ -41,7 +41,7 @@ node --test engine/test/*.test.ts
 # 2. Card-data audit  → expect: "all 239 definitions check out (3 deferred)"
 node tools/audit-cards.ts
 
-# 3. AI-vs-AI soak over every mode (~70s)  → expect: "SOAK OK: 81 games over 81 configs … no crashes, stalls or broken invariants"
+# 3. AI-vs-AI soak over every mode (~70s)  → expect: "SOAK OK: 87 games over 87 configs … no crashes, stalls or broken invariants"
 node tools/soak.ts 1
 
 # 3b. Balance sims (optional — measure, don't gate). See docs/08-balance.md.
@@ -149,6 +149,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - **On-ramp:** first menu visit → "Choose Your Calling" (a free starter war-band + 200 Talents); finishing chapter 1 → "A Second Calling" gift deck. First 3 packs are **first fruits** (starter-class + neutral only).
 - **The Storehouse** (Packs menu item): wallet, pack tile (100 🪙, 5 cards, ≥1 Rare), **Daily Bread** (3 daily quests, progress bars, one reroll/day), and the **pack-opening cinematic** (`ui/src/PackRitual.tsx`, D-46) — a ray from heaven, the pack falls and lands with a thud + dust, tap to break the seal, it shudders with light leaking from the cracks, bursts open, and the cards reveal **one by one ranked worst-to-best** (the last flip is always the biggest). Back-glow telegraphs rarity before each flip; rare+ faces carry a **pointer-tilt holographic sheen**; the legendary gets a held-breath tease, a dimmed screen, and a gold pillar; NEW ribbons; dupes shatter into ✦; "Reveal the rest" auto-plays sequentially. Escalating audio: SFX stings per rarity + a small WebAudio synth layer (thud/rumble/riser/burst/shimmer).
 - **The Pack Lab** (`?pack=1`, `ui/src/PackLab.tsx`) — dev-only ritual tester, sibling of `?zoo=1`: fire **simulated** packs on demand (Random / Rare / Epic / Legendary finish / All commons / All dupes — `simulatePack` never touches the save), instant replay, plus a clearly-labeled +1000 🪙 faucet for testing the real Storehouse. **Tune the ritual here without grinding.**
+- **First run (D-54):** title → a three-beat intro (`ui/src/title/Intro.tsx`; plays once, flag `underdogs.intro.seen`, cleared by Reset) → **the Calling** (`ui/src/title/Calling.tsx`: leaders down the side; the chosen war-band's leader, hero power, three showcase cards and three facts) → **"…is yours"** → **Play your first battle** (the **First Lesson**: your starter deck vs a few raiders, Novice AI, 12-health hero; `campaign.json` `prologue`) or **Look around first**. Every launch after the first goes title → menu. The same Calling page serves the post-chapter-i second-deck gift. Showcase picks and the one-line descriptions live in `CALLING` in `Calling.tsx`.
 - **Autopilot** (`?autopilot=1`, any screen) — dev-only: the strong AI plays *your* seat (mulligan, Foresee/Discover, every move) and the animation beats run fast, so whole chapters and Free Play matches run through the real screens, result overlay and payouts included. Used for the full-game walkthrough (D-52).
 - **The Art Gallery** (`?art=1`, `ui/src/ArtGallery.tsx`) — dev-only: every painting on all 7 surfaces it can appear on (hand/album, board unit, card reader, pack reveal, portrait, chapter picture, chapter banner), drawn with the real markup + stylesheet. `&q=david` filters. **Check here after any art or `artFocus.json` change.**
 - **Pity + dupe protection:** first Legendary within 10 packs, then within every 20; packs prefer unowned cards and never exceed max copies (extras auto-shatter).

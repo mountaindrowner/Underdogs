@@ -47,6 +47,13 @@ export function toMatchConfig(e: Encounter): MatchConfig {
   };
 }
 
+/** The gentle First Lesson: your new starter war-band against a few raiders
+ *  (Novice rival, 12-health hero). Offered once, right after the Calling. */
+export const firstLesson: Encounter = (campaignData as { prologue: Encounter }).prologue;
+export function firstLessonConfig(deck: string[], leader: string): MatchConfig {
+  return { ...toMatchConfig({ ...firstLesson, playerDeck: deck, playerLeader: leader }), key: 'first_lesson' };
+}
+
 // quick sandbox (mirror match) for the "Free Play" menu entry
 export const SANDBOX: MatchConfig = {
   key: 'sandbox',

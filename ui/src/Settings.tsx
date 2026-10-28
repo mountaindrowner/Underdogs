@@ -16,6 +16,7 @@ const BOARD_OPTS = [
 const RESET_KEYS = [
   'underdogs.campaign.done', 'underdogs.decks.custom', 'underdogs.freeplay.sel', 'underdogs.economy.v1',
   'underdogs.board', 'underdogs.haptics', 'underdogs.music.vol', 'underdogs.music.muted',
+  'underdogs.intro.seen',   // a fresh start replays the first-run intro
 ];
 
 export function SettingsScreen({ scene, onBack }: { scene: SceneId; onBack: () => void }) {

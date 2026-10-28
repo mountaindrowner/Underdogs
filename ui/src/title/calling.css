@@ -1,0 +1,92 @@
+/* The Calling (D-54): a full-page leaf — leaders down the left, the chosen
+   war-band on the right (leader, hero power, three cards, three facts). */
+.cpPage{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:14px;
+  background:radial-gradient(ellipse at center,rgba(20,12,6,.55),rgba(10,6,3,.88));animation:cpIn .45s ease-out both}
+@keyframes cpIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.cpLeaf{position:relative;width:min(1240px,100%);height:min(690px,100%);display:grid;
+  grid-template-columns:250px 1fr;grid-template-rows:auto 1fr;gap:14px 26px;padding:24px 30px 22px;
+  background:var(--vellum);border:1px solid var(--vellum-edge);
+  box-shadow:inset 0 0 90px rgba(120,80,30,.35),0 0 0 6px #2b1d10,0 0 0 7px var(--gold-dk),0 24px 60px rgba(0,0,0,.6);overflow:hidden}
+.cpHead{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;align-items:start;gap:4px 20px}
+.cpTitle{font:400 32px/1.1 var(--f-display);color:var(--ink);display:flex;align-items:center;gap:2px}
+.cpSub{grid-column:1;font:italic 17px var(--f-body);color:var(--ink-2)}
+.cpFree{grid-column:2;grid-row:1/span 2;align-self:center;font:15px var(--f-display);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--verdigris);border:1px solid var(--verdigris);padding:6px 12px;white-space:nowrap}
+.cpLeaders{display:flex;flex-direction:column;gap:6px;min-height:0;overflow:auto}
+.cpLd{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:6px 8px;border:1px solid transparent;position:relative}
+.cpLd:hover{background:rgba(255,248,230,.45)}
+.cpLd:focus-visible{outline:2px solid var(--gold-dk);outline-offset:1px}
+.cpLd.on{background:var(--vellum-lt);border-color:var(--gold-dk);box-shadow:0 2px 0 var(--vellum-edge)}
+.cpPt{position:relative;width:52px;height:52px;flex:none;border-radius:50%;border:2px solid var(--gold-dk);background:#3a2a18}
+.cpLd.on .cpPt{border:3px solid var(--rubric)}
+.cpLdText{display:flex;flex-direction:column;min-width:0}
+.cpLdText b{font:400 17px/1.1 var(--f-display);color:var(--ink)}
+.cpLdText i{font:italic 13.5px var(--f-body);color:var(--ink-3)}
+.cpStart{align-self:flex-start;margin-top:3px;font:11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--vellum-lt);background:var(--verdigris);padding:2px 7px;white-space:nowrap}
+.cpDetail{display:grid;grid-template-columns:220px 1fr;gap:26px;min-height:0;animation:cpIn .3s ease-out both}
+.cpHero{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.cpBigPt{position:relative;width:200px;height:240px;border:3px solid var(--gold-md);box-shadow:0 0 0 2px var(--ink),0 12px 26px rgba(60,30,10,.35);background:#3a2a18}
+.cpName{display:flex;align-items:center;gap:7px;font:400 26px/1.1 var(--f-display);color:var(--ink);text-align:center;margin-top:4px}
+.cpLed{font:italic 15px var(--f-body);color:var(--ink-2);margin-top:-4px}
+.cpPower{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;background:var(--vellum-lt);border:1px solid var(--vellum-edge)}
+.cpPower b{display:block;font:400 14px var(--f-display);color:var(--ink)}
+.cpPower span span{font:14px var(--f-body);color:var(--ink-2)}
+.cpGem{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:17px var(--f-num);color:var(--gold-lt);
+  background:radial-gradient(circle at 35% 30%,#6f8fd6,var(--lapis) 70%);border:2px solid var(--gold-md)}
+.cpRight{display:flex;flex-direction:column;gap:14px;min-width:0;min-height:0}
+.cpFacts{display:flex;flex-wrap:wrap;gap:10px 28px}
+.cpFact{display:flex;flex-direction:column}
+.cpFact.wide{flex-basis:100%}
+.cpFact span{font:12.5px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.cpFact b{font:400 19px var(--f-display);color:var(--ink);display:flex;align-items:center;gap:8px}
+.cpPips{display:inline-flex;gap:5px}
+.cpPips em{width:11px;height:11px;transform:rotate(45deg);border:1.5px solid var(--rubric)}
+.cpPips em.f{background:var(--rubric)}
+.cpShow{display:flex;gap:18px;flex:1;min-height:0}
+.cpCard{display:flex;flex-direction:column;gap:8px;width:168px}
+.cpCard>span{font:italic 14.5px/1.25 var(--f-body);color:var(--ink-2)}
+.cpFace.handcard{position:relative;width:168px;height:224px;margin:0;transform:none;filter:none;cursor:default}
+.cpRar{position:absolute;right:6px;top:6px;z-index:3;font:10.5px var(--f-display);letter-spacing:.1em;text-transform:uppercase;
+  background:rgba(20,12,4,.75);color:var(--gold-lt);padding:2px 6px}
+.cpCta{display:flex;align-items:center;gap:18px;margin-top:auto}
+.cpTal,.cpChips span{display:inline-flex;align-items:center;gap:6px;font:15px var(--f-display);color:var(--gold-dk)}
+
+/* ---- "it's yours" ---- */
+.cpBound{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;
+  background:radial-gradient(ellipse at center,#2a1a0c,#0a0603 75%);color:#f4e6c2;text-align:center;animation:cpIn .5s ease-out both}
+.cpFan{position:relative;width:min(560px,90vw);height:260px;margin-bottom:6px}
+.cpFanCard{position:absolute;left:50%;top:10px;transform-origin:50% 150%;
+  transform:translateX(-50%) rotate(calc(var(--i) * 10deg)) translateY(calc(var(--a) * 7px));
+  animation:cpDeal .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc((var(--i) + 3) * 70ms)}
+@keyframes cpDeal{from{opacity:0;transform:translateX(-50%) translateY(80px) rotate(0)}}
+.cpFanCard .cpFace.handcard{width:140px;height:187px;box-shadow:0 14px 26px rgba(0,0,0,.55)}
+.cpBoundHead{margin:0;font:400 clamp(30px,4.4vw,46px)/1.1 var(--f-display);letter-spacing:.03em}
+.cpBoundSub{margin:0;font:italic 19px var(--f-body);color:#d9c48f}
+.cpChips{display:flex;gap:26px;margin-top:12px;font:15px var(--f-display);letter-spacing:.12em;text-transform:uppercase}
+.cpChips span{color:#efdcae}
+.cpBtns{display:flex;gap:14px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+.cpBound .bigbtn.quiet{color:#efdcae;border-color:var(--gold-md);background:transparent}
+
+@media (prefers-reduced-motion:reduce){.cpPage,.cpDetail,.cpBound,.cpFanCard{animation:none}}
+
+/* ---- phone landscape: leaders become a top rail, the hero portrait drops ---- */
+@media (max-height:620px){
+  .cpPage{padding:8px}
+  .cpLeaf{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;gap:6px;padding:10px 16px 10px;overflow:auto}
+  .cpTitle{font-size:22px}.cpSub{display:none}.cpFree{font-size:11px;padding:4px 8px}
+  .cpLeaders{flex-direction:row;overflow-x:auto;gap:4px}
+  .cpLd{padding:3px 6px;gap:6px}.cpPt{width:34px;height:34px}
+  .cpLdText b{font-size:13px;white-space:nowrap}.cpLdText i{display:none}.cpStart{display:none}
+  .cpDetail{grid-template-columns:150px 1fr;gap:14px}
+  .cpBigPt{width:110px;height:110px;border-radius:50%}
+  .cpName{font-size:17px}.cpLed{font-size:12.5px}
+  .cpPower{padding:4px 6px;gap:6px}.cpGem{width:26px;height:26px;font-size:13px}
+  .cpPower b{font-size:11.5px}.cpPower span span{font-size:11.5px}
+  .cpFacts{gap:2px 16px}.cpFact span{font-size:10px}.cpFact b{font-size:14px}
+  .cpRight{gap:6px}.cpShow{gap:10px;flex:none}.cpCard{width:86px;gap:3px}.cpCard>span{font-size:11px;line-height:1.2}
+  .cpFace.handcard{width:86px;height:112px}.cpRar{font-size:8px;padding:1px 4px}
+  .cpCta{gap:10px;margin-top:6px}.cpCta .bigbtn{padding:6px 14px;font-size:14px}
+  .cpFan{height:150px}.cpFanCard .cpFace.handcard{width:84px;height:112px}
+  .cpChips{gap:14px;font-size:12px;margin-top:4px}.cpBtns{margin-top:10px}
+}

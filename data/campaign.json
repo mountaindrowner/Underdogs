@@ -1,5 +1,19 @@
 {
   "_note": "First combat campaign — scripted encounters vs Adversary decks. Deck lists are padded/cycled to 30 by the loader; unknown ids are dropped. enemyBoard units are pre-placed (summoning-sick turn 1).",
+  "prologue": {
+    "id": "first_lesson",
+    "title": "First Lesson",
+    "subtitle": "Raiders at the edge of the camp",
+    "art": "tok_assyrian_soldier",
+    "narrative": "Before any giant, a handful of raiders. Every story in this book starts somewhere small.",
+    "tip": "Drag a card onto your side of the board to play it. Drag a ready unit onto an enemy, or onto their hero, to attack. Press End Turn when you're done. Bring their hero to 0.",
+    "playerHp": 30,
+    "enemyHp": 12,
+    "aiLevel": 0,
+    "enemyBoard": [],
+    "playerDeck": [],
+    "enemyDeck": ["tok_assyrian_soldier", "tok_locust", "tok_locust"]
+  },
   "encounters": [
     {
       "id": "elah",
