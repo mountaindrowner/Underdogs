@@ -15,6 +15,8 @@ import { haptics } from './haptics.ts';
 import type { MatchConfig } from './campaign.ts';
 
 const deck = (ids: string[]) => buildDeck(registry, ids);
+/** DEV: ?autopilot=1 plays the human seat with the strong AI and runs the beats fast. */
+const AUTOPILOT = typeof location !== 'undefined' && new URLSearchParams(location.search).has('autopilot');
 const leaderDef = (id?: string) => (id ? registry.get(id) : undefined);
 
 export function useMatch(cfg: MatchConfig) {
@@ -78,7 +80,7 @@ export function useMatch(cfg: MatchConfig) {
         if (truth.current) { const t = truth.current; setView((v) => reconcile(v, t)); }
         setBusy(false);
       }
-    }, 300);
+    }, AUTOPILOT ? 40 : 300);
     return () => clearInterval(id);
   }, [busy]);
 
@@ -104,10 +106,23 @@ export function useMatch(cfg: MatchConfig) {
     }
     if (engine.phase === 'main' && engine.active === 1) {
       const t = setTimeout(() => dispatch(
-        cfg.difficulty === 3 ? pickActionStrong(engine) : pickAction(engine, (cfg.difficulty ?? 2) as 0 | 1 | 2)), 420);
+        cfg.difficulty === 3 ? pickActionStrong(engine) : pickAction(engine, (cfg.difficulty ?? 2) as 0 | 1 | 2)), AUTOPILOT ? 60 : 420);
       return () => clearTimeout(t);
     }
   }, [engine, busy, dispatch, cfg.difficulty]);
+
+  // DEV ?autopilot=1 — the strong AI plays YOUR seat too (mulligan, choices,
+  // moves), so whole chapters run through the real screens for end-to-end checks
+  useEffect(() => {
+    if (!AUTOPILOT || !engine || busy || engine.phase === 'over' || engine.active !== 0) return;
+    const pc = engine.pending;
+    const a: Action | null = engine.phase === 'mulligan' ? { type: 'MULLIGAN', keep: engine.players[0].hand.map((_, i) => i) }
+      : pc ? { type: 'RESOLVE_CHOICE', keep: [], picked: Array.from({ length: pc.pick }, (_, i) => i) }
+      : engine.phase === 'main' ? pickActionStrong(engine) : null;
+    if (!a) return;
+    const t = setTimeout(() => dispatch(a), 60);
+    return () => clearTimeout(t);
+  }, [engine, busy, dispatch]);
 
   // a Foresee/Discover awaiting the human (only surface it once animations catch up)
   const choice = engine?.pending && !busy ? engine.pending : null;

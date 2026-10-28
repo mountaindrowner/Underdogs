@@ -863,7 +863,7 @@ function transformUnit(state: GameState, sink: EventSink, u: UnitInstance, intoD
   u.survivedStronger = false; u.survivedDamagedTurn = false;
   u.tempAtk = 0; u.covenantTicks = 0; u.enteredTurn = state.turn; u.pending = undefined;
   // keeps uid, owner, board position, ready state (no re-summoning-sickness)
-  sink.emit({ t: 'fulfill', uid: u.uid, fromDef: from, intoDef: def.id });
+  sink.emit({ t: 'fulfill', uid: u.uid, owner: u.owner, fromDef: from, intoDef: def.id });
   recomputeAuras(state, sink);
 }
 

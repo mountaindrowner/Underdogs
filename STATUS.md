@@ -10,7 +10,7 @@
 
 UNDERDOGS is a **playable single-player Scripture TCG**. You can boot it, pick a war-band, forge a deck, and play a full match against a heuristic AI to a win/loss, on desktop or mobile-landscape. The **rules engine is real, deterministic, tested, and data-driven**: 239 card definitions all execute what their text says (verified by an audit), including interactive **Foresee** and **Discover**. The **campaign has 4 combat chapters**. The **economy is real** (docs/21 + D-45): you pick a starter calling, earn Talents by playing, buy packs in the Storehouse (seal-break → fan → rarity-glow flip ritual), shatter dupes into Fragments, craft any card, and the Armory enforces true ownership. **Scroll Study and the iOS wrapper are NOT built yet.** No backend, no network, everything on-device — by design.
 
-**Green across the board:** 69 engine tests pass · card audit clean (239 defs, 3 deferred) · all-modes soak clean (81 configs: story, skirmish, free play, full pool) · `vite build` succeeds.
+**Green across the board:** 70 engine tests pass · card audit clean (239 defs, 3 deferred) · all-modes soak clean (81 configs: story, skirmish, free play, full pool) · `vite build` succeeds.
 
 ---
 
@@ -35,7 +35,7 @@ Rule of thumb: **if a fact in a doc is now false, fixing it is part of the chang
 Run these from the repo root. If any fails or the counts differ, **something regressed or this doc is stale — reconcile before building.**
 
 ```bash
-# 1. Engine unit + effect tests  → expect: # pass 69, # fail 0
+# 1. Engine unit + effect tests  → expect: # pass 70, # fail 0
 node --test engine/test/*.test.ts
 
 # 2. Card-data audit  → expect: "all 239 definitions check out (3 deferred)"
@@ -149,6 +149,7 @@ The `CLAUDE.md` §8 "repo shape to grow into" lists `/campaign` and `/ai` as top
 - **On-ramp:** first menu visit → "Choose Your Calling" (a free starter war-band + 200 Talents); finishing chapter 1 → "A Second Calling" gift deck. First 3 packs are **first fruits** (starter-class + neutral only).
 - **The Storehouse** (Packs menu item): wallet, pack tile (100 🪙, 5 cards, ≥1 Rare), **Daily Bread** (3 daily quests, progress bars, one reroll/day), and the **pack-opening cinematic** (`ui/src/PackRitual.tsx`, D-46) — a ray from heaven, the pack falls and lands with a thud + dust, tap to break the seal, it shudders with light leaking from the cracks, bursts open, and the cards reveal **one by one ranked worst-to-best** (the last flip is always the biggest). Back-glow telegraphs rarity before each flip; rare+ faces carry a **pointer-tilt holographic sheen**; the legendary gets a held-breath tease, a dimmed screen, and a gold pillar; NEW ribbons; dupes shatter into ✦; "Reveal the rest" auto-plays sequentially. Escalating audio: SFX stings per rarity + a small WebAudio synth layer (thud/rumble/riser/burst/shimmer).
 - **The Pack Lab** (`?pack=1`, `ui/src/PackLab.tsx`) — dev-only ritual tester, sibling of `?zoo=1`: fire **simulated** packs on demand (Random / Rare / Epic / Legendary finish / All commons / All dupes — `simulatePack` never touches the save), instant replay, plus a clearly-labeled +1000 🪙 faucet for testing the real Storehouse. **Tune the ritual here without grinding.**
+- **Autopilot** (`?autopilot=1`, any screen) — dev-only: the strong AI plays *your* seat (mulligan, Foresee/Discover, every move) and the animation beats run fast, so whole chapters and Free Play matches run through the real screens, result overlay and payouts included. Used for the full-game walkthrough (D-52).
 - **The Art Gallery** (`?art=1`, `ui/src/ArtGallery.tsx`) — dev-only: every painting on all 7 surfaces it can appear on (hand/album, board unit, card reader, pack reveal, portrait, chapter picture, chapter banner), drawn with the real markup + stylesheet. `&q=david` filters. **Check here after any art or `artFocus.json` change.**
 - **Pity + dupe protection:** first Legendary within 10 packs, then within every 20; packs prefer unowned cards and never exceed max copies (extras auto-shatter).
 - **Crafting:** any card craftable/disenchantable from its Armory peek (C 40/R 100/E 400/L 1600; shatter ≈ ¼).

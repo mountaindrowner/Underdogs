@@ -669,3 +669,12 @@ test('A targeted minion with nothing to aim at is still played (Andrew on an emp
   s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
   assert.equal(s.players[0].board[0]?.defId, 'andrew_the_first');
 });
+
+test('Fulfill events name their owner (the "Fulfill a Legendary" Daily Bread quest counts them)', () => {
+  let s = rig(['simon_the_fisherman'], ['tok_sheep']);
+  s = act(s, { type: 'PLAY_CARD', handIndex: 0 });
+  s = structuredClone(s); s.players[0].board[0].ready = true;
+  const r = applyAction(s, { type: 'ATTACK', attackerUid: s.players[0].board[0].uid, targetUid: s.players[1].board[0].uid });
+  const f = r.events.find((e) => e.t === 'fulfill');
+  assert.ok(f && f.t === 'fulfill' && f.owner === 0, 'Simon → Peter, owned by P0');
+});

@@ -33,7 +33,7 @@ export type GameEvent =
   | { t: 'legacy'; uid: number; defId: string }                 // deathrattle firing
   | { t: 'redeem'; uid: number; defId: string }                 // Shepherd re-form
   | { t: 'scatter'; uid: number; defId: string }                // Disciple spray
-  | { t: 'fulfill'; uid: number; fromDef: string; intoDef: string } // gold burst + morph
+  | { t: 'fulfill'; uid: number; owner: PlayerId; fromDef: string; intoDef: string } // gold burst + morph
   | { t: 'heroPower'; player: PlayerId; name: string }
   | { t: 'foresee'; player: PlayerId; count: number }
   | { t: 'discover'; player: PlayerId; count: number }
