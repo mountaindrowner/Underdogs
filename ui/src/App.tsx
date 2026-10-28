@@ -278,7 +278,7 @@ const BOARD_LABEL: Record<BoardStyle, string> = { relief: 'Carved Stone', timber
 
 // ---- battle ----------------------------------------------------------------
 function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onExit: () => void }) {
-  const { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, newGame } = useMatch(cfg);
+  const { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, matchId, newGame } = useMatch(cfg);
   const [act, setAct] = useState<Act | null>(null);
   const [hover, setHover] = useState<CardDef | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set([0, 1, 2, 3]));
@@ -373,13 +373,14 @@ function Battle({ cfg, meta, onExit }: { cfg: MatchConfig; meta?: Encounter; onE
   // MUST live above the !engine early-return (hooks before any conditional return).
   const [payout, setPayout] = useState<MatchPayout | null>(null);
   const paidKey = useRef<string | null>(null);
+  useEffect(() => { setPayout(null); }, [matchId]);         // a Retry / Play Again is a new match
   useEffect(() => {
-    if (!engine || engine.phase !== 'over' || paidKey.current === cfg.key) return;
-    paidKey.current = cfg.key;
+    if (!engine || engine.phase !== 'over' || paidKey.current === matchId) return;
+    paidKey.current = matchId;
     setPayout(applyMatch({
       won: engine.winner === 0, finalHp: engine.players[0].heroHp, ...stats.current,
     }));
-  }, [engine, cfg.key, stats]);
+  }, [engine, matchId, stats]);
 
   if (!engine) return <div className="app"><div className="brand">UNDERDOGS</div></div>;
   const you = engine.players[0];

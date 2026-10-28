@@ -22,6 +22,7 @@ const leaderDef = (id?: string) => (id ? registry.get(id) : undefined);
 export function useMatch(cfg: MatchConfig) {
   const [seed, setSeed] = useState(1);
   const [engine, setEngine] = useState<GameState | null>(null);
+  const [matchId, setMatchId] = useState('');   // set together with each new engine
   const hp0 = cfg.heroHp?.[0] ?? 30;
   const hp1 = cfg.heroHp?.[1] ?? 30;
   const [view, setView] = useState<View>(() => initialView(hp0, hp1));
@@ -62,6 +63,7 @@ export function useMatch(cfg: MatchConfig) {
     setView(initialView(hp0, hp1));
     truth.current = g.state;
     setEngine(g.state);
+    setMatchId(`${cfg.key}:${seed}`);
     setBusy(feed.current.length > 0);
   }, [seed, cfg.key]);
 
@@ -129,5 +131,6 @@ export function useMatch(cfg: MatchConfig) {
   const canAct = !!engine && !busy && !engine.pending && engine.phase === 'main' && engine.active === 0;
   const inMulligan = !!engine && engine.phase === 'mulligan' && engine.active === 0;
 
-  return { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, newGame: () => setSeed((s) => s + 1) };
+  // matchId: one per played match (Retry / Play Again start a new one) — keys the payout
+  return { engine, view, busy, canAct, inMulligan, choice, dispatch, stats, matchId, newGame: () => setSeed((s) => s + 1) };
 }
